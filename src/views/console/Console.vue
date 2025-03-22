@@ -27,7 +27,7 @@ const scrollToBottom = async () => {
     if (consoleContainer.value) {
         consoleContainer.value.scrollTo({
             top: consoleContainer.value.scrollHeight,
-            behavior: 'smooth' // 添加平滑滚动效果
+            behavior: 'auto' // 添加平滑滚动效果
         })
     }
 }
@@ -218,11 +218,6 @@ onUnmounted(() => {
     background-color: rgba(255, 255, 255, 0.05);
 }
 
-.log-line-content {
-    flex: 1;
-    display: flex;
-}
-
 .log-index {
     min-width: 40px;
     color: #666;
@@ -239,11 +234,13 @@ onUnmounted(() => {
 .log-level {
     min-width: 60px;
     margin-right: 16px;
+    display: inline-block;
 }
 
 .log-tag {
     min-width: 100px;
     margin-right: 16px;
+    display: inline-block;
     color: #67c23a;
 }
 

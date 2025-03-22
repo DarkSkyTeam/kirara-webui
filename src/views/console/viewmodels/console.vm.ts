@@ -30,7 +30,9 @@ export function useConsoleViewModel() {
             return logs.value
         }
         return logs.value.filter(log =>
-            log.content.toLowerCase().includes(filterText.value.toLowerCase())
+            log.content.toLowerCase().includes(filterText.value.toLowerCase()) ||
+            log.tag.toLowerCase().includes(filterText.value.toLowerCase()) ||
+            log.level.toLowerCase().includes(filterText.value.toLowerCase())
         )
     })
 
