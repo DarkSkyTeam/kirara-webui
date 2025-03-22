@@ -11,7 +11,8 @@ import {
   BookOutline,
   HomeOutline,
   SettingsOutline,
-  TerminalOutline
+  TerminalOutline,
+  ImageOutline
 } from '@vicons/ionicons5'
 import { NIcon } from 'naive-ui'
 import { useAppStore } from '@/stores/app'
@@ -49,6 +50,11 @@ const menuOptions: MenuOption[] = [
     label: () => '工作流',
     key: 'workflow',
     icon: renderIcon(GitNetworkOutline)
+  },
+  {
+    label: () => '媒体管理',
+    key: 'media',
+    icon: renderIcon(ImageOutline)
   },
   {
     label: () => '插件管理',

@@ -101,6 +101,11 @@ const router = createRouter({
           path: '/settings',
           name: 'settings',
           component: () => import('@/views/settings/BasicSettings.vue')
+        },
+        {
+          path: '/media',
+          name: 'media',
+          component: () => import('@/views/media/MediaList.vue')
         }
       ]
     },

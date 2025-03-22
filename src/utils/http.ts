@@ -41,8 +41,12 @@ class Http {
     }
   }
 
+  getAuthToken(): string | null {
+    return localStorage.getItem('token')
+  }
+
   private getAuthHeader(): HeadersInit {
-    const token = localStorage.getItem('token')
+    const token = this.getAuthToken()
     return token ? { Authorization: `Bearer ${token}` } : {}
   }
 
@@ -68,6 +72,10 @@ class Http {
 
   delete<T>(path: string, config: Omit<RequestInit, 'method'> = {}) {
     return this.request<T>(path, { ...config, method: 'DELETE' })
+  }
+
+  url(path: string) {
+    return `${BASE_URL}${path}`
   }
 }
 
