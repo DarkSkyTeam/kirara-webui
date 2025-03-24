@@ -34,7 +34,7 @@
 
     <!-- 主内容区域 -->
     <n-layout>
-      <n-layout-content class="main-content" :native-scrollbar="false">
+      <n-layout-content class="main-content bg" :native-scrollbar="false">
         <router-view />
       </n-layout-content>
     </n-layout>
@@ -110,5 +110,10 @@ const handleHasSecondarySiderContentUpdate = (hasContent: boolean) => {
 .logo-small {
   height: 32px;
   width: 32px;
+}
+
+.bg {
+  background-image: radial-gradient(color-mix(in oklab, oklch(.13 .028 261.692) 5%, transparent) 1px, transparent 0);
+  background-size: 10px 10px;
 }
 </style>

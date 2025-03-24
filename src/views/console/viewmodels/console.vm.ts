@@ -118,8 +118,14 @@ export function useConsoleViewModel() {
 
             socket.onmessage = (event) => {
                 try {
-                    const data = JSON.parse(event.data) as LogEntry
-                    processLogMessage(data)
+                    const parsedData = JSON.parse(event.data)
+                    if (Array.isArray(parsedData)) {
+                        parsedData.forEach((item) => {
+                            processLogMessage(item)
+                        })
+                    } else {
+                        processLogMessage(parsedData)
+                    }
                 } catch (error) {
                     // 如果不是JSON格式，直接添加为日志
                     logs.value.push(event.data)

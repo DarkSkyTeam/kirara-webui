@@ -161,11 +161,6 @@ a {
 
 /* 侧边栏样式 */
 
-
-
-
-
-
 .n-menu-item-content-header {
   font-weight: 500;
 }
@@ -197,20 +192,6 @@ a {
   }
 }
 
-/* 设置页面样式 */
-.settings-page {
-  padding: 24px;
-  background-color: var(--bg-color);
-}
-
-.settings-container {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  max-width: 800px;
-  margin: 0 auto;
-}
-
 /* 适配器卡片样式 */
 .adapter-card {
   cursor: pointer;
@@ -235,8 +216,5 @@ a {
   .main-content {
     padding: 16px;
   }
-  
-  .settings-container {
-    max-width: 100%;
-  }
+
 }

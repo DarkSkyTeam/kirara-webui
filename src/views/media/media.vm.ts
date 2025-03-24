@@ -256,6 +256,10 @@ export function useMediaViewModel() {
         return date.toLocaleString()
     }
 
+    const selectAll = () => {
+        selectedMediaIds.value = mediaList.value.map((item) => item.id)
+    }
+
     return {
         // 状态
         mediaList,
@@ -283,6 +287,7 @@ export function useMediaViewModel() {
         getPreviewUrl,
         getRawUrl,
         downloadMedia,
+        selectAll,
 
         // 工具函数
         formatFileSize,

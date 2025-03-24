@@ -11,37 +11,37 @@ import TimezoneCard from './components/TimezoneCard.vue'
 
 <template>
   <div class="settings-page">
-      <n-card title="系统设置" class="settings-card">
-        <n-tabs type="line" animated class="settings-tabs">
-          <n-tab-pane name="webservice" tab="Web服务">
-            <n-space vertical :gap="32">
-              <WebServiceCard />
-              <PasswordCard />
-              <FrpServiceCard />
-            </n-space>
-          </n-tab-pane>
+    <n-card title="系统设置" class="settings-card">
+      <n-tabs type="line" animated class="settings-tabs" pane-wrapper-style="margin: 0 -4px"
+        pane-style="padding-left: 4px; padding-right: 4px; box-sizing: border-box;">
+        <n-tab-pane name="webservice" tab="Web服务">
+          <n-space vertical :gap="32">
+            <WebServiceCard />
+            <PasswordCard />
+            <FrpServiceCard />
+          </n-space>
+        </n-tab-pane>
 
-          <n-tab-pane name="system" tab="系统设置">
-            <n-space vertical :gap="32">
-              <TimezoneCard />
-            </n-space>
-          </n-tab-pane>
+        <n-tab-pane name="system" tab="系统设置">
+          <n-space vertical :gap="32">
+            <TimezoneCard />
+          </n-space>
+        </n-tab-pane>
 
-          <n-tab-pane name="update" tab="下载源">
-            <n-space vertical :gap="32">
-              <UpdateRegistryCard />
-              <PluginMarketCard />
-            </n-space>
-          </n-tab-pane>
-        </n-tabs>
-      </n-card>
+        <n-tab-pane name="update" tab="下载源">
+          <n-space vertical :gap="32">
+            <UpdateRegistryCard />
+            <PluginMarketCard />
+          </n-space>
+        </n-tab-pane>
+      </n-tabs>
+    </n-card>
   </div>
 </template>
 
 <style scoped>
 .settings-page {
   padding: 24px;
-  background-color: var(--bg-color);
   min-height: var(--n-window-height);
 }
 

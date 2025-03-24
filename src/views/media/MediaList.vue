@@ -3,6 +3,7 @@
     <n-card title="媒体管理">
       <template #header-extra>
         <n-space>
+          <n-button @click="selectAll">全选本页</n-button>
           <n-button
             type="error"
             :disabled="selectedMediaIds.length === 0"
@@ -65,7 +66,7 @@
                   <div class="media-card-image">
                     <n-image
                       :src="getPreviewUrl(item.id)"
-                      object-fit="fill"
+                      object-fit="contain"
                       preview-disabled
                       @click.stop="handlePreview(item)"
                       style="height: 100%"
@@ -119,7 +120,7 @@
           :item-count="total"
           :page-size="searchParams.page_size"
           :show-size-picker="true"
-          :page-sizes="[10, 20, 30, 40]"
+          :page-sizes="[20, 40, 80, 160]"
           @update:page="handlePageChange"
           @update:page-size="handlePageSizeChange"
           style="display: flex; justify-content: center; margin-top: 16px"
@@ -268,6 +269,7 @@ const {
   getPreviewUrl,
   getRawUrl,
   downloadMedia,
+  selectAll,
 
   // 工具函数
   formatFileSize,
