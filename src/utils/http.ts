@@ -5,6 +5,34 @@ const BASE_URL = '/backend-api/api'
 class Http {
   //   private message = useMessage()
 
+  async fetch(path: string, config: RequestInit): Promise<Response> {
+    try {
+      let actualPath = path
+      let headers: Record<string, any> = {}
+      if (!path.startsWith('http://') && !path.startsWith('https://')) {
+        actualPath = `${BASE_URL}${path}`
+        headers = {
+          'Content-Type': 'application/json',
+          ...headers,
+          ...config.headers,
+          ...this.getAuthHeader(),
+        }
+        config = {
+          ...config,
+          credentials: 'include'
+        }
+      }
+      return await fetch(actualPath, {
+        ...config,
+        headers: headers,
+      })
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '请求失败'
+      //   this.message.error(message)
+      throw error
+    }
+  }
+
   private async request<T>(path: string, config: RequestInit): Promise<T> {
     try {
       let actualPath = path

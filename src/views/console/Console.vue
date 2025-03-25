@@ -172,6 +172,7 @@ onUnmounted(() => {
     height: calc(100vh - 28px);
     display: flex;
     flex-direction: column;
+    animation: fade-in 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .console-header {

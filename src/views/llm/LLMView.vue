@@ -471,7 +471,7 @@ onMounted(() => {
         </n-scrollbar>
       </template>
 
-      <div class="empty-state" v-else>
+      <div class="empty-state bg" v-else>
         <n-space vertical align="center" style="width: 100%;">
           <n-text strong style="font-size: 24px;">海量模型，一网打尽</n-text>
           <n-text style="font-size: 16px;">选择一个模型供应商，然后添加模型，即可开始使用，<a
@@ -542,6 +542,7 @@ onMounted(() => {
   height: calc(100vh - 28px);
   background-color: var(--n-color);
   transition: all 0.2s ease;
+  animation: fade-in 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .sidebar {
@@ -572,6 +573,8 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   background-color: var(--n-color);
+  animation: fade-in 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
 }
 
 .content-header {

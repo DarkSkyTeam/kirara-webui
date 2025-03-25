@@ -111,9 +111,4 @@ const handleHasSecondarySiderContentUpdate = (hasContent: boolean) => {
   height: 32px;
   width: 32px;
 }
-
-.bg {
-  background-image: radial-gradient(color-mix(in oklab, oklch(.13 .028 261.692) 5%, transparent) 1px, transparent 0);
-  background-size: 10px 10px;
-}
 </style>

@@ -4,7 +4,6 @@ import { defineConfig, normalizePath } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import path from 'path'
 import { execSync } from 'child_process'
-import { viteStaticCopy } from 'vite-plugin-static-copy'
 
 // 获取 Git 信息
 function getGitVersion(): string {
@@ -31,7 +30,6 @@ function getGitVersion(): string {
 export default defineConfig({
   plugins: [vue()],
   // Added proxy configuration
-
   server: { 
     proxy: {
       '/backend-api': 'http://127.0.0.1:8080'
@@ -47,9 +45,6 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        entryFileNames: `assets/[name].js`,
-        chunkFileNames: `assets/[name].js`,
-        assetFileNames: `assets/[name].[ext]`,
         manualChunks: {
           'cryptojs': ['crypto-js']
         }

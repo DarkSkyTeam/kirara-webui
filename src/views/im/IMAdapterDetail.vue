@@ -368,6 +368,7 @@ defineExpose({
 .adapter-detail {
     padding: var(--n-padding-md);
     transition: all 0.2s ease;
+    animation: fade-in 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .adapter-header {

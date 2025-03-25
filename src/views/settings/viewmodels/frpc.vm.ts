@@ -149,8 +149,7 @@ export function useFrpcViewModel() {
             const baseUrl = `${window.location.protocol}//${host}/backend-api/api`
             
             // 使用fetch替代EventSource实现SSE
-            const response = await fetch(`${baseUrl}/frpc/download`, {
-                method: 'GET',
+            const response = await http.fetch(`/frpc/download`, {
                 credentials: 'include',
                 headers: {
                     'Accept': 'text/event-stream',

@@ -69,7 +69,8 @@
                       object-fit="contain"
                       preview-disabled
                       @click.stop="handlePreview(item)"
-                      style="height: 100%"
+                      style="height: 100%; background-color: oklch(0.967 0.003 264.542)"
+                      class="bg"
                     >
                       <template #error>
                         <n-icon :size="100" color="lightGrey">
@@ -140,7 +141,7 @@
       <div v-if="previewItem" class="media-preview">
         <n-grid :cols="2" :x-gap="16">
           <n-grid-item>
-            <div class="media-preview-content">
+            <div class="media-preview-content bg">
               <img
                 v-if="previewItem.metadata.content_type.startsWith('image/')"
                 :src="getRawUrl(previewItem.id)"
@@ -298,6 +299,7 @@ const handlePageSizeChange = (pageSize: number) => {
 <style scoped>
 .media-list-container {
   padding: 16px;
+  animation: fade-in 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .media-grid {
@@ -376,6 +378,7 @@ const handlePageSizeChange = (pageSize: number) => {
   height: 400px;
   border-radius: 8px;
   overflow: hidden;
+  background-color: oklch(0.967 0.003 264.542);
 }
 
 .media-preview-content img,
