@@ -4,6 +4,7 @@
   /* 主色调 */
   --primary-color: #4080ff;
   --primary-color-hover: #6699ff;
+  --primary-color-rgb: 64, 128, 255;
   
   /* 文本颜色 */
   --text-color: #333639;
@@ -49,7 +50,7 @@
   /* 主色调 */
   --primary-color: #4080ff;
   --primary-color-hover: #6699ff;
-  
+  --primary-color-rgb: 64, 128, 255;
   /* 文本颜色 */
   --text-color: #e5e7eb;
   --text-color-secondary: #c9cdd4;
@@ -75,7 +76,7 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', sans-serif;
   background-color: var(--bg-color);
   color: var(--text-color);
   transition: background-color var(--transition-duration) var(--transition-timing-function);
@@ -107,7 +108,6 @@ a {
   padding: var(--n-padding-md);
   padding-top: 100px;
   transition: all 0.2s ease;
-
 }
 
 /* 卡片样式 */
@@ -117,11 +117,6 @@ a {
               transform var(--transition-duration) var(--transition-timing-function);
   background-color: var(--card-bg-color);
   border: 1px solid var(--border-color);
-}
-
-.n-card.n-card--hoverable:hover {
-  box-shadow: var(--box-shadow-hover);
-  transform: translateY(-2px);
 }
 
 /* 按钮样式 */
@@ -143,26 +138,65 @@ a {
 /* 输入框样式 */
 .n-input {
   border-radius: var(--border-radius-small);
+  transition: all 0.3s ease;
 }
 
-.n-input:focus-within {
-  box-shadow: 0 0 0 2px rgba(64, 128, 255, 0.2);
+.n-input:hover, .n-input:focus-within {
+  transform: translateY(-2px);
+  box-shadow: var(--box-shadow);
+  border-color: var(--primary-color);
 }
 
 /* 选择器样式 */
 .n-select {
   border-radius: var(--border-radius-small);
+  transition: all 0.3s ease;
+}
+
+.n-select:hover, .n-select:focus-within {
+  transform: translateY(-2px);
+  box-shadow: var(--box-shadow);
+}
+
+/* 日期选择器样式 */
+.n-date-picker {
+  border-radius: var(--border-radius-small);
+  transition: all 0.3s ease;
+}
+
+.n-date-picker:hover, .n-date-picker:focus-within {
+  transform: translateY(-2px);
+  box-shadow: var(--box-shadow);
 }
 
 /* 模态框样式 */
 .n-modal {
   border-radius: var(--border-radius);
+  background-color: var(--card-bg-color);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+  box-shadow: var(--box-shadow);
 }
 
-/* 侧边栏样式 */
+/* 通用容器卡片样式 */
+.config-section,
+.instance-card,
+.adapter-card,
+.media-card,
+.search-card {
+  border-radius: var(--border-radius);
+  background-color: var(--card-bg-color);
+  box-shadow: var(--box-shadow);
+  transition: all var(--transition-duration) var(--transition-timing-function);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+}
 
-.n-menu-item-content-header {
-  font-weight: 500;
+.config-section:hover,
+.instance-card:hover,
+.adapter-card:hover,
+.media-card:hover {
+  box-shadow: var(--box-shadow-hover);
 }
 
 /* 表格样式 */
@@ -180,7 +214,47 @@ a {
   font-weight: 500;
 }
 
-/* 工作流卡片淡入动画 */
+/* 空状态样式 */
+.empty-state {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  animation: fade-in 0.5s ease;
+  padding: 2rem;
+}
+
+.empty-icon {
+  margin-bottom: 20px;
+  animation: float 3s ease-in-out infinite;
+}
+
+/* 通用操作按钮样式 */
+.action-button {
+  transition: all 0.3s ease;
+}
+
+.action-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 背景图案 */
+.bg {
+  background-image: radial-gradient(color-mix(in oklab, oklch(.13 .028 261.692) 5%, transparent) 1px, transparent 0);
+  background-size: 10px 10px;
+}
+
+/* 渐变文本 */
+.gradient-text {
+  background: linear-gradient(to right, var(--primary-color), var(--primary-color-hover));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* 全局动画 */
 @keyframes fade-in {
   from {
     opacity: 0;
@@ -192,34 +266,64 @@ a {
   }
 }
 
-/* 适配器卡片样式 */
-.adapter-card {
-  cursor: pointer;
-  transition: all 0.3s;
-  border-radius: var(--border-radius);
-  background-color: var(--card-bg-color);
-  border: 1px solid var(--border-color);
+@keyframes slide-up {
+  from { 
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.adapter-card:hover {
-  transform: translateY(-5px);
-  box-shadow: var(--box-shadow-hover);
+@keyframes slide-in-left {
+  from { 
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
-/* 主内容区域样式 */
-.main-content {
-  background-color: var(--bg-color);
+@keyframes float {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0); }
+}
+
+@keyframes container-appear {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 /* 响应式调整 */
+@media (max-width: 992px) {
+  .n-modal {
+    width: 90% !important;
+  }
+}
+
 @media (max-width: 768px) {
   .main-content {
     padding: 16px;
   }
-
+  
+  .n-card-header {
+    flex-direction: column;
+  }
 }
 
-.bg {
-  background-image: radial-gradient(color-mix(in oklab, oklch(.13 .028 261.692) 5%, transparent) 1px, transparent 0);
-  background-size: 10px 10px;
+@media (max-width: 480px) {
+  .n-form-item {
+    margin-bottom: 1rem;
+  }
 }

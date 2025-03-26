@@ -130,10 +130,13 @@ const filteredAdapters = computed(() => {
 })
 
 // 获取适配器配置模式
-const fetchAdapterConfigSchema = async (adapterType: string) => {
+const fetchAdapterConfigSchema = async (adapterType: string, overrideConfig: boolean = false) => {
   try {
     loading.value = true
     const { configSchema: configSchemaData } = await llmApi.getAdapterConfigSchema(adapterType)
+    if (currentAdapter.value && overrideConfig) {
+      currentAdapter.value!!.config = {}
+    }
     configSchema.value = configSchemaData
   } catch (error: any) {
     $message.error(`获取适配器配置模式失败: ${error.message || error}`)
@@ -155,7 +158,6 @@ const handleAdapterSelect = async (adapter: LLMBackend) => {
   }
   currentAdapter.value = { ...adapter }
   originalAdapterName.value = adapter.name
-  await fetchAdapterConfigSchema(adapter.adapter)
 }
 
 // 创建新配置
@@ -370,7 +372,7 @@ onMounted(() => {
       <n-list hoverable clickable class="adapter-list-scroll">
         <n-scrollbar>
           <n-list-item v-for="adapter in filteredAdapters" :key="adapter.name" @click="handleAdapterSelect(adapter)"
-            :class="{ active: selectedAdapter === adapter.name, 'n-list-item': true }">
+            :class="{ active: selectedAdapter === adapter.name, 'adapter-item': true }">
             <template #prefix>
               <n-avatar width="32" round :src="getAdapterIcon(adapter.adapter)" color="var(--n-color)">
                 <!-- {{ adapter.adapter.charAt(0).toUpperCase() }} -->
@@ -395,7 +397,7 @@ onMounted(() => {
       </n-list>
     </div>
 
-    <div class="content-area">
+    <div class="content-area bg">
       <template v-if="currentAdapter">
         <div class="content-header">
           <h2>模型管理</h2>
@@ -440,7 +442,7 @@ onMounted(() => {
                   <n-tooltip trigger="hover">
                     <template #trigger>
                       <n-button type="primary" @click="handleAutoDetectModels" :disabled="!isAutoDetectModelsSupported"
-                        :loading="autoDetectLoading" size="small">
+                        :loading="autoDetectLoading" size="small" class="action-button">
                         <template #icon>
                           <n-icon><refresh-icon /></n-icon>
                         </template>
@@ -454,7 +456,7 @@ onMounted(() => {
                       <p>当前 API 支持自动检测模型列表，请确保 API 信息正确填写，然后点击这里。</p>
                     </div>
                   </n-tooltip>
-                  <n-button type="primary" @click="handleAddModel" size="small">
+                  <n-button type="primary" @click="handleAddModel" size="small" class="action-button">
                     <template #icon>
                       <n-icon><add-icon /></n-icon>
                     </template>
@@ -473,10 +475,17 @@ onMounted(() => {
 
       <div class="empty-state bg" v-else>
         <n-space vertical align="center" style="width: 100%;">
-          <n-text strong style="font-size: 24px;">海量模型，一网打尽</n-text>
-          <n-text style="font-size: 16px;">选择一个模型供应商，然后添加模型，即可开始使用，<a
+          <div class="empty-icon">
+            <n-icon size="64" color="var(--primary-color)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M21 10.975V8a2 2 0 0 0-2-2h-6V4.688c.305-.274.5-.668.5-1.11a1.5 1.5 0 0 0-3 0c0 .442.195.836.5 1.11V6H5a2 2 0 0 0-2 2v2.975A3.5 3.5 0 0 0 2 14.5a3.5 3.5 0 0 0 1.974 3.15c.284.876 1.092 1.5 2.053 1.5h12c.961 0 1.769-.624 2.053-1.5A3.5 3.5 0 0 0 22 14.5a3.5 3.5 0 0 0-1-2.525M8 9h8a1 1 0 0 1 1 1v1H7v-1a1 1 0 0 1 1-1m2 9.5a2.5 2.5 0 0 1-2.5-2.5a2.5 2.5 0 0 1 2.5-2.5a2.5 2.5 0 0 1 2.5 2.5a2.5 2.5 0 0 1-2.5 2.5m8.5-2.5a2.5 2.5 0 0 1-2.5 2.5a2.5 2.5 0 0 1-2.5-2.5a2.5 2.5 0 0 1 2.5-2.5a2.5 2.5 0 0 1 2.5 2.5z"/>
+              </svg>
+            </n-icon>
+          </div>
+          <n-text strong style="font-size: 24px;" class="empty-title">海量模型，一网打尽</n-text>
+          <n-text style="font-size: 16px;" class="empty-description">选择一个模型供应商，然后添加模型，即可开始使用，<a
               href="https://kirara-docs.app.lss233.com/guide/configuration/llm.html" target="_blank">查看文档</a>。</n-text>
-          <div style="width: 100%; height: 120px;">
+          <div class="adapter-marquee-container">
             <n-marquee auto-fill :speed="40">
               <n-space class="adapter-list-marquee">
                 <n-card v-for="adapter in adapterTypes" hoverable @click="handleCreateAdapter(adapter)"
@@ -492,12 +501,12 @@ onMounted(() => {
   </div>
 
   <!-- 自动检测确认模态框 -->
-  <n-modal v-model:show="showConfirmModal">
+  <n-modal v-model:show="showConfirmModal" class="custom-modal">
     <n-card style="width: 400px" title="确认" :bordered="false" size="huge" role="dialog" aria-modal="true">
       <div>自动检测前会自动保存当前配置，请确保 API 信息正确填写，然后点击继续。</div>
       <n-space justify="end" style="margin-top: 24px;">
-        <n-button @click="cancelAutoDetect">取消</n-button>
-        <n-button type="primary" @click="confirmAutoDetect" :loading="autoDetectLoading">
+        <n-button @click="cancelAutoDetect" class="cancel-button">取消</n-button>
+        <n-button type="primary" @click="confirmAutoDetect" :loading="autoDetectLoading" class="confirm-button">
           继续
         </n-button>
       </n-space>
@@ -505,12 +514,12 @@ onMounted(() => {
   </n-modal>
 
   <!-- 删除配置确认模态框 -->
-  <n-modal v-model:show="showDeleteConfirmModal">
+  <n-modal v-model:show="showDeleteConfirmModal" class="custom-modal">
     <n-card style="width: 400px" title="确认删除" :bordered="false" size="huge" role="dialog" aria-modal="true">
       <div>确定要删除此配置吗？删除后将无法恢复。</div>
       <n-space justify="end" style="margin-top: 24px;">
-        <n-button @click="cancelDelete">取消</n-button>
-        <n-button @click="confirmDelete" type="error">
+        <n-button @click="cancelDelete" class="cancel-button">取消</n-button>
+        <n-button @click="confirmDelete" type="error" class="confirm-button">
           删除
         </n-button>
       </n-space>
@@ -518,7 +527,7 @@ onMounted(() => {
   </n-modal>
 
   <!-- 添加/编辑模型模态框 -->
-  <n-modal v-model:show="showModelModal" preset="card" style="width: 600px"
+  <n-modal v-model:show="showModelModal" preset="card" style="width: 600px" class="custom-modal"
     :title="modelEditMode === 'add' ? '添加模型' : '编辑模型'">
     <n-form :model="currentModel" label-placement="left" label-width="120">
       <n-form-item label="模型ID" path="id" required>
@@ -528,8 +537,8 @@ onMounted(() => {
 
     <template #footer>
       <n-space justify="end">
-        <n-button @click="showModelModal = false">取消</n-button>
-        <n-button type="primary" @click="saveModel">保存</n-button>
+        <n-button @click="showModelModal = false" class="cancel-button">取消</n-button>
+        <n-button type="primary" @click="saveModel" class="confirm-button">保存</n-button>
       </n-space>
     </template>
   </n-modal>
@@ -540,23 +549,27 @@ onMounted(() => {
   display: grid;
   grid-template-columns: 280px 1fr;
   height: calc(100vh - 28px);
-  background-color: var(--n-color);
-  transition: all 0.2s ease;
+  background-color: var(--bg-color);
+  transition: all var(--transition-duration) var(--transition-timing-function);
   animation: fade-in 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .sidebar {
-  border-right: 1px solid var(--n-border-color);
-  background-color: var(--n-card-color);
+  border-right: 1px solid var(--border-color);
+  background-color: var(--sidebar-bg-color);
   height: calc(100vh - 28px);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+  position: relative;
+  z-index: 0;
 }
 
 .search-bar {
-  border-bottom: 1px solid var(--n-border-color);
+  border-bottom: 1px solid var(--border-color);
   height: var(--sidebar-title-height);
   display: flex;
   align-items: center;
-  padding: 0 24px;
+  padding: 0 16px;
+  background-color: var(--sidebar-bg-color);
 }
 
 .adapter-list-scroll {
@@ -565,32 +578,52 @@ onMounted(() => {
   margin: 12px 6px;
 }
 
-.adapter-list-scroll .n-list-item {
+.adapter-item {
   padding: 12px;
+  margin: 4px 0;
+  border-radius: var(--border-radius);
+  transition: all var(--transition-duration) var(--transition-timing-function);
+}
+
+.adapter-item:hover {
+  transform: translateX(2px);
+}
+
+.active {
+  background-color: rgba(var(--primary-color-rgb), 0.1) !important;
+  transform: translateX(2px);
+}
+
+.status-tag {
+  margin-left: 8px;
+  font-size: 0.8rem;
 }
 
 .content-area {
   display: flex;
   flex-direction: column;
-  background-color: var(--n-color);
+  background-color: var(--bg-color);
   animation: fade-in 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
+  position: relative;
 }
 
 .content-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px 20px;
-  background-color: var(--n-card-color);
-  border-bottom: 1px solid var(--n-border-color);
+  padding: 0 20px;
+  background-color: var(--card-bg-color);
+  border-bottom: 1px solid var(--border-color);
   height: var(--sidebar-title-height);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .content-header h2 {
   margin: 0;
   font-size: 1.2rem;
   font-weight: 500;
+  color: var(--text-color);
+  position: relative;
 }
 
 .content-body {
@@ -600,21 +633,13 @@ onMounted(() => {
   gap: 24px;
 }
 
-.config-section {
-  background-color: var(--n-card-color);
+.action-button {
+  transition: all 0.3s ease;
 }
 
-.model-list-container {
-  min-height: 200px;
-  max-height: calc(100vh - 400px);
-}
-
-.status-tag {
-  margin-left: 8px;
-}
-
-.active {
-  background: var(--n-color-hover);
+.action-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .empty-state {
@@ -623,9 +648,106 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   width: 100%;
+  animation: fade-in 0.5s ease;
+  padding: 0;
+}
+
+.empty-icon {
+  margin-bottom: 20px;
+  animation: float 3s ease-in-out infinite;
+}
+
+.empty-title {
+  margin-bottom: 16px;
+  background: linear-gradient(to right, var(--primary-color), var(--primary-color-hover));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: slide-in-left 0.5s ease forwards;
+}
+
+.empty-description {
+  margin-bottom: 32px;
+  color: var(--text-color-secondary);
+  max-width: 500px;
+  text-align: center;
+  animation: fade-in 0.5s ease forwards 0.2s;
+  opacity: 0;
+}
+
+.adapter-marquee-container {
+  width: 100%;
+  height: 140px;
+  margin-top: 20px;
+  animation: slide-up 0.5s ease forwards 0.3s;
+  opacity: 0;
 }
 
 .adapter-list-marquee {
   padding: 0 6px;
+}
+
+.adapter-card {
+  width: 120px;
+  height: 120px;
+  margin: 0 10px;
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  border: 1px solid var(--border-color);
+}
+
+.adapter-card:hover {
+  transform: translateY(-5px) scale(1.05);
+  box-shadow: var(--box-shadow-hover);
+  border-color: var(--primary-color);
+}
+
+.adapter-card-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.adapter-icon {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+  margin-bottom: 10px;
+}
+
+.adapter-name {
+  font-size: 0.9rem;
+  color: var(--text-color);
+  text-align: center;
+}
+
+.custom-modal .n-card {
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+}
+
+.cancel-button, .confirm-button {
+  transition: all 0.3s ease;
+}
+
+.cancel-button:hover, .confirm-button:hover {
+  transform: translateY(-2px);
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .llm-container {
+    grid-template-columns: 1fr;
+  }
+  
+  .sidebar {
+    display: none;
+  }
+  
+  .content-body {
+    padding: 16px;
+  }
 }
 </style>

@@ -1,14 +1,19 @@
 <template>
   <div class="media-list-container">
-    <n-card title="媒体管理">
+    <n-card title="媒体管理" class="main-card">
       <template #header-extra>
         <n-space>
-          <n-button @click="selectAll">全选本页</n-button>
+          <n-button @click="selectAll" class="action-button">
+            <div class="i-carbon-select-all mr-1"></div>
+            全选本页
+          </n-button>
           <n-button
             type="error"
             :disabled="selectedMediaIds.length === 0"
             @click="handleBatchDelete"
+            class="action-button"
           >
+            <div class="i-carbon-trash-can mr-1"></div>
             批量删除
           </n-button>
         </n-space>
@@ -16,14 +21,19 @@
 
       <n-space vertical size="large">
         <!-- 搜索条件 -->
-        <n-card title="搜索条件" size="small">
+        <n-card title="搜索条件" size="small" class="search-card">
           <n-grid :cols="4" :x-gap="16">
             <n-grid-item>
               <n-input
                 v-model:value="searchParams.query"
                 placeholder="搜索关键词"
                 clearable
-              />
+                class="search-input"
+              >
+                <template #prefix>
+                  <div class="i-carbon-search"></div>
+                </template>
+              </n-input>
             </n-grid-item>
             <n-grid-item>
               <n-select
@@ -31,20 +41,35 @@
                 placeholder="媒体类型"
                 :options="contentTypeOptions"
                 clearable
-              />
+                class="search-select"
+              >
+                <template #prefix>
+                  <div class="i-carbon-image-service"></div>
+                </template>
+              </n-select>
             </n-grid-item>
             <n-grid-item>
               <n-date-picker
                 v-model:value="dateRange"
                 type="daterange"
                 clearable
-                style="width: 100%"
-              />
+                class="search-date-picker"
+              >
+                <template #prefix>
+                  <div class="i-carbon-calendar"></div>
+                </template>
+              </n-date-picker>
             </n-grid-item>
             <n-grid-item>
               <n-space justify="end">
-                <n-button @click="resetSearch">重置</n-button>
-                <n-button type="primary" @click="handleSearch">搜索</n-button>
+                <n-button @click="resetSearch" class="reset-button">
+                  <div class="i-carbon-reset mr-1"></div>
+                  重置
+                </n-button>
+                <n-button type="primary" @click="handleSearch" class="search-button">
+                  <div class="i-carbon-search mr-1"></div>
+                  搜索
+                </n-button>
               </n-space>
             </n-grid-item>
           </n-grid>
@@ -53,7 +78,7 @@
         <!-- 媒体列表 -->
         <div class="media-grid" v-if="!loading">
           <n-grid :cols="5" :x-gap="16" :y-gap="16">
-            <n-grid-item v-for="item in mediaList" :key="item.id">
+            <n-grid-item v-for="(item, index) in mediaList" :key="item.id">
               <n-card
                 :class="{
                   'media-card': true,
@@ -61,6 +86,9 @@
                 }"
                 hoverable
                 @click="handlePreview(item)"
+                :style="{
+                  animationDelay: `${index * 0.05}s`
+                }"
               >
                 <div class="media-card-content">
                   <div class="media-card-image">
@@ -69,7 +97,6 @@
                       object-fit="contain"
                       preview-disabled
                       @click.stop="handlePreview(item)"
-                      style="height: 100%; background-color: oklch(0.967 0.003 264.542)"
                       class="bg"
                     >
                       <template #error>
@@ -87,14 +114,23 @@
                         "
                       />
                     </div>
+                    <div class="media-card-type-badge">
+                      {{ getMediaTypeLabel(item.metadata.content_type) }}
+                    </div>
                   </div>
                   <div class="media-card-info">
                     <div class="media-card-filename">
                       {{ item.metadata.filename }}
                     </div>
                     <div class="media-card-meta">
-                      {{ formatFileSize(item.metadata.size) }} |
-                      {{ formatDate(item.metadata.upload_time) }}
+                      <span class="media-card-size">
+                        <div class="i-carbon-document-size mr-1"></div>
+                        {{ formatFileSize(item.metadata.size) }}
+                      </span>
+                      <span class="media-card-date">
+                        <div class="i-carbon-time mr-1"></div>
+                        {{ formatDate(item.metadata.upload_time) }}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -106,12 +142,23 @@
         <n-empty
           v-if="!loading && mediaList.length === 0"
           description="暂无媒体文件"
-        />
+          class="empty-state"
+        >
+          <template #icon>
+            <div class="i-carbon-no-image text-6xl opacity-50"></div>
+          </template>
+          <template #extra>
+            <n-button type="primary" class="upload-button">
+              <div class="i-carbon-upload mr-1"></div>
+              上传媒体
+            </n-button>
+          </template>
+        </n-empty>
 
         <n-spin
           v-if="loading"
           size="large"
-          style="display: flex; justify-content: center"
+          class="loading-spinner"
         />
 
         <!-- 分页 -->
@@ -124,7 +171,7 @@
           :page-sizes="[20, 40, 80, 160]"
           @update:page="handlePageChange"
           @update:page-size="handlePageSizeChange"
-          style="display: flex; justify-content: center; margin-top: 16px"
+          class="pagination"
         />
       </n-space>
     </n-card>
@@ -133,7 +180,8 @@
     <n-modal
       v-model:show="showPreviewModal"
       preset="card"
-      :style="{ width: '900px', borderRadius: '12px' }"
+      class="preview-modal"
+      :style="{ width: '900px' }"
       title="媒体预览"
       :mask-closable="false"
       :show-footer="false"
@@ -146,27 +194,29 @@
                 v-if="previewItem.metadata.content_type.startsWith('image/')"
                 :src="getRawUrl(previewItem.id)"
                 object-fit="contain"
-                style="max-height: 400px"
+                class="preview-image"
               />
               <video
                 v-else-if="previewItem.metadata.content_type.startsWith('video/')"
                 :src="getRawUrl(previewItem.id)"
                 controls
-                style="max-height: 400px; width: 100%; border-radius: 8px"
+                class="preview-video"
               ></video>
               <audio
                 v-else-if="previewItem.metadata.content_type.startsWith('audio/')"
                 :src="getRawUrl(previewItem.id)"
                 controls
-                style="width: 100%; border-radius: 8px"
+                class="preview-audio"
               ></audio>
               <n-card
                 v-else
                 title="无法预览"
                 size="small"
-                style="border-radius: 8px"
+                class="preview-fallback"
               >
-                <n-button @click="downloadMedia(previewItem)">
+                <div class="i-carbon-document-unknown text-6xl mb-4"></div>
+                <n-button @click="downloadMedia(previewItem)" class="download-button">
+                  <div class="i-carbon-download mr-1"></div>
                   下载文件
                 </n-button>
               </n-card>
@@ -174,44 +224,67 @@
           </n-grid-item>
           <n-grid-item>
             <div class="media-preview-metadata">
-              <n-descriptions title="文件信息" :column="1">
+              <n-descriptions title="文件信息" :column="1" class="preview-info">
                 <n-descriptions-item label="文件名">
-                  {{ previewItem.metadata.filename }}
+                  <div class="flex items-center">
+                    <div class="i-carbon-document mr-2"></div>
+                    {{ previewItem.metadata.filename }}
+                  </div>
                 </n-descriptions-item>
                 <n-descriptions-item label="大小">
-                  {{ formatFileSize(previewItem.metadata.size) }}
+                  <div class="flex items-center">
+                    <div class="i-carbon-document-size mr-2"></div>
+                    {{ formatFileSize(previewItem.metadata.size) }}
+                  </div>
                 </n-descriptions-item>
                 <n-descriptions-item label="类型">
-                  {{ previewItem.metadata.content_type }}
+                  <div class="flex items-center">
+                    <div class="i-carbon-image-service mr-2"></div>
+                    {{ previewItem.metadata.content_type }}
+                  </div>
                 </n-descriptions-item>
                 <n-descriptions-item label="上传时间">
-                  {{ formatDateTime(previewItem.metadata.upload_time) }}
+                  <div class="flex items-center">
+                    <div class="i-carbon-time mr-2"></div>
+                    {{ formatDateTime(previewItem.metadata.upload_time) }}
+                  </div>
                 </n-descriptions-item>
                 <n-descriptions-item
                   label="来源"
                   v-if="previewItem.metadata.source"
                 >
-                  {{ previewItem.metadata.source }}
+                  <div class="flex items-center">
+                    <div class="i-carbon-information-source mr-2"></div>
+                    {{ previewItem.metadata.source }}
+                  </div>
                 </n-descriptions-item>
               </n-descriptions>
+              
+              <div class="preview-actions">
+                <n-button @click="downloadMedia(previewItem)" class="preview-action-button">
+                  <div class="i-carbon-download mr-1"></div>
+                  下载
+                </n-button>
+                <n-button 
+                  type="error" 
+                  @click="handleDeleteMedia(previewItem)"
+                  class="preview-action-button"
+                >
+                  <div class="i-carbon-trash-can mr-1"></div>
+                  删除
+                </n-button>
+                <n-button 
+                  @click="showPreviewModal = false" 
+                  class="preview-action-button"
+                >
+                  <div class="i-carbon-close mr-1"></div>
+                  关闭
+                </n-button>
+              </div>
             </div>
           </n-grid-item>
         </n-grid>
       </div>
-      <template #footer>
-        <n-space justify="end">
-          <n-button
-            type="error"
-            @click="handleDeleteMedia(previewItem)"
-            style="border-radius: 8px"
-          >
-            删除
-          </n-button>
-          <n-button @click="showPreviewModal = false" style="border-radius: 8px">
-            关闭
-          </n-button>
-        </n-space>
-      </template>
     </n-modal>
   </div>
 </template>
@@ -294,26 +367,56 @@ const handlePageSizeChange = (pageSize: number) => {
   searchParams.page = 1 // 切换页面大小时，重置为第一页
   fetchMediaList()
 }
+
+// 获取媒体类型标签
+const getMediaTypeLabel = (contentType: string) => {
+  if (contentType.startsWith('image/')) {
+    return '图片';
+  } else if (contentType.startsWith('video/')) {
+    return '视频';
+  } else if (contentType.startsWith('audio/')) {
+    return '音频';
+  } else {
+    return '文件';
+  }
+};
 </script>
 
 <style scoped>
 .media-list-container {
-  padding: 16px;
+  padding: 1.5rem;
   animation: fade-in 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.media-grid {
-  margin-top: 16px;
+.search-card {
+  border-radius: 20px;
+  background: linear-gradient(135deg, var(--card-bg-color) 0%, color-mix(in oklab, var(--card-bg-color), var(--primary-color) 5%) 100%);
 }
 
-.media-card {
-  position: relative;
-  overflow: hidden;
-  transition: all 0.3s;
+.action-button, .reset-button, .search-button {
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-button {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-color-hover) 100%);
+  border: none;
+}
+
+.media-grid {
+  margin-top: 1.5rem;
 }
 
 .media-card-selected {
   border: 2px solid var(--primary-color);
+  box-shadow: 0 8px 25px rgba(64, 128, 255, 0.25);
+}
+
+.media-card:hover {
+  transform: translateY(-5px) scale(1.02);
 }
 
 .media-card-content {
@@ -329,13 +432,20 @@ const handlePageSizeChange = (pageSize: number) => {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #f0f0f0;
+  background-color: oklch(0.967 0.003 264.542);
+  border-radius: 12px;
+  margin-bottom: 0.5rem;
 }
 
 .media-card-image :deep(img) {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.media-card:hover .media-card-image :deep(img) {
+  transform: scale(1.05);
 }
 
 .media-card-checkbox {
@@ -344,57 +454,196 @@ const handlePageSizeChange = (pageSize: number) => {
   right: 8px;
   z-index: 1;
   background-color: rgba(255, 255, 255, 0.7);
-  border-radius: 4px;
-  padding: 2px;
+  border-radius: 8px;
+  padding: 4px;
+  transition: all 0.3s ease;
+}
+
+.media-card-type-badge {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-color-hover) 100%);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .media-card-info {
-  padding: 8px 0;
+  padding: 0.5rem;
 }
 
 .media-card-filename {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-weight: 500;
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--text-color);
+  margin-bottom: 0.5rem;
 }
 
 .media-card-meta {
-  margin-top: 4px;
-  font-size: 12px;
-  color: var(--text-secondary);
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: var(--text-color-secondary);
 }
 
-.media-load-more {
-  margin-top: 24px;
-  padding-bottom: 16px;
+.media-card-size, .media-card-date {
+  display: flex;
+  align-items: center;
 }
 
-/* 模态框样式 */
+.empty-state {
+  padding: 3rem;
+  background: linear-gradient(135deg, var(--card-bg-color) 0%, color-mix(in oklab, var(--card-bg-color), var(--primary-color) 5%) 100%);
+  border-radius: 20px;
+  margin: 2rem 0;
+}
+
+.upload-button {
+  margin-top: 1rem;
+  height: 40px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-color-hover) 100%);
+  border: none;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  padding: 3rem;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 1.5rem;
+}
+
+.media-preview {
+  padding: 1rem;
+}
+
 .media-preview-content {
   display: flex;
   justify-content: center;
   align-items: center;
   height: 400px;
-  border-radius: 8px;
+  border-radius: 16px;
   overflow: hidden;
   background-color: oklch(0.967 0.003 264.542);
 }
 
-.media-preview-content img,
-.media-preview-content video,
-.media-preview-content audio {
+.preview-image {
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
-}
-
-/* 添加动画效果 */
-.media-card {
+  border-radius: 8px;
   transition: transform 0.3s ease;
 }
 
-.media-card:hover {
-  transform: scale(1.05);
+.preview-image:hover {
+  transform: scale(1.02);
+}
+
+.preview-video, .preview-audio {
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 12px;
+}
+
+.preview-fallback {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  border-radius: 16px;
+}
+
+.media-preview-metadata {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.preview-info {
+  background-color: color-mix(in oklab, var(--card-bg-color), var(--primary-color) 2%);
+  border-radius: 16px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.preview-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.preview-action-button {
+  height: 40px;
+  border-radius: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.download-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-color-hover) 100%);
+  border: none;
+  font-weight: 600;
+}
+
+/* 响应式调整 */
+@media (max-width: 992px) {
+  .preview-modal {
+    width: 90%;
+  }
+  
+  .media-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .media-list-container {
+    padding: 1rem;
+  }
+  
+  .media-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .media-preview {
+    flex-direction: column;
+  }
+  
+  .media-preview-content,
+  .media-preview-metadata {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .media-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 </style> 
