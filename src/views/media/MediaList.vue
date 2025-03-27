@@ -7,6 +7,10 @@
             <div class="i-carbon-select-all mr-1"></div>
             全选本页
           </n-button>
+          <n-button @click="selectNoReference" class="action-button">
+            <div class="i-carbon-document-blank mr-1"></div>
+            选择无引用项
+          </n-button>
           <n-button
             type="error"
             :disabled="selectedMediaIds.length === 0"
@@ -116,6 +120,10 @@
                     </div>
                     <div class="media-card-type-badge">
                       {{ getMediaTypeLabel(item.metadata.content_type) }}
+                    </div>
+                    <div class="media-card-ref-badge" v-if="hasReferences(item)">
+                      <div class="i-carbon-reference mr-1"></div>
+                      {{ getReferencesCount(item) }}
                     </div>
                   </div>
                   <div class="media-card-info">
@@ -284,13 +292,27 @@
             </div>
           </n-grid-item>
         </n-grid>
+        
+        <!-- 引用列表表格 -->
+        <n-divider>引用列表</n-divider>
+        <div class="references-table-container">
+          <n-data-table
+            :columns="referenceColumns"
+            :data="referenceData"
+            :bordered="false"
+            :single-line="false"
+            size="small"
+            class="references-table"
+            :max-height="300"
+          />
+        </div>
       </div>
     </n-modal>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, h, computed } from 'vue'
 import {
   NCard,
   NButton,
@@ -311,9 +333,11 @@ import {
   NDescriptionsItem,
   NIcon,
   NPagination,
+  NDataTable,
 } from 'naive-ui'
 import { ImageOutline } from '@vicons/ionicons5'
 import { useMediaViewModel } from './media.vm'
+import type { ReferenceRow } from './media.vm'
 
 // 使用MVVM模式的视图模型
 const {
@@ -344,6 +368,11 @@ const {
   getRawUrl,
   downloadMedia,
   selectAll,
+  selectNoReference,
+
+  // 引用相关
+  viewReference,
+  deleteReference,
 
   // 工具函数
   formatFileSize,
@@ -380,6 +409,107 @@ const getMediaTypeLabel = (contentType: string) => {
     return '文件';
   }
 };
+
+// 引用表格列定义
+const referenceColumns = [
+  {
+    title: '#',
+    key: 'index',
+    width: 60,
+    render: (_: ReferenceRow, index: number) => index + 1
+  },
+  {
+    title: '引用模块',
+    key: 'module',
+    width: 150
+  },
+  {
+    title: '引用 key',
+    key: 'key',
+    ellipsis: {
+      tooltip: true
+    }
+  },
+  {
+    title: '操作',
+    key: 'actions',
+    width: 150,
+    render: (row: ReferenceRow) => {
+      return h(
+        NSpace, 
+        { justify: 'center', align: 'center' },
+        {
+          default: () => [
+            h(
+              NButton,
+              {
+                size: 'small',
+                quaternary: true,
+                onClick: (e) => {
+                  e.stopPropagation()
+                  viewReference(row.module, row.key)
+                }
+              },
+              {
+                default: () => [
+                  h('div', { class: 'i-carbon-view mr-1' }),
+                  '查看'
+                ]
+              }
+            ),
+            h(
+              NButton,
+              {
+                size: 'small',
+                quaternary: true,
+                type: 'error',
+                onClick: (e) => {
+                  e.stopPropagation()
+                  deleteReference(row)
+                }
+              },
+              {
+                default: () => [
+                  h('div', { class: 'i-carbon-trash-can mr-1' }),
+                  '删除'
+                ]
+              }
+            )
+          ]
+        }
+      )
+    }
+  }
+]
+
+// 处理引用数据
+const referenceData = computed(() => {
+  if (!previewItem.value || !previewItem.value.metadata.references) {
+    return []
+  }
+  
+  return previewItem.value.metadata.references.map(ref => {
+    const parts = ref.split(':')
+    const module = parts[0]
+    const key = parts.slice(1).join(':')
+    
+    return {
+      reference: ref,
+      module: module,
+      key: key
+    }
+  })
+})
+
+// 检查媒体项是否有引用
+const hasReferences = (item: any) => {
+  return item.metadata.references && item.metadata.references.length > 0
+}
+
+// 获取媒体项的引用数量
+const getReferencesCount = (item: any) => {
+  return item.metadata.references ? item.metadata.references.length : 0
+}
 </script>
 
 <style scoped>
@@ -399,6 +529,12 @@ const getMediaTypeLabel = (contentType: string) => {
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.action-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .search-button {
@@ -427,14 +563,13 @@ const getMediaTypeLabel = (contentType: string) => {
 
 .media-card-image {
   position: relative;
-  height: 180px;
+  height: 160px;
   overflow: hidden;
   display: flex;
-  justify-content: center;
   align-items: center;
-  background-color: oklch(0.967 0.003 264.542);
-  border-radius: 12px;
-  margin-bottom: 0.5rem;
+  justify-content: center;
+  background-color: var(--bg-color);
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
 }
 
 .media-card-image :deep(img) {
@@ -451,25 +586,40 @@ const getMediaTypeLabel = (contentType: string) => {
 .media-card-checkbox {
   position: absolute;
   top: 8px;
-  right: 8px;
-  z-index: 1;
-  background-color: rgba(255, 255, 255, 0.7);
-  border-radius: 8px;
-  padding: 4px;
-  transition: all 0.3s ease;
+  left: 8px;
+  z-index: 2;
 }
 
 .media-card-type-badge {
   position: absolute;
-  bottom: 8px;
-  left: 8px;
-  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-color-hover) 100%);
+  top: 8px;
+  right: 8px;
+  background-color: rgba(0, 0, 0, 0.6);
   color: white;
   padding: 2px 8px;
   border-radius: 12px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  font-size: 0.75rem;
+  z-index: 2;
+}
+
+.media-card-ref-badge {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background-color: rgba(64, 128, 255, 0.8);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  z-index: 2;
+  transition: all 0.3s ease;
+}
+
+.media-card:hover .media-card-ref-badge {
+  background-color: var(--primary-color);
+  transform: translateY(-2px);
 }
 
 .media-card-info {
@@ -644,6 +794,54 @@ const getMediaTypeLabel = (contentType: string) => {
 @media (max-width: 480px) {
   .media-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* 引用表格样式 */
+.references-table-container {
+  margin-top: 16px;
+}
+
+.references-table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.references-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.references-table {
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  max-height: 300px;
+}
+
+.references-empty {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 预览模态框样式调整 */
+.preview-modal {
+  max-width: 90vw;
+}
+
+@media (max-width: 768px) {
+  .preview-modal {
+    width: 95vw !important;
+  }
+  
+  .references-table {
+    max-height: 200px;
   }
 }
 </style> 

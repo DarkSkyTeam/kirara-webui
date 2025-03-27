@@ -10,6 +10,7 @@ export interface MediaMetadata {
     upload_time: string
     source?: string
     tags: string[]
+    references: string[]
 }
 
 export interface MediaItem {
@@ -33,6 +34,17 @@ export interface MediaSearchParams {
     tags?: string[]
     page: number
     page_size: number
+}
+
+// 引用处理接口
+interface ReferenceHandler {
+  view: (key: string, module?: string) => void;
+  delete: (key: string, module?: string) => Promise<boolean>;
+}
+
+interface ReferenceRow {
+    module: string
+    key: string
 }
 
 export function useMediaViewModel() {
@@ -64,6 +76,54 @@ export function useMediaViewModel() {
 
     const message = useMessage()
     const dialog = useDialog()
+
+    // 引用处理策略
+    const referenceHandlers: Record<string, ReferenceHandler> = {
+      // 默认处理器 - 用于未实现的模块
+      default: {
+        view: (key: string, module?: string) => {
+          message.info(`查看${module || ''}引用功能暂未实现`)
+          console.log('未实现的引用查看:', module, key)
+        },
+        delete: async (key: string, module?: string) => {
+          message.info(`删除${module || ''}引用功能暂未实现`)
+          console.log('未实现的引用删除:', module, key)
+          return false
+        }
+      }
+    }
+
+    // 查看引用
+    const viewReference = (module: string, key: string) => {
+      const handler = referenceHandlers[module] || referenceHandlers.default
+      handler.view(key, module)
+    }
+
+    // 删除引用
+    const deleteReference = async (reference: ReferenceRow) => {
+      const { module, key } = reference
+      
+      // 使用策略模式处理不同类型的引用
+      const handler = referenceHandlers[module] || referenceHandlers.default
+      const success = await handler.delete(key, module)
+      
+      // 如果删除成功，从UI中移除该引用
+      if (success && previewItem.value && previewItem.value.metadata.references) {
+        const index = previewItem.value.metadata.references.indexOf(key)
+        if (index !== -1) {
+          // 创建一个新的引用数组（避免直接修改原数组）
+          const newReferences = [...previewItem.value.metadata.references]
+          newReferences.splice(index, 1)
+          previewItem.value.metadata.references = newReferences
+          message.success('引用删除成功')
+        }
+      }
+    }
+
+    // 注册引用处理器
+    const registerReferenceHandler = (module: string, handler: ReferenceHandler) => {
+      referenceHandlers[module] = handler
+    }
 
     // 错误处理
     const handleError = (error: any, defaultMessage: string) => {
@@ -260,6 +320,13 @@ export function useMediaViewModel() {
         selectedMediaIds.value = mediaList.value.map((item) => item.id)
     }
 
+    // 选择无引用资源
+    const selectNoReference = () => {
+        selectedMediaIds.value = mediaList.value
+            .filter(item => !item.metadata.references || item.metadata.references.length === 0)
+            .map(item => item.id)
+    }
+
     return {
         // 状态
         mediaList,
@@ -288,6 +355,12 @@ export function useMediaViewModel() {
         getRawUrl,
         downloadMedia,
         selectAll,
+        selectNoReference,
+
+        // 引用相关
+        viewReference,
+        deleteReference,
+        registerReferenceHandler,
 
         // 工具函数
         formatFileSize,
