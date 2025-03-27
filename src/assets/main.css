@@ -231,6 +231,18 @@ a {
   animation: float 3s ease-in-out infinite;
 }
 
+.primary-button {
+  margin-top: 1rem;
+  height: 40px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-color-hover) 100%);
+  border: none;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* 通用操作按钮样式 */
 .action-button {
   transition: all 0.3s ease;

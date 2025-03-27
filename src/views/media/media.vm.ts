@@ -37,12 +37,12 @@ export interface MediaSearchParams {
 }
 
 // 引用处理接口
-interface ReferenceHandler {
-  view: (key: string, module?: string) => void;
-  delete: (key: string, module?: string) => Promise<boolean>;
+export interface ReferenceHandler {
+    view: (key: string, module?: string) => void;
+    delete: (key: string, module?: string) => Promise<boolean>;
 }
 
-interface ReferenceRow {
+export interface ReferenceRow {
     module: string
     key: string
 }
@@ -51,8 +51,6 @@ export function useMediaViewModel() {
     // 状态
     const mediaList = ref<MediaItem[]>([])
     const loading = ref(false)
-    const loadingMore = ref(false)
-    const hasMore = ref(false)
     const total = ref(0)
     const selectedMediaIds = ref<string[]>([])
 
@@ -79,50 +77,50 @@ export function useMediaViewModel() {
 
     // 引用处理策略
     const referenceHandlers: Record<string, ReferenceHandler> = {
-      // 默认处理器 - 用于未实现的模块
-      default: {
-        view: (key: string, module?: string) => {
-          message.info(`查看${module || ''}引用功能暂未实现`)
-          console.log('未实现的引用查看:', module, key)
-        },
-        delete: async (key: string, module?: string) => {
-          message.info(`删除${module || ''}引用功能暂未实现`)
-          console.log('未实现的引用删除:', module, key)
-          return false
+        // 默认处理器 - 用于未实现的模块
+        default: {
+            view: (key: string, module?: string) => {
+                message.info(`查看${module || ''}引用功能暂未实现`)
+                console.log('未实现的引用查看:', module, key)
+            },
+            delete: async (key: string, module?: string) => {
+                message.info(`删除${module || ''}引用功能暂未实现`)
+                console.log('未实现的引用删除:', module, key)
+                return false
+            }
         }
-      }
     }
 
     // 查看引用
     const viewReference = (module: string, key: string) => {
-      const handler = referenceHandlers[module] || referenceHandlers.default
-      handler.view(key, module)
+        const handler = referenceHandlers[module] || referenceHandlers.default
+        handler.view(key, module)
     }
 
     // 删除引用
     const deleteReference = async (reference: ReferenceRow) => {
-      const { module, key } = reference
-      
-      // 使用策略模式处理不同类型的引用
-      const handler = referenceHandlers[module] || referenceHandlers.default
-      const success = await handler.delete(key, module)
-      
-      // 如果删除成功，从UI中移除该引用
-      if (success && previewItem.value && previewItem.value.metadata.references) {
-        const index = previewItem.value.metadata.references.indexOf(key)
-        if (index !== -1) {
-          // 创建一个新的引用数组（避免直接修改原数组）
-          const newReferences = [...previewItem.value.metadata.references]
-          newReferences.splice(index, 1)
-          previewItem.value.metadata.references = newReferences
-          message.success('引用删除成功')
+        const { module, key } = reference
+
+        // 使用策略模式处理不同类型的引用
+        const handler = referenceHandlers[module] || referenceHandlers.default
+        const success = await handler.delete(key, module)
+
+        // 如果删除成功，从UI中移除该引用
+        if (success && previewItem.value && previewItem.value.metadata.references) {
+            const index = previewItem.value.metadata.references.indexOf(key)
+            if (index !== -1) {
+                // 创建一个新的引用数组（避免直接修改原数组）
+                const newReferences = [...previewItem.value.metadata.references]
+                newReferences.splice(index, 1)
+                previewItem.value.metadata.references = newReferences
+                message.success('引用删除成功')
+            }
         }
-      }
     }
 
     // 注册引用处理器
     const registerReferenceHandler = (module: string, handler: ReferenceHandler) => {
-      referenceHandlers[module] = handler
+        referenceHandlers[module] = handler
     }
 
     // 错误处理
@@ -154,12 +152,10 @@ export function useMediaViewModel() {
             mediaList.value = response.items
 
             total.value = response.total
-            hasMore.value = response.has_more
         } catch (error) {
             handleError(error, '获取媒体列表失败')
         } finally {
             loading.value = false
-            loadingMore.value = false
         }
     }
 
@@ -176,11 +172,6 @@ export function useMediaViewModel() {
         searchParams.start_date = undefined
         searchParams.end_date = undefined
         fetchMediaList()
-    }
-
-    // 加载更多
-    const loadMore = () => {
-        fetchMediaList(true)
     }
 
     // 选择媒体
@@ -277,7 +268,7 @@ export function useMediaViewModel() {
         if (!item) return
 
         const link = document.createElement('a')
-        link.href = item.url
+        link.href = getRawUrl(item.id)
         link.download = item.metadata.filename
         link.target = '_blank'
         document.body.appendChild(link)
@@ -331,8 +322,6 @@ export function useMediaViewModel() {
         // 状态
         mediaList,
         loading,
-        loadingMore,
-        hasMore,
         total,
         selectedMediaIds,
         showPreviewModal,
@@ -345,7 +334,6 @@ export function useMediaViewModel() {
         fetchMediaList,
         handleSearch,
         resetSearch,
-        loadMore,
         toggleSelectMedia,
         handleCheckboxChange,
         handlePreview,

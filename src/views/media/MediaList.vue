@@ -11,12 +11,8 @@
             <div class="i-carbon-document-blank mr-1"></div>
             选择无引用项
           </n-button>
-          <n-button
-            type="error"
-            :disabled="selectedMediaIds.length === 0"
-            @click="handleBatchDelete"
-            class="action-button"
-          >
+          <n-button type="error" :disabled="selectedMediaIds.length === 0" @click="handleBatchDelete"
+            class="action-button">
             <div class="i-carbon-trash-can mr-1"></div>
             批量删除
           </n-button>
@@ -25,43 +21,22 @@
 
       <n-space vertical size="large">
         <!-- 搜索条件 -->
-        <n-card title="搜索条件" size="small" class="search-card">
+        <n-card title="搜索条件" class="search-card">
           <n-grid :cols="4" :x-gap="16">
             <n-grid-item>
-              <n-input
-                v-model:value="searchParams.query"
-                placeholder="搜索关键词"
-                clearable
-                class="search-input"
-              >
+              <n-input v-model:value="searchParams.query" placeholder="搜索关键词" clearable class="search-input">
                 <template #prefix>
                   <div class="i-carbon-search"></div>
                 </template>
               </n-input>
             </n-grid-item>
             <n-grid-item>
-              <n-select
-                v-model:value="searchParams.content_type"
-                placeholder="媒体类型"
-                :options="contentTypeOptions"
-                clearable
-                class="search-select"
-              >
-                <template #prefix>
-                  <div class="i-carbon-image-service"></div>
-                </template>
+              <n-select v-model:value="searchParams.content_type" placeholder="媒体类型" :options="contentTypeOptions"
+                clearable class="search-select">
               </n-select>
             </n-grid-item>
             <n-grid-item>
-              <n-date-picker
-                v-model:value="dateRange"
-                type="daterange"
-                clearable
-                class="search-date-picker"
-              >
-                <template #prefix>
-                  <div class="i-carbon-calendar"></div>
-                </template>
+              <n-date-picker v-model:value="dateRange" type="daterange" clearable class="search-date-picker">
               </n-date-picker>
             </n-grid-item>
             <n-grid-item>
@@ -83,26 +58,16 @@
         <div class="media-grid" v-if="!loading">
           <n-grid :cols="5" :x-gap="16" :y-gap="16">
             <n-grid-item v-for="(item, index) in mediaList" :key="item.id">
-              <n-card
-                :class="{
-                  'media-card': true,
-                  'media-card-selected': selectedMediaIds.includes(item.id),
-                }"
-                hoverable
-                @click="handlePreview(item)"
-                :style="{
+              <n-card :class="{
+                'media-card': true,
+                'media-card-selected': selectedMediaIds.includes(item.id),
+              }" hoverable @click="handlePreview(item)" :style="{
                   animationDelay: `${index * 0.05}s`
-                }"
-              >
+                }">
                 <div class="media-card-content">
                   <div class="media-card-image">
-                    <n-image
-                      :src="getPreviewUrl(item.id)"
-                      object-fit="contain"
-                      preview-disabled
-                      @click.stop="handlePreview(item)"
-                      class="bg"
-                    >
+                    <n-image :src="getPreviewUrl(item.id)" object-fit="contain" preview-disabled
+                      @click.stop="handlePreview(item)" class="bg">
                       <template #error>
                         <n-icon :size="100" color="lightGrey">
                           <ImageOutline />
@@ -110,13 +75,9 @@
                       </template>
                     </n-image>
                     <div class="media-card-checkbox">
-                      <n-checkbox
-                        :checked="selectedMediaIds.includes(item.id)"
-                        @click.stop
-                        @update:checked="
-                          (checked) => handleCheckboxChange(checked, item.id)
-                        "
-                      />
+                      <n-checkbox :checked="selectedMediaIds.includes(item.id)" @click.stop @update:checked="
+                        (checked) => handleCheckboxChange(checked, item.id)
+                      " />
                     </div>
                     <div class="media-card-type-badge">
                       {{ getMediaTypeLabel(item.metadata.content_type) }}
@@ -147,81 +108,35 @@
           </n-grid>
         </div>
 
-        <n-empty
-          v-if="!loading && mediaList.length === 0"
-          description="暂无媒体文件"
-          class="empty-state"
-        >
+        <n-empty v-if="!loading && mediaList.length === 0" description="暂无媒体文件" class="empty-state">
           <template #icon>
             <div class="i-carbon-no-image text-6xl opacity-50"></div>
           </template>
-          <template #extra>
-            <n-button type="primary" class="upload-button">
-              <div class="i-carbon-upload mr-1"></div>
-              上传媒体
-            </n-button>
-          </template>
         </n-empty>
 
-        <n-spin
-          v-if="loading"
-          size="large"
-          class="loading-spinner"
-        />
+        <n-spin v-if="loading" size="large" class="loading-spinner" />
 
         <!-- 分页 -->
-        <n-pagination
-          v-if="!loading && mediaList.length > 0"
-          v-model:page="searchParams.page"
-          :item-count="total"
-          :page-size="searchParams.page_size"
-          :show-size-picker="true"
-          :page-sizes="[20, 40, 80, 160]"
-          @update:page="handlePageChange"
-          @update:page-size="handlePageSizeChange"
-          class="pagination"
-        />
+        <n-pagination v-if="!loading && mediaList.length > 0" v-model:page="searchParams.page" :item-count="total"
+          :page-size="searchParams.page_size" :show-size-picker="true" :page-sizes="[20, 40, 80, 160]"
+          @update:page="handlePageChange" @update:page-size="handlePageSizeChange" class="pagination" />
       </n-space>
     </n-card>
 
     <!-- 预览对话框 -->
-    <n-modal
-      v-model:show="showPreviewModal"
-      preset="card"
-      class="preview-modal"
-      :style="{ width: '900px' }"
-      title="媒体预览"
-      :mask-closable="false"
-      :show-footer="false"
-    >
+    <n-modal v-model:show="showPreviewModal" preset="card" class="preview-modal" :style="{ width: '900px' }"
+      title="媒体预览" :mask-closable="false" :show-footer="false">
       <div v-if="previewItem" class="media-preview">
         <n-grid :cols="2" :x-gap="16">
           <n-grid-item>
             <div class="media-preview-content bg">
-              <img
-                v-if="previewItem.metadata.content_type.startsWith('image/')"
-                :src="getRawUrl(previewItem.id)"
-                object-fit="contain"
-                class="preview-image"
-              />
-              <video
-                v-else-if="previewItem.metadata.content_type.startsWith('video/')"
-                :src="getRawUrl(previewItem.id)"
-                controls
-                class="preview-video"
-              ></video>
-              <audio
-                v-else-if="previewItem.metadata.content_type.startsWith('audio/')"
-                :src="getRawUrl(previewItem.id)"
-                controls
-                class="preview-audio"
-              ></audio>
-              <n-card
-                v-else
-                title="无法预览"
-                size="small"
-                class="preview-fallback"
-              >
+              <img v-if="previewItem.metadata.content_type.startsWith('image/')" :src="getRawUrl(previewItem.id)"
+                object-fit="contain" class="preview-image" />
+              <video v-else-if="previewItem.metadata.content_type.startsWith('video/')" :src="getRawUrl(previewItem.id)"
+                controls class="preview-video"></video>
+              <audio v-else-if="previewItem.metadata.content_type.startsWith('audio/')" :src="getRawUrl(previewItem.id)"
+                controls class="preview-audio"></audio>
+              <n-card v-else title="无法预览" size="small" class="preview-fallback">
                 <div class="i-carbon-document-unknown text-6xl mb-4"></div>
                 <n-button @click="downloadMedia(previewItem)" class="download-button">
                   <div class="i-carbon-download mr-1"></div>
@@ -257,34 +172,24 @@
                     {{ formatDateTime(previewItem.metadata.upload_time) }}
                   </div>
                 </n-descriptions-item>
-                <n-descriptions-item
-                  label="来源"
-                  v-if="previewItem.metadata.source"
-                >
+                <n-descriptions-item label="来源" v-if="previewItem.metadata.source">
                   <div class="flex items-center">
                     <div class="i-carbon-information-source mr-2"></div>
                     {{ previewItem.metadata.source }}
                   </div>
                 </n-descriptions-item>
               </n-descriptions>
-              
+
               <div class="preview-actions">
                 <n-button @click="downloadMedia(previewItem)" class="preview-action-button">
                   <div class="i-carbon-download mr-1"></div>
                   下载
                 </n-button>
-                <n-button 
-                  type="error" 
-                  @click="handleDeleteMedia(previewItem)"
-                  class="preview-action-button"
-                >
+                <n-button type="error" @click="handleDeleteMedia(previewItem)" class="preview-action-button">
                   <div class="i-carbon-trash-can mr-1"></div>
                   删除
                 </n-button>
-                <n-button 
-                  @click="showPreviewModal = false" 
-                  class="preview-action-button"
-                >
+                <n-button @click="showPreviewModal = false" class="preview-action-button">
                   <div class="i-carbon-close mr-1"></div>
                   关闭
                 </n-button>
@@ -292,19 +197,12 @@
             </div>
           </n-grid-item>
         </n-grid>
-        
+
         <!-- 引用列表表格 -->
         <n-divider>引用列表</n-divider>
         <div class="references-table-container">
-          <n-data-table
-            :columns="referenceColumns"
-            :data="referenceData"
-            :bordered="false"
-            :single-line="false"
-            size="small"
-            class="references-table"
-            :max-height="300"
-          />
+          <n-data-table :columns="referenceColumns" :data="referenceData" :bordered="false" :single-line="false"
+            size="small" class="references-table" :max-height="300" />
         </div>
       </div>
     </n-modal>
@@ -344,8 +242,6 @@ const {
   // 状态
   mediaList,
   loading,
-  loadingMore,
-  hasMore,
   total,
   selectedMediaIds,
   showPreviewModal,
@@ -358,7 +254,6 @@ const {
   fetchMediaList,
   handleSearch,
   resetSearch,
-  loadMore,
   toggleSelectMedia,
   handleCheckboxChange,
   handlePreview,
@@ -436,7 +331,7 @@ const referenceColumns = [
     width: 150,
     render: (row: ReferenceRow) => {
       return h(
-        NSpace, 
+        NSpace,
         { justify: 'center', align: 'center' },
         {
           default: () => [
@@ -487,12 +382,12 @@ const referenceData = computed(() => {
   if (!previewItem.value || !previewItem.value.metadata.references) {
     return []
   }
-  
+
   return previewItem.value.metadata.references.map(ref => {
     const parts = ref.split(':')
     const module = parts[0]
     const key = parts.slice(1).join(':')
-    
+
     return {
       reference: ref,
       module: module,
@@ -520,10 +415,12 @@ const getReferencesCount = (item: any) => {
 
 .search-card {
   border-radius: 20px;
-  background: linear-gradient(135deg, var(--card-bg-color) 0%, color-mix(in oklab, var(--card-bg-color), var(--primary-color) 5%) 100%);
+  background-color: var(--bg-color);
 }
 
-.action-button, .reset-button, .search-button {
+.action-button,
+.reset-button,
+.search-button {
   height: 40px;
   border-radius: 12px;
   display: flex;
@@ -643,28 +540,17 @@ const getReferencesCount = (item: any) => {
   color: var(--text-color-secondary);
 }
 
-.media-card-size, .media-card-date {
+.media-card-size,
+.media-card-date {
   display: flex;
   align-items: center;
 }
 
 .empty-state {
   padding: 3rem;
-  background: linear-gradient(135deg, var(--card-bg-color) 0%, color-mix(in oklab, var(--card-bg-color), var(--primary-color) 5%) 100%);
+  background-color: var(--bg-color);
   border-radius: 20px;
   margin: 2rem 0;
-}
-
-.upload-button {
-  margin-top: 1rem;
-  height: 40px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-color-hover) 100%);
-  border: none;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .loading-spinner {
@@ -705,7 +591,8 @@ const getReferencesCount = (item: any) => {
   transform: scale(1.02);
 }
 
-.preview-video, .preview-audio {
+.preview-video,
+.preview-audio {
   max-width: 100%;
   max-height: 100%;
   border-radius: 12px;
@@ -766,7 +653,7 @@ const getReferencesCount = (item: any) => {
   .preview-modal {
     width: 90%;
   }
-  
+
   .media-grid {
     grid-template-columns: repeat(4, 1fr);
   }
@@ -776,15 +663,15 @@ const getReferencesCount = (item: any) => {
   .media-list-container {
     padding: 1rem;
   }
-  
+
   .media-grid {
     grid-template-columns: repeat(3, 1fr);
   }
-  
+
   .media-preview {
     flex-direction: column;
   }
-  
+
   .media-preview-content,
   .media-preview-metadata {
     width: 100%;
@@ -839,9 +726,9 @@ const getReferencesCount = (item: any) => {
   .preview-modal {
     width: 95vw !important;
   }
-  
+
   .references-table {
     max-height: 200px;
   }
 }
-</style> 
+</style>
