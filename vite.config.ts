@@ -32,7 +32,17 @@ export default defineConfig({
   // Added proxy configuration
   server: { 
     proxy: {
-      '/backend-api': 'http://127.0.0.1:8080'
+      '/backend-api': 'http://127.0.0.1:8080',
+      '/backend-api/api/tracing/ws': {
+        target: 'ws://127.0.0.1:8080',
+        ws: true,
+        changeOrigin: true,
+      },
+      '/backend-api/api/system/logs': {
+        target: 'ws://127.0.0.1:8080',
+        ws: true,
+        changeOrigin: true,
+      }
     }
   },
   base: '/',

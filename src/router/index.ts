@@ -106,6 +106,38 @@ const router = createRouter({
           path: '/media',
           name: 'media',
           component: () => import('@/views/media/MediaList.vue')
+        },
+        {
+          path: '/tracing',
+          name: 'tracing',
+          meta: {
+            title: '系统追踪',
+            requiresAuth: true,
+          },
+          children: [
+            {
+              path: '',
+              redirect: '/tracing/llm'
+            },
+            {
+              path: 'llm',
+              name: 'llm-tracing',
+              component: () => import('@/views/tracing/llm/LLMTraceList.vue'),
+              meta: {
+                title: 'LLM请求追踪',
+                requiresAuth: true
+              }
+            },
+            {
+              path: 'llm/detail/:traceId',
+              name: 'llm-trace-detail',
+              component: () => import('@/views/tracing/llm/LLMTraceDetail.vue'),
+              meta: {
+                title: 'LLM请求详情',
+                requiresAuth: true
+              }
+            }
+          ]
         }
       ]
     },

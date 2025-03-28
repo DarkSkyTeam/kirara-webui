@@ -15,6 +15,7 @@ import {
 } from 'naive-ui'
 import { useAppStore } from '@/stores/app'
 import { ArrowForwardOutline } from '@vicons/ionicons5'
+import LLMStatistics from '@/components/LLMStatistics.vue'
 
 const router = useRouter()
 const appStore = useAppStore()
@@ -125,10 +126,10 @@ const getStatusColor = (status: string) => {
       <n-card title="系统概览" :bordered="false" class="status-card">
         <n-grid :cols="5" :x-gap="12" responsive="screen">
           <n-gi>
-            <n-statistic label="已连接 IM" :value="appStore.systemStatus.activeAdapters" class="statistic-item" />
+            <n-statistic label="已接入 IM" :value="appStore.systemStatus.activeAdapters" class="statistic-item" />
           </n-gi>
           <n-gi>
-            <n-statistic label="已连接 LLM" :value="appStore.systemStatus.activeBackends" class="statistic-item" />
+            <n-statistic label="已接入 LLM" :value="appStore.systemStatus.activeBackends" class="statistic-item" />
           </n-gi>
           <n-gi>
             <n-statistic label="已安装插件" :value="appStore.systemStatus.loadedPlugins" class="statistic-item" />
@@ -142,6 +143,9 @@ const getStatusColor = (status: string) => {
           </n-gi>
         </n-grid>
       </n-card>
+      
+      <!-- LLM 统计信息卡片 -->
+      <LLMStatistics />
     </n-space>
   </div>
 </template>
@@ -231,5 +235,25 @@ const getStatusColor = (status: string) => {
     flex-direction: column;
     gap: 16px;
   }
+}
+
+.status-card :deep(.n-statistic) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  border-radius: var(--border-radius-small);
+  transition: all 0.3s ease;
+}
+
+.status-card :deep(.n-statistic:hover) {
+  background-color: rgba(99, 102, 241, 0.05);
+  transform: translateY(-2px);
+}
+
+.status-card :deep(.n-progress-circle) {
+  width: 80px !important;
+  height: 80px !important;
 }
 </style>

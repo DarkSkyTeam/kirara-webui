@@ -12,7 +12,8 @@ import {
   HomeOutline,
   SettingsOutline,
   TerminalOutline,
-  ImageOutline
+  ImageOutline,
+  AnalyticsOutline
 } from '@vicons/ionicons5'
 import { NIcon } from 'naive-ui'
 import { useAppStore } from '@/stores/app'
@@ -35,6 +36,11 @@ const menuOptions: MenuOption[] = [
     label: () => '控制台',
     key: 'console',
     icon: renderIcon(TerminalOutline)
+  },
+  {
+    label: () => '系统记录',
+    key: 'tracing',
+    icon: renderIcon(AnalyticsOutline)
   },
   {
     label: () => '聊天平台管理',

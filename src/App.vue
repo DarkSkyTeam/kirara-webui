@@ -12,6 +12,11 @@ import {
 import HelloWorld from './components/HelloWorld.vue'
 import AppLayout from './layouts/AppLayout.vue'
 import { createTheme } from 'naive-ui'
+import hljs from 'highlight.js/lib/core'
+import json from 'highlight.js/lib/languages/json'
+
+hljs.registerLanguage('json', json)
+
 
 const theme = {
   common: {
@@ -41,7 +46,7 @@ const theme = {
 </script>
 
 <template>
-  <n-config-provider :theme-overrides="theme" abstract>
+  <n-config-provider :theme-overrides="theme" abstract :hljs="hljs">
     <n-modal-provider>
       <n-message-provider>
         <n-loading-bar-provider>

@@ -85,7 +85,7 @@ export function useConsoleViewModel() {
             const host = window.location.host
             // 从localStorage或其他存储中获取token
             const token = localStorage.getItem('token') || ''
-            const wsUrl = `http://127.0.0.1:8080/backend-api/api/system/logs`
+            const wsUrl = http.url('/system/logs')
 
             socket = new WebSocket(wsUrl)
 

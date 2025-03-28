@@ -30,7 +30,7 @@ const menuOptions = computed<MenuOption[]>(() => {
           path: '/workflow'
         },
         {
-          label: () => '调度规则',
+          label: () => '触发规则',
           key: 'workflow-dispatch-rules',
           path: '/workflow/dispatch-rules'
         },
@@ -53,6 +53,14 @@ const menuOptions = computed<MenuOption[]>(() => {
           label: () => '记忆检索',
           key: 'memory-search',
           path: '/memory/search'
+        }
+      ]
+    case 'tracing':
+      return [
+        {
+          label: () => 'LLM 请求记录',
+          key: 'tracing-llm',
+          path: '/tracing/llm'
         }
       ]
     default:
@@ -82,6 +90,8 @@ const getDefaultSubModule = (module: string) => {
       return 'installed'
     case 'memory':
       return 'list'
+    case 'tracing':
+      return 'llm'
     default:
       return ''
   }
@@ -95,6 +105,8 @@ const getMenuTitle = (key: string) => {
       return '插件'
     case 'memory':
       return '记忆'
+    case 'tracing':
+      return '系统记录'
     default:
       return ''
       

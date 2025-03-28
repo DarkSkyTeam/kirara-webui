@@ -308,7 +308,7 @@ onMounted(async () => {
                     </n-button>
                 </template>
                 <div class="dispatch-rules-description">
-                    在这里配置 Kirara AI 的触发规则，更多介绍请阅读<a
+                    触发规则决定了 Kirara AI 何时会执行工作流，更多介绍请阅读<a
                         href="https://kirara-docs.app.lss233.com/guide/configuration/dispatch.html"
                         target="_blank">官方文档</a>。
                 </div>
