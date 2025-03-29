@@ -7,6 +7,7 @@ import UpdateRegistryCard from './components/UpdateRegistryCard.vue'
 import PasswordCard from './components/PasswordCard.vue'
 import FrpServiceCard from './components/FrpServiceCard.vue'
 import TimezoneCard from './components/TimezoneCard.vue'
+import TracingCard from './components/TracingCard.vue'
 </script>
 
 <template>
@@ -25,6 +26,7 @@ import TimezoneCard from './components/TimezoneCard.vue'
         <n-tab-pane name="system" tab="系统设置">
           <n-space vertical :gap="32">
             <TimezoneCard />
+            <TracingCard />
           </n-space>
         </n-tab-pane>
 
