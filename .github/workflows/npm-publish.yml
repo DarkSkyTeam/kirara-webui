@@ -27,6 +27,18 @@ jobs:
         run: yarn build
       
       - name: Publish to NPM
-        run: yarn publish
+        run: |
+          if [[ ${{ github.ref }} == refs/tags/v* ]]; then
+            version=$(echo ${{ github.ref }} | sed 's/refs\/tags\/v//')
+            if [[ $version == *beta* ]]; then
+              echo "Publishing as beta version"
+              yarn publish --tag beta
+            else
+              echo "Publishing as stable version"
+              yarn publish
+            fi
+          else
+            echo "Not a tag, skipping publish"
+          fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} 
