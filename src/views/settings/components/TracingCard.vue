@@ -16,10 +16,10 @@ onMounted(() => {
 </script>
 
 <template>
-  <n-card title="内容追踪设置" class="settings-card">
+  <n-card title="系统记录" class="settings-card">
     <div style="margin-bottom: 16px;">
       <n-text>
-        配置系统是否记录LLM请求和响应的完整内容，用于调试和分析。
+        配置系统记录功能，用于调试和分析。
       </n-text>
     </div>
     <n-spin :show="loading">
@@ -29,7 +29,7 @@ onMounted(() => {
         label-width="160"
         require-mark-placement="right-hanging"
       >
-        <n-form-item label="启用LLM内容追踪" path="llm_tracing_content">
+        <n-form-item label="LLM请求记录时包含完整内容" path="llm_tracing_content">
           <n-switch v-model:value="formData.llm_tracing_content" />
           <template #feedback>
             <n-text depth="3">
