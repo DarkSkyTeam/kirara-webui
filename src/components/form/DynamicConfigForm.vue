@@ -228,6 +228,48 @@ const renderArrayField = (key: string, property: SchemaProperty, formItemProps: 
 }
 
 const renderWebhookUrlText = (key: string, value: string) => {
+    if (key.toLowerCase().includes('webhook') || key.toLowerCase().includes('websocket')) {
+        const protocol = key.toLowerCase().includes('webhook') ? 'http://' : 'ws://'
+        return h('div', {
+            style: {
+                background: 'rgba(var(--primary-color-rgb), 0.08)',
+                borderRadius: '8px',
+                padding: '12px',
+                border: '1px solid rgba(var(--primary-color-rgb), 0.15)',
+                backdropFilter: 'blur(4px)',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
+                transition: 'all 0.3s ease',
+                marginTop: '4px'
+            },
+            class: 'webhook-url-container'
+        }, [
+            h(NText, { type: 'info' }, { default: () => '完整地址格式如下，请根据实际情况替换 WebUI 服务地址' }),
+            h('div', {
+                style: {
+                    marginTop: '6px',
+                    fontFamily: 'Consolas, monospace',
+                    padding: '8px',
+                    background: 'rgba(var(--card-bg-color-rgb), 0.8)',
+                    borderRadius: '4px',
+                    border: '1px dashed rgba(var(--primary-color-rgb), 0.2)'
+                }
+            }, [
+                h(NText, { strong: true }, { default: () => `${protocol}<WebUI服务地址>${value}` })
+            ]),
+            h('div', {
+                style: {
+                    marginTop: '8px',
+                    color: 'var(--n-text-color-2)',
+                }
+            }, [
+                h(NText, null, { default: () => '• 对外服务：请使用公网可访问的IP或域名' }),
+                h('br'),
+                h(NText, null, { default: () => '• 内部服务：请使用对应的内部可访问地址' }),
+                h('br'),
+                h(NText, null, { default: () => '• 详情可查阅 Kirara AI 官方使用手册' })
+            ])
+        ])
+    }
     return h(NText, value)
 }
 
