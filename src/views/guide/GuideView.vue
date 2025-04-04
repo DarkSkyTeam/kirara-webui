@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import {
   NCard,
@@ -11,15 +11,40 @@ import {
   NStatistic,
   NButton,
   useMessage,
-  NIcon
+  NIcon,
+  NProgress,
+  NTooltip,
+  NRow,
+  NCol,
+  NDivider
 } from 'naive-ui'
 import { useAppStore } from '@/stores/app'
-import { ArrowForwardOutline } from '@vicons/ionicons5'
+import { 
+  ArrowForwardOutline, 
+  CloseCircleOutline,
+  CheckmarkCircleOutline,
+  AlertCircleOutline,
+  ServerOutline,
+  ExtensionPuzzleOutline,
+  ChatbubblesOutline,
+  AppsOutline,
+  TimeOutline,
+  HardwareChipOutline
+} from '@vicons/ionicons5'
 import LLMStatistics from '@/components/LLMStatistics.vue'
 
 const router = useRouter()
 const appStore = useAppStore()
 const message = useMessage()
+
+// 控制引导卡片的显示
+const showGuide = ref(localStorage.getItem('hideGuide') !== 'true')
+
+// 关闭引导卡片
+const hideGuide = () => {
+  showGuide.value = false
+  localStorage.setItem('hideGuide', 'true')
+}
 
 // 计算每个步骤的完成状态
 const stepsStatus = computed(() => {
@@ -94,13 +119,103 @@ const getStatusColor = (status: string) => {
       return 'var(--error-color)'
   }
 }
+
+// 计算完成进度
+const completionProgress = computed(() => {
+  const total = stepsStatus.value.length
+  const completed = stepsStatus.value.filter(step => step.completed).length
+  return Math.round((completed / total) * 100)
+})
+
+// 获取状态图标
+const getStatusIcon = (status: string) => {
+  switch (status) {
+    case 'normal':
+      return CheckmarkCircleOutline
+    case 'warning':
+      return AlertCircleOutline
+    default:
+      return CloseCircleOutline
+  }
+}
+
+// 添加缺失的工具函数
+const getCPUColor = (usage: number) => {
+  if (usage >= 90) return 'var(--error-color)'
+  if (usage >= 70) return 'var(--warning-color)'
+  return 'var(--success-color)'
+}
+
+const getMemoryColor = (usage: number) => {
+  if (usage >= 90) return 'var(--error-color)'
+  if (usage >= 70) return 'var(--warning-color)'
+  return 'var(--success-color)'
+}
+
+const getRailColor = () => {
+  return 'rgba(0, 0, 0, 0.04)'
+}
+
+// 计算是否所有步骤都已完成
+const isAllCompleted = computed(() => {
+  return stepsStatus.value.every(step => step.completed)
+})
+
+// 解析运行时间
+const startTime = ref(Date.now() - appStore.systemStatus.uptime * 1000)
+const currentTime = ref(Date.now())
+const parseUptime = computed(() => {
+  // 计算当前的运行时间（秒）
+  const uptimeSeconds = Math.floor((currentTime.value - startTime.value) / 1000)
+  const days = Math.floor(uptimeSeconds / 86400)
+  const hours = Math.floor((uptimeSeconds % 86400) / 3600)
+  const minutes = Math.floor((uptimeSeconds % 3600) / 60)
+  const seconds = uptimeSeconds % 60
+  if (days > 0) {
+    return `${days}天${hours}小时${minutes}分钟${seconds}秒`
+  } else if (hours > 0) {
+    return `${hours}小时${minutes}分钟${seconds}秒`
+  } else if (minutes > 0) {
+    return `${minutes}分钟${seconds}秒`
+  }
+  return `${seconds}秒`
+})
+
+const timer = ref(0)
+// 每秒更新当前时间
+onMounted(() => {
+  timer.value = setInterval(() => {
+    currentTime.value = Date.now()
+  }, 1000)
+})
+
+onUnmounted(() => {
+  clearInterval(timer.value)
+})
+
+// 当系统状态更新时，重新计算启动时间
+watch(() => appStore.systemStatus.uptime, (newUptime) => {
+  startTime.value = Date.now() - newUptime * 1000
+})
 </script>
 
 <template>
   <div class="guide-container">
-    <n-space vertical size="large">
-      <!-- 引导步骤 -->
-      <n-card title="快速开始" :bordered="false" class="steps-card" v-if="appStore.systemStatus.status === 'normal'">
+    <n-space vertical :size="16">
+      <!-- 快速开始引导 -->
+      <n-card v-if="showGuide && !isAllCompleted" title="快速开始" :bordered="false" class="guide-card">
+        <template #header-extra>
+          <n-tooltip trigger="hover">
+            <template #trigger>
+              <n-button circle tertiary type="error" size="small" @click="hideGuide">
+                <template #icon>
+                  <n-icon><CloseCircleOutline /></n-icon>
+                </template>
+              </n-button>
+            </template>
+            隐藏引导
+          </n-tooltip>
+        </template>
         <n-steps :current="currentStep" class="guide-steps">
           <n-step v-for="(step, index) in stepsStatus" :key="index" :title="step.title" :description="step.description"
             :status="step.completed ? 'finish' : index === currentStep ? 'process' : 'wait'">
@@ -121,31 +236,163 @@ const getStatusColor = (status: string) => {
           </n-step>
         </n-steps>
       </n-card>
-      
-      <!-- 系统状态卡片 -->
-      <n-card title="系统概览" :bordered="false" class="status-card">
-        <n-grid :cols="5" :x-gap="12" responsive="screen">
+
+      <!-- 系统状态概览卡片 -->
+      <n-card :bordered="false" class="status-overview-card">
+        <n-grid cols="1 s:2 m:4" :x-gap="16" :y-gap="16" responsive="screen" :item-responsive="true">
+          <!-- 运行时长 -->
           <n-gi>
-            <n-statistic label="已接入 IM" :value="appStore.systemStatus.activeAdapters" class="statistic-item" />
+            <div class="status-item">
+              <div class="status-icon uptime">
+                <n-icon size="24">
+                  <TimeOutline />
+                </n-icon>
+              </div>
+              <div class="status-info">
+                <div class="status-label">运行时长</div>
+                <div class="status-value">{{ parseUptime }}</div>
+              </div>
+            </div>
           </n-gi>
+          
+          <!-- 已接入 IM -->
           <n-gi>
-            <n-statistic label="已接入 LLM" :value="appStore.systemStatus.activeBackends" class="statistic-item" />
+            <div class="status-item">
+              <div class="status-icon chat">
+                <n-icon size="24">
+                  <ChatbubblesOutline />
+                </n-icon>
+              </div>
+              <div class="status-info">
+                <div class="status-label">已接入 IM</div>
+                <div class="status-value">{{ appStore.systemStatus.activeAdapters }}</div>
+              </div>
+            </div>
           </n-gi>
+          
+          <!-- 已接入 LLM -->
           <n-gi>
-            <n-statistic label="已安装插件" :value="appStore.systemStatus.loadedPlugins" class="statistic-item" />
+            <div class="status-item">
+              <div class="status-icon brain">
+                <n-icon size="24">
+                  <AppsOutline />
+                </n-icon>
+              </div>
+              <div class="status-info">
+                <div class="status-label">已接入 LLM</div>
+                <div class="status-value">{{ appStore.systemStatus.activeBackends }}</div>
+              </div>
+            </div>
           </n-gi>
+          
+          <!-- 已安装插件 -->
           <n-gi>
-            <n-statistic label="工作流数量" :value="appStore.systemStatus.workflowCount" class="statistic-item" />
-          </n-gi>
-          <n-gi>
-            <n-statistic label="系统状态" :value="appStore.systemStatus.status === 'normal' ? '正常' : '异常'"
-              :value-style="{ color: getStatusColor(appStore.systemStatus.status) }" class="statistic-item" />
+            <div class="status-item">
+              <div class="status-icon plugin">
+                <n-icon size="24">
+                  <ExtensionPuzzleOutline />
+                </n-icon>
+              </div>
+              <div class="status-info">
+                <div class="status-label">已安装插件</div>
+                <div class="status-value">{{ appStore.systemStatus.loadedPlugins }}</div>
+              </div>
+            </div>
           </n-gi>
         </n-grid>
       </n-card>
-      
-      <!-- LLM 统计信息卡片 -->
-      <LLMStatistics />
+
+      <!-- 系统负载和系统信息 -->
+      <n-grid cols="1 s:1 m:2 l:2" :x-gap="16" :y-gap="16" responsive="screen" :item-responsive="true">
+        <!-- 系统负载卡片 -->
+        <n-gi>
+          <n-card :bordered="false" class="system-load-card" title="系统负载">
+            <div class="load-container">
+              <!-- CPU 使用率 -->
+              <div class="load-item">
+                <div class="load-info">
+                  <div class="load-title">
+                    <n-icon size="18"><HardwareChipOutline /></n-icon>
+                    <span>CPU 使用率</span>
+                  </div>
+                  <div class="load-value">{{ Math.round(appStore.systemStatus.cpuUsage) }}%</div>
+                  <div class="load-progress">
+                    <n-progress type="line" 
+                      :percentage="Math.round(appStore.systemStatus.cpuUsage)" 
+                      :color="getCPUColor(appStore.systemStatus.cpuUsage)"
+                      :rail-color="getRailColor()"
+                      :height="8"
+                      :border-radius="4"
+                      class="resource-progress" />
+                  </div>
+                </div>
+              </div>
+              
+              <n-divider vertical />
+              
+              <!-- 内存使用率 -->
+              <div class="load-item">
+                <div class="load-info">
+                  <div class="load-title">
+                    <n-icon size="18"><ServerOutline /></n-icon>
+                    <span>内存使用率</span>
+                  </div>
+                  <div class="load-value">{{ Math.round(appStore.systemStatus.memoryUsage.percent * 100) }}%</div>
+                  <div class="load-progress">
+                    <n-progress type="line" 
+                      :percentage="Math.round(appStore.systemStatus.memoryUsage.percent * 100)" 
+                      :color="getMemoryColor(appStore.systemStatus.memoryUsage.percent * 100)"
+                      :rail-color="getRailColor()"
+                      :height="8"
+                      :border-radius="4"
+                      class="resource-progress" />
+                  </div>
+                  <div class="load-detail">可用: {{ appStore.systemStatus.memoryUsage.free.toFixed(2) }}MB</div>
+
+                </div>
+              </div>
+            </div>
+          </n-card>
+        </n-gi>
+        
+        <!-- 系统信息卡片 -->
+        <n-gi>
+          <n-card :bordered="false" class="system-info-card" title="系统信息">
+            <n-grid cols="1 s:2 m:2 l:2" :x-gap="16" :y-gap="16" responsive="screen" :item-responsive="true">
+              <n-gi>
+                <div class="info-item">
+                  <div class="info-label">Kirara AI</div>
+                  <div class="info-value">{{ appStore.systemStatus.version }}</div>
+                </div>
+              </n-gi>
+              <n-gi>
+                <div class="info-item">
+                  <div class="info-label">操作系统</div>
+                  <div class="info-value">{{ appStore.systemStatus.platform || '-' }}</div>
+                </div>
+              </n-gi>
+              <n-gi>
+                <div class="info-item">
+                  <div class="info-label">CPU 型号</div>
+                  <div class="info-value">{{ appStore.systemStatus.cpuInfo || '-' }}</div>
+                </div>
+              </n-gi>
+              <n-gi>
+                <div class="info-item">
+                  <div class="info-label">Python</div>
+                  <div class="info-value">{{ appStore.systemStatus.pythonVersion || '-' }}</div>
+                </div>
+              </n-gi>
+            </n-grid>
+          </n-card>
+        </n-gi>
+      </n-grid>
+
+                  <!-- LLM 统计 -->
+                  <div class="llm-stats-container">
+              <div class="llm-stats-title">LLM 统计</div>
+              <LLMStatistics />
+            </div>
     </n-space>
   </div>
 </template>
@@ -153,107 +400,225 @@ const getStatusColor = (status: string) => {
 <style scoped>
 .guide-container {
   padding: 24px;
-  max-width: 1200px;
-  margin: 0 auto;
+  width: 100%;
+  min-height: 100vh;
+  background: linear-gradient(135deg, var(--body-bg-color) 0%, rgba(var(--primary-color-rgb), 0.05) 100%);
 }
 
-.status-card {
-  background: var(--card-bg-color);
-  border-radius: var(--border-radius);
-  box-shadow: var(--box-shadow);
-  animation: fade-in 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+.guide-card,
+.status-overview-card,
+.system-load-card,
+.system-info-card {
+  background: rgba(var(--card-bg-color-rgb), 0.8);
+  backdrop-filter: blur(20px);
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  border: 1px solid rgba(var(--primary-color-rgb), 0.1);
+  transition: all 0.3s ease;
 }
 
-.steps-card {
-  background: var(--card-bg-color);
-  border-radius: var(--border-radius);
-  box-shadow: var(--box-shadow);
-  animation: fade-in 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  margin-bottom: 24px;
+.guide-card:hover,
+.status-overview-card:hover,
+.system-load-card:hover,
+.system-info-card:hover {
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
 }
 
 .guide-steps {
-  margin: 20px 0;
+  margin: 16px 0;
+  padding: 0 12px;
 }
 
 .step-content {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
+  padding: 8px 0;
 }
 
 .step-description {
   color: var(--text-color-secondary);
+  font-size: 0.9rem;
+  line-height: 1.5;
 }
 
 .step-button {
   align-self: flex-start;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: rgba(var(--primary-color-rgb), 0.1);
+  color: var(--primary-color);
+  transition: all 0.3s ease;
 }
 
-.statistic-item {
-  padding: 16px;
-  border-radius: var(--border-radius-small);
-  transition: background-color 0.3s;
-}
-
-.statistic-item:hover {
-  background-color: rgba(64, 128, 255, 0.05);
-}
-
-:deep(.n-step) {
-  padding: 20px 0;
+.step-button:hover {
+  background: rgba(var(--primary-color-rgb), 0.15);
 }
 
 :deep(.n-step.n-step--finish) {
   .n-step-indicator {
-    background-color: var(--success-color);
-    border-color: var(--success-color);
+    background: linear-gradient(135deg, var(--success-color) 0%, rgba(var(--success-color-rgb), 0.8) 100%);
+    border: none;
+    box-shadow: 0 4px 12px rgba(var(--success-color-rgb), 0.2);
   }
 }
 
 :deep(.n-step.n-step--process) {
   .n-step-indicator {
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
+    background: linear-gradient(135deg, var(--primary-color) 0%, rgba(var(--primary-color-rgb), 0.8) 100%);
+    border: none;
+    box-shadow: 0 4px 12px rgba(var(--primary-color-rgb), 0.2);
   }
 }
 
 :deep(.n-step.n-step--wait) {
-  opacity: 0.6;
+  opacity: 0.5;
 }
 
-@media (max-width: 768px) {
-  .guide-container {
-    padding: 16px;
-  }
-  
-  :deep(.n-grid) {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-}
-
-.status-card :deep(.n-statistic) {
+/* 状态概览卡片样式 */
+.status-item {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 24px;
-  border-radius: var(--border-radius-small);
+  gap: 16px;
+  padding: 16px;
+  border-radius: 12px;
+  background: rgba(var(--primary-color-rgb), 0.03);
   transition: all 0.3s ease;
 }
 
-.status-card :deep(.n-statistic:hover) {
-  background-color: rgba(99, 102, 241, 0.05);
+.status-item:hover {
+  background: rgba(var(--primary-color-rgb), 0.06);
   transform: translateY(-2px);
 }
 
-.status-card :deep(.n-progress-circle) {
-  width: 80px !important;
-  height: 80px !important;
+.status-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(var(--primary-color-rgb), 0.1) 0%, rgba(var(--primary-color-rgb), 0.2) 100%);
+  color: var(--primary-color);
+}
+
+.status-icon.uptime {
+  background: linear-gradient(135deg, rgba(var(--primary-color-rgb), 0.1) 0%, rgba(var(--primary-color-rgb), 0.2) 100%);
+  color: var(--primary-color);
+}
+
+.status-icon.chat {
+  background: linear-gradient(135deg, rgba(var(--info-color-rgb), 0.1) 0%, rgba(var(--info-color-rgb), 0.2) 100%);
+  color: var(--info-color);
+}
+
+.status-icon.brain {
+  background: linear-gradient(135deg, rgba(var(--success-color-rgb), 0.1) 0%, rgba(var(--success-color-rgb), 0.2) 100%);
+  color: var(--success-color);
+}
+
+.status-icon.plugin {
+  background: linear-gradient(135deg, rgba(var(--warning-color-rgb), 0.1) 0%, rgba(var(--warning-color-rgb), 0.2) 100%);
+  color: var(--warning-color);
+}
+
+.status-info {
+  flex: 1;
+}
+
+.status-label {
+  font-size: 0.9rem;
+  color: var(--text-color-secondary);
+  margin-bottom: 4px;
+}
+
+.status-value {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+/* 系统负载卡片样式 */
+.load-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 16px 0;
+}
+
+.load-item {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 0 16px;
+}
+
+.load-progress {
+  margin-top: 12px;
+  width: 100%;
+}
+
+.load-info {
+  width: 100%;
+}
+
+.load-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-color-secondary);
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+}
+
+.load-value {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 4px;
+}
+
+.load-detail {
+  font-size: 0.85rem;
+  color: var(--text-color-secondary);
+  margin-bottom: 8px;
+}
+
+/* 系统信息卡片样式 */
+.info-item {
+  padding: 16px;
+  border-radius: 12px;
+  background: rgba(var(--primary-color-rgb), 0.03);
+  transition: all 0.3s ease;
+}
+
+.info-item:hover {
+  background: rgba(var(--primary-color-rgb), 0.06);
+}
+
+.info-label {
+  font-size: 0.9rem;
+  color: var(--text-color-secondary);
+  margin-bottom: 8px;
+}
+
+.info-value {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-color);
+  word-break: break-word;
+}
+
+/* LLM 统计样式 */
+.llm-stats-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 16px;
 }
 </style>

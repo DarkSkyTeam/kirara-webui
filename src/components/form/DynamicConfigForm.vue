@@ -234,7 +234,7 @@ const renderWebhookUrlText = (key: string, value: string) => {
 const renderField = (key: string, property: SchemaProperty) => {
     let value = props.modelValue[key]
 
-    if (property.hidden_unset && value === undefined) {
+    if (property.hidden_unset && (value === undefined || value === null || value === '')) {
         return null
     }
 

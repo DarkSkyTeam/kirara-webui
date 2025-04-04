@@ -1,10 +1,14 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-
 export interface SystemStatus {
   status: string
   apiConnected: boolean
-  memoryUsage: number
+  memoryUsage: {
+    percent: number
+    total: number
+    used: number
+    free: number
+  }
   cpuUsage: number
   uptime: number
   activeAdapters: number
@@ -12,6 +16,10 @@ export interface SystemStatus {
   loadedPlugins: number
   workflowCount: number
   version: string
+  platform: string
+  cpuInfo: string
+  pythonVersion: string
+  hasProxy: boolean
 }
 
 interface UpdateInfo {
@@ -39,14 +47,23 @@ export const useAppStore = defineStore('app', () => {
   const systemStatus = ref<SystemStatus>({
     status: 'normal',
     apiConnected: true,
-    memoryUsage: 0,
+    memoryUsage: {
+      percent: 0,
+      total: 0,
+      used: 0,
+      free: 0
+    },
     cpuUsage: 0,
     uptime: 0,
     activeAdapters: 0,
     activeBackends: 0,
     loadedPlugins: 0,
     workflowCount: 0,
-    version: 'unknown'
+    version: 'unknown',
+    platform: 'unknown',
+    cpuInfo: 'unknown',
+    pythonVersion: 'unknown',
+    hasProxy: false
   })
   
   const updateInfo = ref<UpdateInfo | null>(null)

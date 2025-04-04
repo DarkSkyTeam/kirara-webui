@@ -19,7 +19,10 @@
         </n-space>
       </template>
 
+
       <n-space vertical size="large">
+      <p class="description">在这里可以查看所有收到和发送的媒体文件，并进行管理。</p>
+
         <!-- 搜索条件 -->
         <n-card title="搜索条件" class="search-card">
           <n-grid :cols="4" :x-gap="16">

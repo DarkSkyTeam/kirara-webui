@@ -95,24 +95,26 @@ const dailyTokensOption = computed(() => ({
         left: 'center',
         top: 10,
         textStyle: {
-            fontSize: 16,
+            fontSize: 15,
             fontWeight: 'normal'
         },
         subtextStyle: {
-            fontSize: 12
+            fontSize: 12,
+            color: 'var(--text-color-secondary)'
         }
     },
     tooltip: {
         trigger: 'axis',
         axisPointer: {
             type: 'shadow'
-        }
+        },
+        backgroundColor: 'rgba(var(--card-bg-color-rgb), 0.9)',
     },
     grid: {
         left: '3%',
         right: '4%',
         bottom: '15%',
-        top: '15%',
+        top: '20%',
         containLabel: true
     },
     xAxis: {
@@ -120,8 +122,9 @@ const dailyTokensOption = computed(() => ({
         data: llmStats.value.daily_stats.map((item: { date: string }) => item.date),
         axisLabel: {
             rotate: 45,
-            formatter: (value: string) => value.slice(5) // 只显示月-日
-        }
+            formatter: (value: string) => value.slice(5), // 只显示月-日
+            color: 'var(--text-color-secondary)'
+        },
     },
     yAxis: {
         type: 'value',
@@ -129,21 +132,31 @@ const dailyTokensOption = computed(() => ({
         nameLocation: 'middle',
         nameGap: 50,
         nameTextStyle: {
-            fontWeight: 'bold'
-        }
+            color: 'var(--text-color-secondary)',
+            fontWeight: 'normal'
+        },
+        axisLabel: {
+            color: 'var(--text-color-secondary)'
+        },
     },
     dataZoom: [{
         type: 'slider',
         show: true,
         start: 50,
-        end: 100
+        end: 100,
+        height: 20,
+        borderColor: 'transparent',
+        backgroundColor: 'rgba(var(--primary-color-rgb), 0.05)',
+        handleStyle: {
+            color: themeColors[0]
+        }
     }],
     series: [{
         name: 'Token 使用量',
         data: llmStats.value.daily_stats.map((item: { tokens: number }) => item.tokens),
         type: 'line',
         smooth: true,
-        symbolSize: 8,
+        symbolSize: 6,
         itemStyle: {
             color: themeColors[0]
         },
@@ -156,10 +169,10 @@ const dailyTokensOption = computed(() => ({
                 y2: 1,
                 colorStops: [{
                     offset: 0,
-                    color: themeColors[0] + 'AA'
+                    color: themeColors[0] + '20'
                 }, {
                     offset: 1,
-                    color: themeColors[0] + '11'
+                    color: themeColors[0] + '05'
                 }]
             }
         }
@@ -173,25 +186,30 @@ const requestStatusOption = computed(() => ({
         left: 'center',
         top: 10,
         textStyle: {
-            fontSize: 16,
+            fontSize: 15,
             fontWeight: 'normal'
         },
         subtextStyle: {
-            fontSize: 12
+            fontSize: 12,
+            color: 'var(--text-color-secondary)'
         }
     },
     tooltip: {
         trigger: 'item',
-        formatter: '{b}: {c} ({d}%)'
+        formatter: '{b}: {c} ({d}%)',
+        backgroundColor: 'rgba(var(--card-bg-color-rgb), 0.9)',
     },
     legend: {
         orient: 'horizontal',
         bottom: 10,
-        icon: 'circle'
+        icon: 'circle',
+        textStyle: {
+            color: 'var(--text-color-secondary)'
+        }
     },
     series: [{
         type: 'pie',
-        radius: ['40%', '70%'],
+        radius: ['45%', '70%'],
         avoidLabelOverlap: true,
         itemStyle: {
             borderRadius: 10,
@@ -206,10 +224,8 @@ const requestStatusOption = computed(() => ({
                 show: true,
                 fontSize: 14,
                 fontWeight: 'bold'
-            }
-        },
-        labelLine: {
-            show: false
+            },
+            scaleSize: 10
         },
         data: [
             {
@@ -238,11 +254,12 @@ const modelUsageOption = computed(() => ({
         left: 'center',
         top: 10,
         textStyle: {
-            fontSize: 16,
+            fontSize: 15,
             fontWeight: 'normal'
         },
         subtextStyle: {
-            fontSize: 12
+            fontSize: 12,
+            color: 'var(--text-color-secondary)'
         }
     },
     tooltip: {
@@ -259,7 +276,7 @@ const modelUsageOption = computed(() => ({
         left: '3%',
         right: '4%',
         bottom: '15%',
-        top: '15%',
+        top: '20%',
         containLabel: true
     },
     xAxis: {
@@ -267,33 +284,67 @@ const modelUsageOption = computed(() => ({
         data: llmStats.value.models.map((item: { model_id: string }) => item.model_id),
         axisLabel: {
             rotate: 45,
-            interval: 0
+            interval: 0,
+            color: 'var(--text-color-secondary)'
+        },
+        axisLine: {
         }
     },
     yAxis: [{
         type: 'value',
         name: '请求次数',
-        position: 'left'
+        position: 'left',
+        axisLabel: {
+            color: 'var(--text-color-secondary)'
+        },
+        nameTextStyle: {
+            color: 'var(--text-color-secondary)'
+        },
     }, {
         type: 'value',
         name: '响应时间(ms)',
-        position: 'right'
+        position: 'right',
+        axisLabel: {
+            color: 'var(--text-color-secondary)'
+        },
+        nameTextStyle: {
+            color: 'var(--text-color-secondary)'
+        },
+        splitLine: {
+            show: false
+        }
     }],
     series: [{
         name: '请求次数',
         type: 'bar',
         data: llmStats.value.models.map((item: { count: number }) => item.count),
         itemStyle: {
-            color: themeColors[1]
+            color: {
+                type: 'linear',
+                x: 0,
+                y: 0,
+                x2: 0,
+                y2: 1,
+                colorStops: [{
+                    offset: 0,
+                    color: themeColors[1]
+                }, {
+                    offset: 1,
+                    color: themeColors[1] + '80'
+                }]
+            },
+            borderRadius: [4, 4, 0, 0]
         }
     }, {
         name: '平均响应时间',
         type: 'line',
         yAxisIndex: 1,
-        data: llmStats.value.models.map((item: { avg_duration: number }) => Math.round(item.avg_duration * 1000)),
+        data: llmStats.value.models.map((item: { avg_duration: number }) => Math.round(item.avg_duration)),
         itemStyle: {
             color: themeColors[2]
-        }
+        },
+        symbolSize: 6,
+        smooth: true
     }]
 }))
 
@@ -304,17 +355,23 @@ const hourlyRequestsOption = computed(() => ({
         left: 'center',
         top: 10,
         textStyle: {
-            fontSize: 16,
+            fontSize: 15,
             fontWeight: 'normal'
         },
         subtextStyle: {
-            fontSize: 12
+            fontSize: 12,
+            color: 'var(--text-color-secondary)'
         }
     },
     tooltip: {
         trigger: 'axis',
         axisPointer: {
             type: 'cross'
+        },
+        backgroundColor: 'rgba(var(--card-bg-color-rgb), 0.9)',
+        borderColor: 'rgba(var(--primary-color-rgb), 0.1)',
+        textStyle: {
+            color: 'var(--text-color)'
         }
     },
     legend: {
@@ -325,7 +382,7 @@ const hourlyRequestsOption = computed(() => ({
         left: '3%',
         right: '4%',
         bottom: '15%',
-        top: '15%',
+        top: '20%',
         containLabel: true
     },
     xAxis: {
@@ -333,40 +390,93 @@ const hourlyRequestsOption = computed(() => ({
         boundaryGap: false,
         data: llmStats.value.hourly_stats.map((item: { hour: string }) => item.hour.split(' ')[1]),
         axisLabel: {
-            rotate: 45
+            rotate: 45,
+            color: 'var(--text-color-secondary)'
         }
     },
     yAxis: [{
         type: 'value',
         name: '请求次数',
-        position: 'left'
+        position: 'left',
+        axisLabel: {
+            color: 'var(--text-color-secondary)'
+        },
+        nameTextStyle: {
+            color: 'var(--text-color-secondary)'
+        }
     }, {
         type: 'value',
         name: 'Token数',
-        position: 'right'
+        position: 'right',
+        axisLabel: {
+            color: 'var(--text-color-secondary)'
+        },
+        nameTextStyle: {
+            color: 'var(--text-color-secondary)'
+        },
+        splitLine: {
+            show: false
+        }
     }],
     series: [{
         name: '请求次数',
         type: 'line',
         smooth: true,
+        symbolSize: 6,
         data: llmStats.value.hourly_stats.map((item: { requests: number }) => item.requests),
         itemStyle: {
             color: themeColors[0]
+        },
+        areaStyle: {
+            color: {
+                type: 'linear',
+                x: 0,
+                y: 0,
+                x2: 0,
+                y2: 1,
+                colorStops: [{
+                    offset: 0,
+                    color: themeColors[0] + '20'
+                }, {
+                    offset: 1,
+                    color: themeColors[0] + '05'
+                }]
+            }
         }
     }, {
         name: 'Token消耗',
         type: 'line',
         smooth: true,
+        symbolSize: 6,
         yAxisIndex: 1,
         data: llmStats.value.hourly_stats.map((item: { tokens: number }) => item.tokens),
         itemStyle: {
             color: themeColors[1]
+        },
+        areaStyle: {
+            color: {
+                type: 'linear',
+                x: 0,
+                y: 0,
+                x2: 0,
+                y2: 1,
+                colorStops: [{
+                    offset: 0,
+                    color: themeColors[1] + '20'
+                }, {
+                    offset: 1,
+                    color: themeColors[1] + '05'
+                }]
+            }
         }
     }]
 }))
 
 // 格式化持续时间
 const formatDuration = (ms: number): string => {
+    if (isNaN(ms)) {
+        return '0ms'
+    }
     if (ms < 1000) {
         return `${ms}ms`
     } else if (ms < 60000) {
@@ -387,7 +497,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <n-space vertical size="large">
+    <n-space vertical :size="12">
         <!-- 概览统计卡片 -->
         <n-card title="LLM 使用分析" :bordered="false" class="overview-card">
             <template #header-extra>
@@ -400,8 +510,8 @@ onMounted(() => {
                     每5分钟刷新一次
                 </n-tooltip>
             </template>
-            <n-grid :cols="4" :x-gap="24" :y-gap="24" responsive="screen">
-                <n-gi>
+            <n-grid :cols="24" :x-gap="12" :y-gap="12" responsive="screen" :item-responsive="true">
+                <n-gi :span="6" :xs="24" :sm="12" :md="12" :lg="6">
                     <div class="statistic-item">
                         <div class="statistic-icon">
                             <n-icon size="24" :depth="3">
@@ -416,9 +526,9 @@ onMounted(() => {
                         </div>
                     </div>
                 </n-gi>
-                <n-gi>
+                <n-gi :span="6" :xs="24" :sm="12" :md="12" :lg="6">
                     <div class="statistic-item">
-                        <div class="statistic-icon">
+                        <div class="statistic-icon success">
                             <n-icon size="24" :depth="3">
                                 <pie-chart-outline />
                             </n-icon>
@@ -431,9 +541,9 @@ onMounted(() => {
                         </div>
                     </div>
                 </n-gi>
-                <n-gi>
+                <n-gi :span="6" :xs="24" :sm="12" :md="12" :lg="6">
                     <div class="statistic-item">
-                        <div class="statistic-icon">
+                        <div class="statistic-icon info">
                             <n-icon size="24" :depth="3">
                                 <server-outline />
                             </n-icon>
@@ -450,9 +560,9 @@ onMounted(() => {
                         </div>
                     </div>
                 </n-gi>
-                <n-gi>
+                <n-gi :span="6" :xs="24" :sm="12" :md="12" :lg="6">
                     <div class="statistic-item">
-                        <div class="statistic-icon">
+                        <div class="statistic-icon warning">
                             <n-icon size="24" :depth="3">
                                 <time-outline />
                             </n-icon>
@@ -460,7 +570,7 @@ onMounted(() => {
                         <div class="statistic-content">
                             <div class="statistic-label">平均响应时间</div>
                             <div class="statistic-value">
-                                {{ formatDuration(Math.round(llmStats.models.reduce((acc, cur) => acc + cur.avg_duration, 0) / llmStats.models.length)) }}
+                                {{ formatDuration(Math.round(llmStats.models.reduce((acc, cur) => acc + cur.avg_duration, 0) / (llmStats.models.length || 1))) }}
                             </div>
                         </div>
                     </div>
@@ -468,13 +578,16 @@ onMounted(() => {
             </n-grid>
         </n-card>
 
-        <!-- Token 使用趋势卡片 -->
-        <n-card :bordered="false" class="chart-card">
-            <v-chart class="chart" :option="dailyTokensOption" autoresize />
-        </n-card>
-
-        <!-- 请求状态分布卡片 -->
-        <n-grid :cols="2" :x-gap="24" responsive="screen">
+        <!-- 图表区域 -->
+        <n-grid cols="1 s:1 m:2 l:2" :x-gap="12" :y-gap="12" responsive="screen" :item-responsive="true">
+            <!-- Token 使用趋势 -->
+            <n-gi>
+                <n-card :bordered="false" class="chart-card">
+                    <v-chart class="chart" :option="dailyTokensOption" autoresize />
+                </n-card>
+            </n-gi>
+            
+            <!-- 请求状态和模型使用分析 -->
             <n-gi>
                 <n-card :bordered="false" class="chart-card">
                     <v-chart class="chart" :option="requestStatusOption" autoresize />
@@ -485,64 +598,91 @@ onMounted(() => {
                     <v-chart class="chart" :option="modelUsageOption" autoresize />
                 </n-card>
             </n-gi>
+            
+            <!-- 24小时趋势 -->
+            <n-gi>
+                <n-card :bordered="false" class="chart-card">
+                    <v-chart class="chart" :option="hourlyRequestsOption" autoresize />
+                </n-card>
+            </n-gi>
         </n-grid>
-
-        <!-- 24小时趋势卡片 -->
-        <n-card :bordered="false" class="chart-card">
-            <v-chart class="chart" :option="hourlyRequestsOption" autoresize />
-        </n-card>
     </n-space>
 </template>
 
 <style scoped>
 .overview-card {
-    background: var(--card-bg-color);
-    border-radius: var(--border-radius);
-    box-shadow: var(--box-shadow);
-}
-
-.chart-card {
-    background: var(--card-bg-color);
-    border-radius: var(--border-radius);
-    box-shadow: var(--box-shadow);
+    background: rgba(var(--card-bg-color-rgb), 0.8);
+    backdrop-filter: blur(20px);
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(var(--primary-color-rgb), 0.1);
+    overflow: hidden;
     transition: all 0.3s ease;
 }
 
-.chart-card:hover {
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+.overview-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+}
+
+.chart-card {
+    background: rgba(var(--card-bg-color-rgb), 0.8);
+    backdrop-filter: blur(20px);
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(var(--primary-color-rgb), 0.1);
+    transition: all 0.3s ease;
+    height: 100%;
 }
 
 .statistic-item {
     display: flex;
-    align-items: flex-start;  /* 改为顶部对齐 */
+    align-items: flex-start;
     gap: 16px;
-    padding: 20px;  /* 稍微减小内边距 */
-    border-radius: var(--border-radius-small);
-    background: rgba(99, 102, 241, 0.03);
+    padding: 16px;
+    border-radius: 12px;
+    background: rgba(var(--card-bg-color-rgb), 0.8);
     transition: all 0.3s ease;
-    height: 100%;  /* 确保所有卡片高度一致 */
+    height: 100%;
+    border: 1px solid rgba(var(--primary-color-rgb), 0.1);
 }
 
 .statistic-item:hover {
-    background: rgba(99, 102, 241, 0.06);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
 }
 
 .statistic-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    min-width: 48px;  /* 使用 min-width 确保图标不会被压缩 */
-    height: 48px;
+    min-width: 44px;
+    height: 44px;
     border-radius: 12px;
-    background: rgba(99, 102, 241, 0.1);
+    background: linear-gradient(135deg, rgba(var(--primary-color-rgb), 0.1) 0%, rgba(var(--primary-color-rgb), 0.2) 100%);
     color: var(--primary-color);
+}
+
+.statistic-icon.success {
+    background: linear-gradient(135deg, rgba(var(--success-color-rgb), 0.1) 0%, rgba(var(--success-color-rgb), 0.2) 100%);
+    color: var(--success-color);
+}
+
+.statistic-icon.warning {
+    background: linear-gradient(135deg, rgba(var(--warning-color-rgb), 0.1) 0%, rgba(var(--warning-color-rgb), 0.2) 100%);
+    color: var(--warning-color);
+}
+
+.statistic-icon.info {
+    background: linear-gradient(135deg, rgba(var(--info-color-rgb), 0.1) 0%, rgba(var(--info-color-rgb), 0.2) 100%);
+    color: var(--info-color);
 }
 
 .statistic-content {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
 }
 
 .statistic-label {
@@ -552,37 +692,61 @@ onMounted(() => {
 }
 
 .statistic-value {
-    font-size: 2rem;  /* 增大数值字体 */
+    font-size: 1.35rem;
     font-weight: 600;
     color: var(--text-color);
     line-height: 1.2;
 }
 
-.progress-container {
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    height: 60px;  /* 固定高度以匹配其他统计项 */
-}
-
 .chart {
-    height: 400px;
+    height: 320px;
     width: 100%;
 }
 
-@media (max-width: 768px) {
-    :deep(.n-grid) {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-    }
-
+@media (max-width: 1400px) {
     .chart {
         height: 300px;
     }
+}
 
+@media (max-width: 768px) {
     .statistic-item {
-        padding: 16px;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 14px;
+    }
+    
+    .statistic-content {
+        width: 100%;
+        align-items: center;
+    }
+    
+    .chart {
+        height: 280px;
+    }
+}
+
+@media (max-width: 480px) {
+    .chart {
+        height: 240px;
+    }
+    
+    .statistic-icon {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .statistic-value {
+        font-size: 1.25rem;
+    }
+    
+    :deep(.n-card-header) {
+        padding: 12px 16px;
+    }
+    
+    :deep(.n-card__content) {
+        padding: 12px;
     }
 }
 </style>

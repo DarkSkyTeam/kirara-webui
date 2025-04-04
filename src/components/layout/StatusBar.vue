@@ -21,14 +21,23 @@ const fetchStatus = () => {
       appStore.updateSystemStatus({
         status: 'normal',
         apiConnected: true,
-        memoryUsage: data.status.memory_usage.rss,
+        memoryUsage: {
+          percent: data.status.memory_usage.percent,
+          total: data.status.memory_usage.total,
+          used: data.status.memory_usage.used,
+          free: data.status.memory_usage.free
+        },
         cpuUsage: data.status.cpu_usage,
         uptime: data.status.uptime,
         activeAdapters: data.status.active_adapters,
         activeBackends: data.status.active_backends,
         loadedPlugins: data.status.loaded_plugins,
         workflowCount: data.status.workflow_count,
-        version: data.status.version
+        version: data.status.version,
+        platform: data.status.platform,
+        cpuInfo: data.status.cpu_info,
+        pythonVersion: data.status.python_version,
+        hasProxy: data.status.has_proxy
       })
     })
     .catch(error => {
@@ -44,7 +53,11 @@ const fetchStatus = () => {
         activeBackends: 0,
         loadedPlugins: 0,
         workflowCount: 0,
-        version: 'unknown'
+        version: 'unknown',
+        platform: 'unknown',
+        cpuInfo: 'unknown',
+        pythonVersion: 'unknown',
+        hasProxy: false
       })
     })
 }
