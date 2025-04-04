@@ -133,7 +133,7 @@ onUnmounted(() => {
       </n-space>
 
       <n-space v-if="appStore.systemStatus.status === 'normal'">
-        <n-text>内存使用: {{ (appStore.systemStatus.memoryUsage / 1024).toFixed(2) }} MB</n-text>
+        <n-text>内存使用: {{ (appStore.systemStatus.memoryUsage.used / 1024).toFixed(2) }} MB</n-text>
         <n-text>CPU: {{ appStore.systemStatus.cpuUsage }}%</n-text>
         <n-text>IM: {{ appStore.systemStatus.activeAdapters }}</n-text>
         <n-text>LLM: {{ appStore.systemStatus.activeBackends }}</n-text>
