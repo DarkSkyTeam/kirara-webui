@@ -14,36 +14,42 @@
             <!-- 统计卡片 -->
             <div class="stats-section">
                 <n-grid :cols="15" :x-gap="16" responsive="screen">
-                    <n-grid-item span="5 m:1">
-                        <n-card class="stat-card" :bordered="false">
-                            <div class="stat-icon">
-                                <n-icon size="24"><server-outline /></n-icon>
-                            </div>
-                            <div class="stat-content">
-                                <div class="stat-value">{{ formattedStatistics?.[0]?.value || 0 }}</div>
-                                <div class="stat-label">总服务器</div>
-                            </div>
-                        </n-card>
-                    </n-grid-item>
-                    <n-grid-item span="5 m:1">
-                        <n-card class="stat-card" :bordered="false">
-                            <div class="stat-icon success">
-                                <n-icon size="24"><pulse-outline /></n-icon>
-                            </div>
-                            <div class="stat-content">
-                                <div class="stat-value success">{{ formattedStatistics?.[3]?.value || 0 }}</div>
-                                <div class="stat-label">已连接</div>
+                    <n-grid-item span="5 s:15 m:1">
+                        <n-card embedded :bordered="false">
+                            <div class="stat-card">
+                                <div class="stat-icon">
+                                    <n-icon size="24"><server-outline /></n-icon>
+                                </div>
+                                <div class="stat-content">
+                                    <div class="stat-value">{{ formattedStatistics?.[0]?.value || 0 }}</div>
+                                    <div class="stat-label">总服务器</div>
+                                </div>
                             </div>
                         </n-card>
                     </n-grid-item>
-                    <n-grid-item span="5 m:1">
-                        <n-card class="stat-card" :bordered="false">
-                            <div class="stat-icon info">
-                                <n-icon size="24"><terminal-outline /></n-icon>
+                    <n-grid-item span="5 s:15 m:1">
+                        <n-card embedded :bordered="false">
+                            <div class="stat-card">
+                                <div class="stat-icon success">
+                                    <n-icon size="24"><pulse-outline /></n-icon>
+                                </div>
+                                <div class="stat-content">
+                                    <div class="stat-value success">{{ formattedStatistics?.[3]?.value || 0 }}</div>
+                                    <div class="stat-label">已连接</div>
+                                </div>
                             </div>
-                            <div class="stat-content">
-                                <div class="stat-value info">{{ formattedStatistics?.[6]?.value || 0 }}</div>
-                                <div class="stat-label">工具数</div>
+                        </n-card>
+                    </n-grid-item>
+                    <n-grid-item span="5 s:15 m:1">
+                        <n-card :bordered="false" embedded>
+                            <div class="stat-card">
+                                <div class="stat-icon info">
+                                    <n-icon size="24"><terminal-outline /></n-icon>
+                                </div>
+                                <div class="stat-content">
+                                    <div class="stat-value info">{{ formattedStatistics?.[6]?.value || 0 }}</div>
+                                    <div class="stat-label">工具数</div>
+                                </div>
                             </div>
                         </n-card>
                     </n-grid-item>
@@ -279,7 +285,8 @@
 
         <!-- 添加/编辑服务器模态框 -->
         <n-modal v-model:show="showServerModal" :title="modalMode === 'create' ? '添加新服务器' : '编辑服务器'" preset="card"
-            class="server-modal" @after-leave="resetForm">
+            :style="{ width: '600px' }" class="server-modal" @after-leave="resetForm">
+
             <n-form ref="formRef" :model="formModel" label-placement="left" label-width="120px"
                 require-mark-placement="right-hanging">
                 <n-form-item label="服务器ID" path="id" required>
@@ -521,16 +528,8 @@ onMounted(() => {
 
 .stat-card {
     padding: 16px;
-    border-radius: 12px;
-    background-color: rgba(0, 0, 0, 0.02);
-    transition: all 0.3s ease;
     display: flex;
     align-items: center;
-}
-
-.stat-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
 }
 
 .stat-icon {
