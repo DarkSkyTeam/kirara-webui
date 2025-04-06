@@ -15,6 +15,7 @@ import {
   ImageOutline,
   AnalyticsOutline
 } from '@vicons/ionicons5'
+import IconMCP from '@/components/icons/IconMCP.vue'
 import { NIcon } from 'naive-ui'
 import { useAppStore } from '@/stores/app'
 
@@ -56,6 +57,11 @@ const menuOptions: MenuOption[] = [
     label: () => '工作流',
     key: 'workflow',
     icon: renderIcon(GitNetworkOutline)
+  },
+  {
+    label: () => 'MCP',
+    key: 'mcp',
+    icon: renderIcon(IconMCP)
   },
   {
     label: () => '媒体管理',
