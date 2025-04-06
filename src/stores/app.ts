@@ -71,6 +71,8 @@ export const useAppStore = defineStore('app', () => {
   const skipVersions = ref<SkipVersions>(JSON.parse(localStorage.getItem('skipVersions') || '{}') as SkipVersions)
   const lastRemindTime = ref<number>(0)
 
+  const showDrawer = ref(false)
+
   // 计算属性
   const isSystemHealthy = computed(() => {
     return systemStatus.value.status === 'normal' && systemStatus.value.apiConnected
@@ -132,6 +134,10 @@ export const useAppStore = defineStore('app', () => {
     }
   }
 
+  const setShowDrawer = (show: boolean) => {
+    showDrawer.value = show
+  }
+
   return {
     // 状态
     siderCollapsed,
@@ -142,6 +148,7 @@ export const useAppStore = defineStore('app', () => {
     updateInfo,
     // 计算属性
     isSystemHealthy,
+    showDrawer,
     // 动作
     toggleSider,
     toggleSecondarySider,
@@ -150,6 +157,7 @@ export const useAppStore = defineStore('app', () => {
     updateSystemStatus,
     setUpdateInfo,
     setUpdateRemindLater,
-    setSkipVersion
+    setSkipVersion,
+    setShowDrawer
   }
 }) 

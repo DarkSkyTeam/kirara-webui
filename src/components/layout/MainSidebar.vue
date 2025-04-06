@@ -94,7 +94,7 @@ const handleUpdateValue = (key: string) => {
   <n-menu
     :value="activeKey"
     :options="menuOptions"
-    :collapsed="appStore.siderCollapsed"
+    :collapsed="appStore.showDrawer ? false : appStore.siderCollapsed"
     :collapsed-width="64"
     :collapsed-icon-size="22"
     @update:value="handleUpdateValue"

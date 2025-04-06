@@ -96,7 +96,8 @@ onUnmounted(() => {
     <!-- 更新检查组件 -->
     <update-checker ref="updateCheckerRef" />
 
-    <n-space align="center" :size="20">
+    <!-- 桌面版布局 -->
+    <n-space align="center" :size="20" class="desktop-view">
       <n-space align="center" :size="4">
         <n-badge dot :type="connecting
           ? 'warning'
@@ -141,6 +142,24 @@ onUnmounted(() => {
         <n-text>工作流: {{ appStore.systemStatus.workflowCount }}</n-text>
       </n-space>
     </n-space>
+
+    <!-- 移动版布局 - 只显示关键信息 -->
+    <n-space align="center" :size="8" class="mobile-view">
+      <n-space align="center" :size="4">
+        <n-badge dot :type="appStore.systemStatus.apiConnected ? 'success' : 'error'" />
+        <n-text>API: {{ appStore.systemStatus.apiConnected ? '已连接' : '未连接' }}</n-text>
+      </n-space>
+      <n-space align="center">
+        <n-text>
+          版本: {{ webUIVersion }}
+        </n-text>
+        <n-text @click="updateCheckerRef!!.showUpdateModal = true"
+          v-if="appStore.updateInfo?.backend_update_available || appStore.updateInfo?.webui_update_available"
+          type="success" class="version-text" style="margin-left: 4px;">
+          有更新
+        </n-text>
+      </n-space>
+    </n-space>
   </div>
 </template>
 
@@ -167,6 +186,22 @@ onUnmounted(() => {
 
   75% {
     opacity: 1;
+  }
+}
+
+/* 响应式布局样式 */
+.mobile-view {
+  display: none;
+}
+
+/* 在小屏幕设备上显示移动版布局，隐藏桌面版布局 */
+@media (max-width: 768px) {
+  .desktop-view {
+    display: none !important;
+  }
+  
+  .mobile-view {
+    display: flex;
   }
 }
 </style>
