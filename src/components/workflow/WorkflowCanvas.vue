@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, watch, computed, onBeforeUnmount } from 'vue'
+import { ref, onMounted, watch, computed, onBeforeUnmount, nextTick } from 'vue'
 import {
   NScrollbar,
   NButton,
@@ -18,20 +18,28 @@ import {
   SaveOutline,
   RefreshOutline,
   DownloadOutline,
-  SettingsOutline
+  SettingsOutline,
+  CloseOutline
 } from '@vicons/ionicons5'
-import { getTypeCompatibility, type BlockType } from '@/api/block'
+import { getTypeCompatibility, type BlockOutput, type BlockType } from '@/api/block'
 import type { BlockInstance, Wire } from '@/api/workflow'
-import { LGraph, LGraphCanvas, LGraphNode, LiteGraph, type IWidget } from '@comfyorg/litegraph'
 import { workflowEditorModel } from '@/store/workflow-editor'
-import type { IBaseWidget } from 'node_modules/@comfyorg/litegraph/dist/types/widgets'
-import type { Dictionary, INodeOutputSlot, ISlotType } from 'node_modules/@comfyorg/litegraph/dist/interfaces'
 import { getTypeColor } from '@/utils/node-colors'
-
-interface IBaseBlockWidget extends IBaseWidget {
-  actual_name: string
-}
-
+// 导入 vue-flow 相关组件
+import { VueFlow, useVueFlow, Panel, connectionExists } from '@vue-flow/core'
+import { Background } from '@vue-flow/background'
+import { Controls } from '@vue-flow/controls'
+import CustomNode from './CustomNode.vue'
+import NodeConfigPanel from './NodeConfigPanel.vue'
+import NodeListPanel from './NodeListPanel.vue'
+import '@vue-flow/core/dist/style.css'
+import '@vue-flow/core/dist/theme-default.css'
+import '@vue-flow/controls/dist/style.css'
+import '@vue-flow/minimap/dist/style.css'
+import type { Connection, Edge, EdgeUpdateEvent, Node } from '@vue-flow/core'
+import { MarkerType } from '@vue-flow/core'
+import { useLayout } from './useLayout'
+// ==================== 属性和事件定义 ====================
 const props = defineProps<{
   blocks: BlockInstance[]
   wires: Wire[]
@@ -47,17 +55,18 @@ const emit = defineEmits<{
   'update:wires': [wires: Wire[]]
   'save': [name: string, description: string, workflowId: string]
 }>()
+
+// ==================== 状态管理 ====================
 const typeCompatibility = ref<Record<string, Record<string, boolean>>>({})
-
-const container = ref<HTMLCanvasElement>()
-let graph: LGraph = new LGraph()
-let canvas: LGraphCanvas | null = null
-
-// 获取 Intent 和 ViewState
 const intent = workflowEditorModel.getIntent()
 const viewState = workflowEditorModel.getViewState()
 
-// 添加属性设置对话框相关的状态
+// 工具栏按钮状态
+const saving = ref(false)
+const importing = ref(false)
+const resetting = ref(false)
+
+// 设置对话框相关状态
 const showSettingsModal = ref(false)
 const message = useMessage()
 const loadingBar = useLoadingBar()
@@ -69,14 +78,15 @@ const formValue = ref({
   description: ''
 })
 
+// 初始化工作流ID
 viewState.value.workflowId = 'user:' + Array.from({ length: 5 }, () => Math.floor(Math.random() * 36).toString(36)).join('')
 viewState.value.name = formValue.value.name
 viewState.value.description = formValue.value.description
 
+// 表单验证规则
 const formRules = {
   workflowId: {
     required: true,
-
     trigger: ['blur', 'input'],
     validator: (rule: any, value: string) => {
       if (!value) {
@@ -95,317 +105,218 @@ const formRules = {
   }
 }
 
-// 添加工具栏按钮状态
-const saving = ref(false)
-const importing = ref(false)
-const resetting = ref(false)
+// ==================== Vue Flow 相关设置 ====================
+const {
+  nodes,
+  edges,
+  removeEdges,
+  addEdges,
+  setNodes,
+  setEdges,
+  fitView,
+  addNodes,
+  project,
+  getSelectedNodes,
+  removeSelectedNodes
+} = useVueFlow()
 
-// 自定义类型定义
-interface Point {
-  x: number
-  y: number
+const { layout } = useLayout()
+const selectedNode = computed(() => getSelectedNodes.value.length > 0 ? getSelectedNodes.value[0] : null)
+
+// 连接验证功能
+const isValidConnection = (connection: Connection) => {
+  // 获取源节点和目标节点
+  const sourceNode = nodes.value.find(node => node.id === connection.source)
+  const targetNode = nodes.value.find(node => node.id === connection.target)
+  if (!sourceNode || !targetNode) return false
+
+  // 获取源输出和目标输入的类型
+  // TODO: 使用 handle
+  const sourceOutput = sourceNode.data.outputs.find(output => output.name === connection.sourceHandle)
+  const sourceBlockType = props.blockTypes.find(type => type.type_name === sourceNode.data.blockType.type_name)
+  const targetInput = targetNode.data.inputs.find(input => input.name === connection.targetHandle)
+  const targetBlockType = props.blockTypes.find(type => type.type_name === targetNode.data.blockType.type_name)
+  if (!sourceOutput || !targetInput || !sourceBlockType || !targetBlockType) return false
+
+  // 检查类型兼容性
+  const sourceType = sourceBlockType.outputs.find(output => output.name === connection.sourceHandle)?.type
+  const targetType = targetBlockType.inputs.find(input => input.name === connection.targetHandle)?.type
+  if (!sourceType || !targetType) return false
+  // 使用类型兼容性映射检查
+  return typeCompatibility.value[sourceType]?.[targetType] === true
 }
 
-// 初始化 LiteGraph
-const initGraph = () => {
-  if (!container.value) {
-    console.warn('[initGraph] Canvas container is not available.')
+// 修改 onConnect 函数
+const handleConnect = (params: Connection) => {
+  // make sure the connection is not already exists
+  if (connectionExists(params, edges.value)) {
     return
   }
-
-  const canvasElement = container.value as HTMLCanvasElement
-
-  // 创建 LGraph 实例
-  graph = new LGraph()
-
-  // 创建 LGraphCanvas 实例并关联到 canvas 元素
-  canvas = new LGraphCanvas(canvasElement, graph)
-
-  // 配置画布
-  canvas.allow_dragcanvas = true
-  canvas.allow_dragnodes = true
-  canvas.allow_interaction = true
-  canvas.connections_width = 2
-  canvas.align_to_grid = true
-  canvas.highquality_render = true
-
-  // 设置节点默认样式
-  LiteGraph.NODE_TEXT_SIZE = 14
-  LiteGraph.NODE_SUBTEXT_SIZE = 12
-  LiteGraph.NODE_COLLAPSED_RADIUS = 8
-  LiteGraph.DEFAULT_GROUP_FONT = 14
-  LiteGraph.NODE_TITLE_HEIGHT = 38
-  LiteGraph.NODE_SLOT_HEIGHT = 24
-  LiteGraph.NODE_WIDTH = 220
-  LiteGraph.NODE_MIN_WIDTH = 150
-  LiteGraph.NODE_COLLAPSED_WIDTH = 100
-  LiteGraph.CANVAS_GRID_SIZE = 20
-  LiteGraph.auto_sort_node_types = true
-  LiteGraph.use_uuids = true
-  LiteGraph.isValidConnection = (a: ISlotType, b: ISlotType) => {
-    console.log('[isValidConnection] Checking connection between', a, 'and', b)
-    if (a == b) {
-      return true
+  if (isValidConnection(params)) {
+    const edge = buildEdge(params)
+    if (edge) {
+      addEdges([edge])
+      updateWires()
+      updateBlocks()
     }
-    if (typeCompatibility.value[a as string] && typeCompatibility.value[a as string][b as string]) {
-      return true
+  } else {
+    message.error('类型不兼容，无法连接')
+  }
+}
+
+const handleEdgeUpdate = ({ edge, connection }: EdgeUpdateEvent) => {
+  if (connectionExists(connection, edges.value)) {
+    return
+  }
+  if (isValidConnection(connection)) {
+    // 删除旧的线，建立新的线
+    const newEdge = buildEdge(connection)
+    if (newEdge) {
+      removeEdges([edge])
+      if (edges.value.find(e => e.id === newEdge.id) === undefined) {
+        addEdges([newEdge])
+      }
+      updateWires()
     }
-    return false
+  } else {
+    message.error('类型不兼容，无法连接')
   }
-
-  // 设置快捷键
-  setupShortcuts()
-
-  // 更新画布尺寸以适应容器
-  updateCanvasSize()
-
-  // 设置事件监听器
-  setupEventListeners()
-
-  // 监听窗口大小变化
-  window.addEventListener('resize', updateCanvasSize)
-
-  // 设置菜单
-  setupMenu()
-
-  console.log('[initGraph] LiteGraph initialized.')
 }
 
-// 更新画布尺寸
-const updateCanvasSize = () => {
-  if (!container.value || !canvas) {
-    console.warn('[updateCanvasSize] Canvas or container is not available.')
-    return
+const buildEdge = (params: Connection): Edge | null => {
+  // 获取源节点类型和输出类型
+  const sourceBlock = viewState.value.blocks.find(block => block.name === params.source)
+  if (!sourceBlock) return null
+
+  const blockType = props.blockTypes.find(type => type.type_name === sourceBlock.type_name)
+  if (!blockType) return null
+
+  const type = blockType.outputs.find((output: BlockOutput) => output.name === params.sourceHandle)?.type
+  if (!type) return null
+
+  return {
+    ...params,
+    id: `${params.source}-${params.sourceHandle}-${params.target}-${params.targetHandle}`,
+    markerEnd: MarkerType.ArrowClosed,
+    style: { stroke: getTypeColor(type).color_on, strokeWidth: 2 },
+    class: 'workflow-edge',
+    updatable: true
   }
-
-  const canvasElement = container.value as HTMLCanvasElement
-  const ratio = window.devicePixelRatio
-  const rect = canvasElement.parentElement!!.getBoundingClientRect()
-  const { width, height } = rect
-
-
-  canvasElement.width = width * ratio
-  canvasElement.height = height * ratio
-  canvasElement.style.width = width + 'px'
-  canvasElement.style.height = height + 'px'
-
-  canvas.resize(canvasElement.width, canvasElement.height)
-  canvasElement.getContext('2d')?.scale(ratio, ratio)
 }
 
-// 更新连线颜色
-const updateLinkColors = () => {
-  if (!canvas) return
-  const linkTypeColors = props
-    .blockTypes
-    .flatMap(blockType => [...blockType.inputs.map(input => input.type), ...blockType.outputs.map(output => output.type)])
-    .reduce((acc, type) => {
-      acc[type] = getTypeColor(type).color_on
-      return acc
-    }, {} as Record<string, string>)
-  canvas.default_connection_color_byType = linkTypeColors
-  LGraphCanvas.link_type_colors = linkTypeColors
-  console.log('[updateLinkColors] Link colors updated.')
-}
-
-// 注册自定义节点类型
-const registerNodeTypes = () => {
-  if (!props.blockTypes || props.blockTypes.length === 0) {
-    console.warn('[registerNodeTypes] No block types to register.')
-    return
-  }
-
-  props.blockTypes.forEach(blockType => {
-    class CustomBlock extends LiteGraph.LGraphNode {
-      constructor() {
-        super(blockType.label)
-        blockType.inputs.forEach(input => {
-          const colors = getTypeColor(input.type, input.required)
-          this.addInput(input.name, input.type, { label: input.label, color_off: colors.color_off, color_on: colors.color_on })
-        })
-
-        blockType.outputs.forEach(output => {
-          const colors = getTypeColor(output.type)
-          this.addOutput(output.name, output.type, { label: output.label, color_off: colors.color_off, color_on: colors.color_on })
-        })
-
-        const onValueChange = () => {
-          if (!this.properties.config) {
-            this.properties.config = {}
-          }
-          this.widgets?.forEach((widget: IBaseWidget) => {
-            if (widget.name && (widget as IBaseBlockWidget).actual_name) {
-              // 更新节点的配置
-              (this.properties.config as Dictionary<any>)[(widget as IBaseBlockWidget).actual_name] = widget.value
-              // 触发更新
-              updateBlocks()
-            }
-          })
+// ==================== 数据转换函数 ====================
+// 将 BlockInstance 转换为 vue-flow 节点
+const convertBlocksToNodes = (blocks: BlockInstance[]): Node[] => {
+  return blocks
+    .map(block => {
+      const blockType = props.blockTypes.find(type => type.type_name === block.type_name)
+      if (!blockType) return null
+      return {
+        id: block.name,
+        type: 'custom', // 使用自定义节点类型
+        position: { x: block.position.x, y: block.position.y },
+        data: {
+          label: blockType.label,
+          blockType: blockType,
+          config: block.config || {},
+          inputs: blockType.inputs,
+          outputs: blockType.outputs
         }
+      }
+    }).filter(it => it !== null)
+}
 
-        blockType.configs.forEach(config => {
-          let widget: IBaseBlockWidget | undefined = undefined
-          if (config.type === 'int') {
-            widget = this.addWidget('number', config.label, config.default || 0, onValueChange) as IBaseBlockWidget
-          } else if (config.type === 'str') {
-            if (config.has_options) {
-              console.log(config.options)
-              widget = this.addWidget('combo', config.label, config.default || '', onValueChange, { values: config.options }) as IBaseBlockWidget
-            } else {
-              widget = this.addWidget('text', config.label, config.default || '', onValueChange, { multiline: true }) as IBaseBlockWidget
-            }
-          } else if (config.type === 'bool') {
-            widget = this.addWidget('toggle', config.label, config.default || false, onValueChange) as IBaseBlockWidget
-          } else {
-            console.warn(`[registerNodeTypes] Unsupported config type: ${config.type}`)
-          }
-          if (widget) {
-            widget.actual_name = config.name
-          }
-        })
-        onValueChange()
-        this.size = this.computeSize()
-      }
-      onEvent(event: string, data: any) {
-        console.log(event, data)
-      }
+// 将 Wire 转换为 vue-flow Edge
+const convertWiresToEdges = (wires: Wire[]): Edge[] => {
+  return wires.map(wire => {
+    const block = viewState.value.blocks.find(block => block.name === wire.source_block)
+    if (!block) return null
+
+    // 构造一个Connection对象，然后使用buildEdge函数
+    const connection: Connection = {
+      source: wire.source_block,
+      sourceHandle: wire.source_output,
+      target: wire.target_block,
+      targetHandle: wire.target_input
     }
-    Object.defineProperty(CustomBlock, 'name', { value: blockType.label })
-    LiteGraph.registerNodeType(blockType.type_name.replace(':', '/'), CustomBlock)
-    console.log(`[registerNodeTypes] Registered node type: ${blockType.type_name}`)
 
-
-  })
-  console.log('[registerNodeTypes] Node types registered.')
+    return buildEdge(connection) as Edge
+  }).filter(it => it !== null)
 }
 
-// 设置菜单
-const setupMenu = () => {
-  if (!canvas) return
-
-  canvas.getExtraMenuOptions = () => {
-    return [
-      {
-        content: '保存工作流',
-        callback: () => handleSave()
-      },
-      {
-        content: '重置工作流',
-        callback: () => handleReset()
-      },
-      {
-        content: '导入工作流',
-        callback: () => handleImport()
-      },
-      {
-        content: '编辑工作流信息',
-        callback: () => handleEditInfo()
-      }
-    ]
-  }
-}
-
-// 设置快捷键
-const setupShortcuts = () => {
-  if (!canvas) return
-
-  const canvasElement = container.value as HTMLCanvasElement
-
-  // 确保 canvas 元素可以获得焦点
-  canvasElement.tabIndex = 0
-  canvasElement.focus()
-
-  // 使用全局的 keydown 事件监听器
-  document.addEventListener('keydown', (e: KeyboardEvent) => {
-    if (document.activeElement === container.value) {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
-        e.preventDefault() // 阻止默认行为
-        if (e.shiftKey) {
-          handleRedo()
-        } else {
-          handleUndo()
-        }
-      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
-        e.preventDefault()
-        handleSave()
+// 将 vue-flow 节点转换回 BlockInstance
+const convertNodesToBlocks = (): BlockInstance[] => {
+  return nodes.value.map(node => {
+    return {
+      type_name: node.data?.blockType?.type_name,
+      name: node.id,
+      config: node.data?.config || {},
+      position: {
+        x: Math.round(node.position.x),
+        y: Math.round(node.position.y)
       }
     }
   })
 }
 
-// 设置事件监听器
-const setupEventListeners = () => {
-  if (!graph) {
-    console.warn('[setupEventListeners] Graph is not initialized.')
-    return
-  }
-
-  // 节点被添加
-  graph.onNodeAdded = (node: LGraphNode) => {
-    updateBlocks()
-    intent.saveToHistory()
-  }
-
-  // 节点被移除
-  graph.onNodeRemoved = (node: any) => {
-    updateBlocks()
-    intent.saveToHistory()
-  }
-}
-
-// 更新区块数据
-const updateBlocks = () => {
-  if (!graph) {
-    console.warn('[updateBlocks] Graph is not initialized.')
-    return
-  }
-
-  const blocks: BlockInstance[] = Array.from(graph._nodes.values()).map(node => ({
-    type_name: node.type!!.replace('/', ':'),
-    name: node.id.toString(),
-    config: node.properties.config || {},
-    position: {
-      x: Math.round(node.pos[0]),
-      y: Math.round(node.pos[1])
-    }
+// 将 vue-flow 边转换回 Wire
+const convertEdgesToWires = (): Wire[] => {
+  return edges.value.map(edge => ({
+    source_block: edge.source,
+    source_output: edge.sourceHandle || '',
+    target_block: edge.target,
+    target_input: edge.targetHandle || ''
   }))
-
-  intent.updateBlocks(blocks)
-  emit('update:blocks', blocks)
 }
+
+// ==================== 数据更新函数 ====================
+
+const debounce = (func: () => void, delay: number) => {
+  let timer: number | null = null;
+  return function (this: any, ...args: any[]) {
+    if (timer === null) {
+      timer = window.setTimeout(() => {
+        func.apply(this, args);
+        timer = null;
+      }, delay);
+    }
+  };
+};
+// 更新区块数据
+const updateBlocks = debounce(() => {
+  const blocks = convertNodesToBlocks()
+  intent.updateBlocks(blocks)
+  console.log('updateBlocks', blocks)
+  emit('update:blocks', blocks)
+}, 500)
 
 // 更新连线数据
-const updateWires = () => {
-  if (!graph) {
-    console.warn('[updateWires] Graph is not initialized.')
-    return
-  }
-
-  const wires = Array.from(graph._links.values())
-    .map(conn => {
-      try {
-        const sourceNode = graph.getNodeById(conn.origin_id)
-        const targetNode = graph.getNodeById(conn.target_id)
-        if (!sourceNode?.id || !targetNode?.id) return null
-        return {
-          source_block: sourceNode.id.toString(),
-          source_output: sourceNode?.outputs[conn.origin_slot].name,
-          target_block: targetNode.id.toString(),
-          target_input: targetNode?.inputs[conn.target_slot].name
-
-
-        }
-      } catch (error) {
-        console.warn('[updateWires] Error getting node:', error)
-        return null
-      }
-    })
-    .filter((wire): wire is Wire => wire !== null)
+const updateWires = debounce(() => {
+  const wires = convertEdgesToWires()
   intent.updateWires(wires)
+  console.log('updateWires', wires)
   emit('update:wires', wires)
+}, 500)
+
+// 恢复图形
+const restoreGraph = () => {
+  const vueFlowNodes = convertBlocksToNodes(viewState.value.blocks)
+  const vueFlowEdges = convertWiresToEdges(viewState.value.wires)
+
+  setNodes(vueFlowNodes)
+  setEdges(vueFlowEdges)
+  // 如果存在 position 未设置的情况，则使用自动布局
+  if (vueFlowNodes.every(block => block.position.x == 0 && block.position.y == 0)) {
+    console.log('layout')
+    setNodes(layout(vueFlowNodes, vueFlowEdges, 'LR'))
+    nextTick(() => {
+      fitView()
+    })
+  }
 }
 
-// 修改保存处理函数
+// ==================== 事件处理函数 ====================
+// 保存处理函数
 const handleSave = async () => {
   try {
     updateBlocks()
@@ -428,7 +339,7 @@ const handleSave = async () => {
   }
 }
 
-// 修改重置处理函数
+// 重置处理函数
 const handleReset = () => {
   resetting.value = true
   loadingBar.start()
@@ -436,75 +347,25 @@ const handleReset = () => {
   window.location.reload()
 }
 
-// 创建节点
-const createNode = (block: BlockInstance) => {
-  if (!graph) return null
-  const node = LiteGraph.createNode(block.type_name.replace(':', '/'))
-  if (!node) {
-    console.warn(`[createNode] Could not create node of type ${block.type_name}`)
-    return null
-  }
-  node.id = block.name
-  node.pos = [block.position.x, block.position.y]
-  graph.add(node)
-
-  // 恢复节点的配置
-  if (block.config) {
-    node.properties.config = block.config
-    // 更新节点的属性
-    for (const key in block.config) {
-      node.properties[key] = block.config[key]
-    }
-    node.widgets?.forEach((widget: IBaseWidget) => {
-      if (widget.name && (widget as IBaseBlockWidget).actual_name) {
-        widget.value = block.config[(widget as IBaseBlockWidget).actual_name] || widget.value
-      }
-    })
-  }
-  return node
-}
-
-// 连接连线
-const connectWire = (wire: Wire) => {
-  if (!graph) return
-  const sourceNode = graph.getNodeById(wire.source_block)
-  const targetNode = graph.getNodeById(wire.target_block)
-  if (sourceNode && targetNode) {
-    sourceNode.connect(wire.source_output, targetNode, wire.target_input)
-  }
-}
-
-// 恢复图形
-const restoreGraph = () => {
-  if (!graph) return
-  graph.clear()
-  viewState.value.blocks.forEach(block => {
-    createNode(block)
-  })
-  viewState.value.wires.forEach(wire => {
-    connectWire(wire)
-  })
-}
-
-// 处理撤销
+// 撤销处理函数
 const handleUndo = () => {
-  if (!viewState.value.canUndo || !graph) return
+  if (!viewState.value.canUndo) return
   intent.undo()
   workflowEditorModel.performActionWithoutHistory(() => {
     restoreGraph()
   })
 }
 
-// 处理重做
+// 重做处理函数
 const handleRedo = () => {
-  if (!viewState.value.canRedo || !graph) return
+  if (!viewState.value.canRedo) return
   intent.redo()
   workflowEditorModel.performActionWithoutHistory(() => {
     restoreGraph()
   })
 }
 
-// 修改导入处理函数
+// 导入处理函数
 const handleImport = async () => {
   try {
     importing.value = true
@@ -514,21 +375,19 @@ const handleImport = async () => {
     input.accept = '.json'
     input.onchange = async (e: Event) => {
       const file = (e.target as HTMLInputElement).files?.[0]
-      if (file && graph) {
+      if (file) {
         const reader = new FileReader()
         reader.onload = (e) => {
           try {
             const data = JSON.parse(e.target?.result as string)
-            if (data.blocks && data.wires && graph) {
+            if (data.blocks && data.wires) {
               intent.saveToHistory()
               workflowEditorModel.performActionWithoutHistory(() => {
-                graph.clear()
-                data.blocks.forEach((block: BlockInstance) => {
-                  createNode(block)
-                })
-                data.wires.forEach((wire: Wire) => {
-                  connectWire(wire)
-                })
+                const vueFlowNodes = convertBlocksToNodes(data.blocks)
+                const vueFlowEdges = convertWiresToEdges(data.wires)
+
+                setNodes(vueFlowNodes)
+                setEdges(vueFlowEdges)
               })
               updateBlocks()
               updateWires()
@@ -548,14 +407,14 @@ const handleImport = async () => {
   }
 }
 
-// 处理返回
+// 返回处理函数
 const handleBack = () => {
   if (window.confirm('确定要离开此页面吗？您未保存的更改可能会丢失！')) {
     window.history.back()
   }
 }
 
-// 处理编辑信息
+// 编辑信息处理函数
 const handleEditInfo = () => {
   formValue.value = {
     workflowId: viewState.value.workflowId || '',
@@ -565,37 +424,18 @@ const handleEditInfo = () => {
   showSettingsModal.value = true
 }
 
-let isNodeTypesRegistered = false
-let isGraphInitialized = false
-
-// 初始化图形数据 (在合适的时机只执行一次)
+// ==================== 初始化函数 ====================
+// 初始化图形数据
+let _graphDataInitialized = false
 const initGraphData = async () => {
-  if (!graph) {
-    console.warn('[initGraphData] Graph is not initialized.')
-    return
-  }
-
   // 加载区块类型和类型兼容性映射
   const compatibility = await getTypeCompatibility()
   typeCompatibility.value = compatibility
-  console.log('[initGraphData] Type compatibility:', typeCompatibility.value)
-  // 注册节点类型
-  if (props.blockTypes.length > 0 && !isNodeTypesRegistered) {
-    graph.clear()
-    registerNodeTypes()
-    updateLinkColors()
-    isNodeTypesRegistered = true
-    console.log('[initGraphData] Node types registered.')
-  }
-
-  // 如果节点类型未注册，则不执行
-  if (!isNodeTypesRegistered) {
-    return
-  }
 
   // 恢复数据
-  if ((props.blocks.length > 0 || props.wires.length > 0) && !isGraphInitialized) {
-    isGraphInitialized = true
+  if (props.blocks.length > 0 || props.wires.length > 0) {
+    if (_graphDataInitialized) return
+    _graphDataInitialized = true
     // 更新 viewState
     intent.initialize({
       blocks: props.blocks,
@@ -607,17 +447,11 @@ const initGraphData = async () => {
     })
     workflowEditorModel.performActionWithoutHistory(() => {
       restoreGraph()
-      // 判断节点坐标是不是都有值
-      const nodes = Array.from(graph._nodes.values())
-      if (nodes.some(node => node.pos[0] === 0 && node.pos[1] === 0)) {
-        console.log('节点坐标为0，重新排列')
-        graph.arrange()
-      }
-      console.log('[initGraphData] Graph initialized.')
     })
   }
 }
 
+// 初始化属性数据
 const initPropertiesData = () => {
   viewState.value.name = props.initialName || ''
   viewState.value.description = props.initialDescription || ''
@@ -632,120 +466,180 @@ const initPropertiesData = () => {
     formValue.value.workflowId = 'user:' + Array.from({ length: 5 }, () => Math.floor(Math.random() * 36).toString(36)).join('')
   }
 }
+
+// ==================== 生命周期钩子和监听器 ====================
+
 // 监听 props 变化
 watch([() => props.blocks, () => props.wires, () => props.blockTypes], initGraphData, { deep: true })
 watch([() => props.initialName, () => props.initialDescription, () => props.initialWorkflowId], initPropertiesData, { deep: true })
-// 初始化
 
-
-onMounted(() => {
-  initGraph()
-  initGraphData()
-
-  // 添加离开页面时的确认提示
-  window.addEventListener('beforeunload', beforeunloadHandler)
-})
-
+// 页面离开确认处理函数
 const beforeunloadHandler = (event: BeforeUnloadEvent) => {
   event.preventDefault()
   event.returnValue = '您确定要离开此页面吗？未保存的更改可能会丢失。'
   return event.returnValue
 }
 
+// 组件挂载
+onMounted(() => {
+  // 注册自定义节点类型
+  // const { addNodeTypes } = useVueFlow()
+  // addNodeTypes({ custom: CustomNode })
+
+  initGraphData()
+  initPropertiesData()
+
+  // 添加键盘快捷键
+  document.addEventListener('keydown', (e: KeyboardEvent) => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+      e.preventDefault()
+      if (e.shiftKey) {
+        handleRedo()
+      } else {
+        handleUndo()
+      }
+    } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+      e.preventDefault()
+      handleSave()
+    }
+  })
+
+  // 添加离开页面时的确认提示
+  window.addEventListener('beforeunload', beforeunloadHandler)
+})
+
+// 组件卸载
 onBeforeUnmount(() => {
   window.removeEventListener('beforeunload', beforeunloadHandler)
 })
+
+// 关闭节点配置面板
+const closeNodeConfig = () => {
+  removeSelectedNodes(getSelectedNodes.value)
+}
+
+// 添加拖放处理函数
+const onDrop = (event: DragEvent) => {
+  if (!event.dataTransfer) return
+  
+  const data = event.dataTransfer.getData('application/vueflow')
+  if (!data) return
+  
+  try {
+    const blockType = JSON.parse(data) as BlockType
+    
+    // 获取画布上的位置
+    const { x, y } = project({ x: event.clientX, y: event.clientY })
+    
+    // 生成唯一ID
+    const baseName = blockType.type_name.split('.').pop() || 'node'
+    let newId = baseName
+    let counter = 1
+    
+    while (nodes.value.some(node => node.id === newId)) {
+      newId = `${baseName}_${counter}`
+      counter++
+    }
+    
+    // 创建新节点
+    const newNode = {
+      id: newId,
+      type: 'custom',
+      position: { x, y },
+      data: {
+        label: blockType.label,
+        blockType: blockType,
+        config: {},
+        inputs: blockType.inputs,
+        outputs: blockType.outputs
+      }
+    }
+    
+    addNodes([newNode])
+    updateBlocks()
+  } catch (error) {
+    console.error('添加节点失败:', error)
+  }
+}
 </script>
 
 <template>
   <div class="workflow-canvas">
-    <div class="toolbar">
-      <NSpace>
-        <NTooltip placement="bottom" trigger="hover">
-          <template #trigger>
-            <NButton
-              quaternary
-              circle
-              :loading="saving"
-              @click="handleSave"
-              class="toolbar-button"
-            >
-              <template #icon>
-                <NIcon><SaveOutline /></NIcon>
-              </template>
-            </NButton>
-          </template>
-          <span>保存工作流</span>
-        </NTooltip>
-        <NTooltip placement="bottom" trigger="hover">
-          <template #trigger>
-            <NButton
-              quaternary
-              circle
-              :loading="resetting"
-              @click="handleReset"
-              class="toolbar-button"
-            >
-              <template #icon>
-                <NIcon><RefreshOutline /></NIcon>
-              </template>
-            </NButton>
-          </template>
-          <span>重置工作流</span>
-        </NTooltip>
-        <NTooltip placement="bottom" trigger="hover">
-          <template #trigger>
-            <NButton
-              quaternary
-              circle
-              :loading="importing"
-              @click="handleImport"
-              class="toolbar-button"
-            >
-              <template #icon>
-                <NIcon><DownloadOutline /></NIcon>
-              </template>
-            </NButton>
-          </template>
-          <span>导入工作流</span>
-        </NTooltip>
-        <NTooltip placement="bottom" trigger="hover">
-          <template #trigger>
-            <NButton
-              quaternary
-              circle
-              @click="handleEditInfo"
-              class="toolbar-button"
-            >
-              <template #icon>
-                <NIcon><SettingsOutline /></NIcon>
-              </template>
-            </NButton>
-          </template>
-          <span>编辑工作流信息</span>
-        </NTooltip>
-      </NSpace>
-    </div>
+    <VueFlow :nodes="nodes" :edges="edges" fit-view-on-init
+      @nodes-change="updateBlocks" @edges-change="updateWires" @edge-update="handleEdgeUpdate" @connect="handleConnect"
+      :default-zoom="1" :min-zoom="0.2" :max-zoom="4" :snap-to-grid="true" class="vue-flow-canvas"
+      @drop="onDrop" @dragover.prevent>
+      <template #node-custom="customNodeProps">
+        <CustomNode v-bind="customNodeProps" :isValidConnection="isValidConnection" />
+      </template>
+      <Background pattern-color="#aaa" :gap="20" />
+      <Controls />
+      <Panel position="top-center" class="toolbar">
+        <NSpace>
+          <NTooltip placement="bottom" trigger="hover">
+            <template #trigger>
+              <NButton quaternary circle :loading="saving" @click="handleSave" class="toolbar-button">
+                <template #icon>
+                  <NIcon>
+                    <SaveOutline />
+                  </NIcon>
+                </template>
+              </NButton>
+            </template>
+            <span>保存工作流</span>
+          </NTooltip>
+          <NTooltip placement="bottom" trigger="hover">
+            <template #trigger>
+              <NButton quaternary circle :loading="resetting" @click="handleReset" class="toolbar-button">
+                <template #icon>
+                  <NIcon>
+                    <RefreshOutline />
+                  </NIcon>
+                </template>
+              </NButton>
+            </template>
+            <span>重置工作流</span>
+          </NTooltip>
+          <NTooltip placement="bottom" trigger="hover">
+            <template #trigger>
+              <NButton quaternary circle :loading="importing" @click="handleImport" class="toolbar-button">
+                <template #icon>
+                  <NIcon>
+                    <DownloadOutline />
+                  </NIcon>
+                </template>
+              </NButton>
+            </template>
+            <span>导入工作流</span>
+          </NTooltip>
+          <NTooltip placement="bottom" trigger="hover">
+            <template #trigger>
+              <NButton quaternary circle @click="handleEditInfo" class="toolbar-button">
+                <template #icon>
+                  <NIcon>
+                    <SettingsOutline />
+                  </NIcon>
+                </template>
+              </NButton>
+            </template>
+            <span>编辑工作流信息</span>
+          </NTooltip>
+        </NSpace>
+      </Panel>
+      <Panel position="top-right" style="margin: 0; height: 100%">
+        <NodeConfigPanel v-if="selectedNode" :selected-node="selectedNode" @close="closeNodeConfig"
+          :block-types="props.blockTypes" />
+      </Panel>
+      <Panel position="top-left" style="margin: 0; height: 100%">
+        <NodeListPanel :block-types="props.blockTypes"></NodeListPanel>
+      </Panel>
+    </VueFlow>
 
-    <canvas ref="container" class="workflow-canvas" tabindex="0"></canvas>
-
-    <NModal
-      v-model:show="showSettingsModal"
-      preset="card"
-      title="工作流设置"
-      class="settings-modal"
-      :style="{ width: '600px' }"
-    >
-      <NForm
-        ref="formRef"
-        :model="formValue"
-        :rules="formRules"
-        label-placement="left"
-        label-width="100"
-        require-mark-placement="right-hanging"
-        size="medium"
-        class="settings-form"
-      >
+    <!-- 设置对话框 -->
+    <NModal v-model:show="showSettingsModal" preset="card" title="工作流设置" class="settings-modal"
+      :style="{ width: '600px' }">
+      <NForm ref="formRef" :model="formValue" :rules="formRules" label-placement="left" label-width="100"
+        require-mark-placement="right-hanging" size="medium" class="settings-form">
         <NFormItem label="工作流ID" path="workflowId">
           <NInput v-model:value="formValue.workflowId" placeholder="请输入 group_id:workflow_id" />
         </NFormItem>
@@ -753,42 +647,29 @@ onBeforeUnmount(() => {
           <NInput v-model:value="formValue.name" placeholder="请输入工作流名称" />
         </NFormItem>
         <NFormItem label="描述" path="description">
-          <NInput
-            v-model:value="formValue.description"
-            type="textarea"
-            placeholder="请输入工作流描述"
-          />
+          <NInput v-model:value="formValue.description" type="textarea" placeholder="请输入工作流描述" />
         </NFormItem>
       </NForm>
       <template #footer>
         <NSpace justify="end">
-          <NButton
-            @click="showSettingsModal = false"
-          >
+          <NButton @click="showSettingsModal = false">
             取消
           </NButton>
-          <NButton
-            type="primary"
-            :loading="saving"
-            @click="handleSave"
-          >
+          <NButton type="primary" :loading="saving" @click="handleSave">
             保存
           </NButton>
         </NSpace>
       </template>
     </NModal>
-    <div
-      v-if="props.loading"
-      class="loading-overlay"
-    >
+
+    <!-- 加载遮罩 -->
+    <div v-if="props.loading" class="loading-overlay">
       <NSpin size="large" />
-  </div>
+    </div>
   </div>
 </template>
 
 <style>
-@import '@comfyorg/litegraph/dist/css/litegraph.css';
-
 .workflow-canvas {
   width: 100vw;
   height: calc(100vh - 28px);
@@ -799,12 +680,12 @@ onBeforeUnmount(() => {
   z-index: 2;
 }
 
+.vue-flow-canvas {
+  width: 100%;
+  height: 100%;
+}
+
 .toolbar {
-  position: absolute;
-  top: 1rem;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 100;
   padding: 0.5rem;
   background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(10px);
@@ -813,9 +694,10 @@ onBeforeUnmount(() => {
   animation: slide-in 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   justify-content: center;
+  z-index: 100;
 }
 
-.toolbar > * {
+.toolbar>* {
   margin: 0 0.5rem;
 }
 
@@ -832,13 +714,6 @@ onBeforeUnmount(() => {
   transform: translateY(0);
 }
 
-.canvas-container {
-  width: 100%;
-  height: 100%;
-  position: relative;
-  overflow: hidden;
-}
-
 .settings-modal {
   animation: fade-in 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -852,6 +727,7 @@ onBeforeUnmount(() => {
     opacity: 0;
     transform: translateX(-20px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -863,25 +739,12 @@ onBeforeUnmount(() => {
     opacity: 0;
     transform: scale(0.95);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
   }
 }
-
-/* 自定义 LiteGraph 节点样式 */
-:deep(.litegraph) {
-  --node-color: white;
-  --node-color-selected: #e6f4ff;
-  --node-border-radius: 8px;
-  --node-title-color: #f0f0f0;
-  --node-title-height: 30px;
-  --node-padding: 12px;
-  --node-title-text-color: #333;
-  --node-text-color: #666;
-  --node-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
-}
-
 
 .loading-overlay {
   position: absolute;
@@ -891,5 +754,36 @@ onBeforeUnmount(() => {
   height: 100%;
   background: rgba(255, 255, 255, 0.8);
   z-index: 200;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.selected {
+  box-shadow: 0 0 0 1px #007bff;
+}
+
+/* 添加边缘选中样式 */
+.workflow-edge {
+  transition: all 0.2s ease;
+}
+
+.workflow-edge.selected {
+  filter: drop-shadow(0 0 3px rgba(0, 123, 255, 0.5));
+  animation: edge-blink 1.5s infinite;
+}
+
+@keyframes edge-blink {
+  0% {
+    filter: drop-shadow(0 0 3px rgba(0, 123, 255, 0.2));
+  }
+
+  50% {
+    filter: drop-shadow(0 0 5px rgba(0, 123, 255, 1));
+  }
+
+  100% {
+    filter: drop-shadow(0 0 3px rgba(0, 123, 255, 0.2));
+  }
 }
 </style>

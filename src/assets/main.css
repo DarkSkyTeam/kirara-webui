@@ -266,6 +266,12 @@ a {
   -webkit-text-fill-color: transparent;
 }
 
+.vue-flow__handle {
+  height:24px;
+  width:8px;
+  border-radius:4px !important;
+}
+
 /* 全局动画 */
 @keyframes fade-in {
   from {
