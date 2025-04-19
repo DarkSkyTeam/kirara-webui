@@ -103,6 +103,10 @@ const updateConfigValue = (configName: string, value: any) => {
     formValue.value[configName] = value
 }
 
+const isListType = (type: string) => {
+    return type.startsWith('List[') && type.endsWith(']')
+}
+
 // 获取选择框选项
 const getSelectOptions = (config: any) => {
     const options = (config.options || []).map((opt: { label: any; value: undefined; description: any }) => {
@@ -122,8 +126,7 @@ const getSelectOptions = (config: any) => {
     })
 
     // 如果是可空的单选框，添加"不指定"选项
-    console.log(config)
-    if (!config.multiple && !config.required) {
+    if (!isListType(config.type) && !config.required) {
         options.unshift({
             label: '不指定',
             value: null
@@ -356,12 +359,12 @@ function getTypeColorStyle(type: string) {
                                 class="custom-input" />
 
                             <!-- 单选类型配置 -->
-                            <NSelect v-else-if="config.type === 'str' && config.has_options && !config.multiple"
+                            <NSelect v-else-if="config.has_options && !isListType(config.type)"
                                 v-model:value="formValue[config.name]" :options="getSelectOptions(config)"
                                 :placeholder="`请选择${config.label || config.name}`" class="custom-select" />
 
-                            <!-- 多选类型配置 -->
-                            <NSelect v-else-if="config.type === 'str' && config.has_options && config.multiple"
+                            <!-- 多选类型配置 List[actual_type]-->
+                            <NSelect v-else-if="config.has_options && isListType(config.type)"
                                 v-model:value="formValue[config.name]" :options="getSelectOptions(config)"
                                 :placeholder="`请选择${config.label || config.name}`" multiple class="custom-select" />
 

@@ -4,7 +4,7 @@ import { Handle, Position, useVueFlow, type Connection } from '@vue-flow/core'
 import { getTypeColor } from '@/utils/node-colors'
 
 const props = defineProps(['id', 'data', 'isValidConnection'])
-const { updateNode } = useVueFlow()
+const { getHandleConnections } = useVueFlow()
 
 const shortId = computed(() => {
   if (!props.id) return '';
@@ -23,6 +23,16 @@ const getOutputColor = (type: string) => {
 }
 
 const isValidConnection = (connection: Connection) => {
+    // one input can only have one connection
+    const incomers = getHandleConnections({
+        id: connection.targetHandle,
+        nodeId: connection.target,
+        type: 'target'
+    })
+    if (incomers.length > 0) {
+        return false
+    }
+
     if (props.isValidConnection) {
         return props.isValidConnection(connection)
     }
@@ -76,6 +86,13 @@ const isValidConnection = (connection: Connection) => {
                         <template v-else-if="config.type === 'str'">
                             <span class="config-value-text" :title="data.config?.[config.name] || '未设置'">
                                 {{ data.config?.[config.name] || '未设置' }}
+                            </span>
+                        </template>
+
+                        <!-- 数组类型配置预览 -->
+                        <template v-else-if="config.type.startsWith('List[') && config.type.endsWith(']')">
+                            <span class="config-value-text" :title="data.config?.[config.name] || '未设置'">
+                                {{ data.config?.[config.name]?.join(',') || '未设置' }}
                             </span>
                         </template>
                         
