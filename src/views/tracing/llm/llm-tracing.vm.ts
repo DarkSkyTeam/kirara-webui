@@ -76,7 +76,6 @@ class LLMTracerDelegate implements TracerDelegate<LLMTrace, LLMStatistics> {
                 value: backend.backend_name
             }))
         }
-        console.log(this.filterOptions.value)
     }
 
     getTableColumns(baseVM: ReturnType<typeof useTracingViewModel>) {

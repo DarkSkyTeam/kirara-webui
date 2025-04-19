@@ -80,18 +80,11 @@ export function useConsoleViewModel() {
         isLoading.value = true
 
         try {
-            // 获取当前协议和主机
-            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-            const host = window.location.host
-            // 从localStorage或其他存储中获取token
             const token = localStorage.getItem('token') || ''
-            const wsUrl = http.url('/system/logs')
 
-            socket = new WebSocket(wsUrl)
+            const socket = http.ws('/system/logs');
 
-            // 在建立连接时也可以通过headers发送token
             socket.onopen = () => {
-                // 连接建立后发送认证消息
                 socket!!.send(JSON.stringify({
                     type: 'auth',
                     token: token
