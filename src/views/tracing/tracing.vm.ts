@@ -185,13 +185,11 @@ export function useTracingViewModel<S extends TraceStatistics>(traceType: string
     // WebSocket连接管理
     const connectWebSocket = async () => {
         try {
-            const wsUrl = http.url('/tracing/ws')
-
             if (socket && socket.readyState !== WebSocket.CLOSED) {
                 socket.close()
             }
 
-            socket = new WebSocket(wsUrl)
+            socket = http.ws('/tracing/ws')
 
             socket.onopen = () => {
                 socket!.send(JSON.stringify({
