@@ -138,7 +138,7 @@
                                             <n-button size="small" quaternary circle
                                                 @click="viewServerDetail(server.id)" class="action-icon">
                                                 <template #icon>
-                                                    <n-icon><open-outline /></n-icon>
+                                                    <n-icon><eye-outline /></n-icon>
                                                 </template>
                                             </n-button>
                                         </template>
@@ -236,41 +236,6 @@
                                         </div>
                                     </div>
                                 </div>
-
-                                <!-- 工具列表 -->
-                                <div class="server-tools" v-if="server.connection_state === 'connected'">
-                                    <n-divider>工具列表</n-divider>
-
-                                    <div v-if="serverToolsMap[server.id]?.length" class="tools-list">
-                                        <n-list hoverable clickable>
-                                            <n-list-item v-for="tool in serverToolsMap[server.id]" :key="tool.name"
-                                                class="tool-item">
-                                                <n-thing :title="tool.name" :description="tool.description">
-                                                    <template #avatar>
-                                                        <n-icon size="24" color="#2080f0">
-                                                            <terminal-outline />
-                                                        </n-icon>
-                                                    </template>
-                                                    <template #header-extra>
-                                                        <n-tag size="small" type="info">工具</n-tag>
-                                                    </template>
-                                                </n-thing>
-                                            </n-list-item>
-                                        </n-list>
-                                    </div>
-                                    <div v-else-if="serverToolsMap[server.id]?.length === 0" class="empty-tools">
-                                        <n-empty size="small" description="暂无工具" />
-                                    </div>
-                                    <div v-else class="load-tools">
-                                        <n-button size="small" @click="loadServerTools(server.id)"
-                                            :loading="loadingTools[server.id]">
-                                            <template #icon>
-                                                <n-icon><download-outline /></n-icon>
-                                            </template>
-                                            加载工具列表
-                                        </n-button>
-                                    </div>
-                                </div>
                             </div>
                         </n-card>
                     </div>
@@ -287,6 +252,10 @@
         <n-modal v-model:show="showServerModal" :title="modalMode === 'create' ? '添加新服务器' : '编辑服务器'" preset="card"
             :style="{ width: '600px' }" class="server-modal" @after-leave="resetForm">
 
+            <n-alert v-if="modalMode === 'edit' && isServerRunning" type="warning" :show-icon="true" style="margin-bottom: 16px">
+                无法编辑已连接的 MCP 服务器，请先断开连接
+            </n-alert>
+
             <n-form ref="formRef" :model="formModel" label-placement="left" label-width="120px"
                 require-mark-placement="right-hanging">
                 <n-form-item label="服务器ID" path="id" required>
@@ -300,14 +269,16 @@
                 <n-form-item label="连接类型" path="connection_type" required>
                     <div class="connection-type-buttons">
                         <n-button :type="formModel.connection_type === 'stdio' ? 'primary' : 'default'"
-                            @click="formModel.connection_type = 'stdio'" class="connection-type-button">
+                            @click="formModel.connection_type = 'stdio'" class="connection-type-button"
+                            :disabled="modalMode === 'edit' && isServerRunning">
                             <template #icon>
                                 <n-icon><terminal-outline /></n-icon>
                             </template>
                             stdio
                         </n-button>
                         <n-button :type="formModel.connection_type === 'sse' ? 'primary' : 'default'"
-                            @click="formModel.connection_type = 'sse'" class="connection-type-button">
+                            @click="formModel.connection_type = 'sse'" class="connection-type-button"
+                            :disabled="modalMode === 'edit' && isServerRunning">
                             <template #icon>
                                 <n-icon><globe-outline /></n-icon>
                             </template>
@@ -316,29 +287,63 @@
                     </div>
                 </n-form-item>
 
-                <n-form-item label="命令" path="command" required>
-                    <n-input v-model:value="formModel.command" placeholder="例如：python, node" />
-                    <template #feedback>
-                        <n-text depth="3">要执行的命令，如 python 或 node</n-text>
-                    </template>
-                </n-form-item>
+                <!-- stdio 连接类型表单项 -->
+                <template v-if="formModel.connection_type === 'stdio'">
+                    <n-form-item label="命令" path="command" required>
+                        <n-input v-model:value="formModel.command" placeholder="例如：python, node" 
+                            :disabled="modalMode === 'edit' && isServerRunning" />
+                        <template #feedback>
+                            <n-text depth="3">要执行的命令，如 python 或 node</n-text>
+                        </template>
+                    </n-form-item>
 
-                <n-form-item label="参数" path="args" required>
-                    <n-input v-model:value="formModel.args" placeholder="例如：path/to/script.py" />
-                    <template #feedback>
-                        <n-text depth="3">命令的参数，如脚本路径 path/to/script.py</n-text>
-                    </template>
-                </n-form-item>
+                    <n-form-item label="参数" path="args" required>
+                        <n-input v-model:value="formModel.args" placeholder="例如：path/to/script.py" 
+                            :disabled="modalMode === 'edit' && isServerRunning" />
+                        <template #feedback>
+                            <n-text depth="3">命令的参数，如脚本路径 path/to/script.py</n-text>
+                        </template>
+                    </n-form-item>
+
+                    <n-form-item label="环境变量" path="env">
+                        <n-dynamic-input v-model:value="formModel.env" preset="pair" key-placeholder="变量名" value-placeholder="变量值"
+                            :disabled="modalMode === 'edit' && isServerRunning" />
+                        <template #feedback>
+                            <n-text depth="3">命令执行时的环境变量</n-text>
+                        </template>
+                    </n-form-item>
+                </template>
+
+                <!-- sse 连接类型表单项 -->
+                <template v-else>
+                    <n-form-item label="URL" path="url" required>
+                        <n-input v-model:value="formModel.url" placeholder="例如：http://localhost:8000/sse" 
+                            :disabled="modalMode === 'edit' && isServerRunning" />
+                        <template #feedback>
+                            <n-text depth="3">SSE 服务器的 URL 地址</n-text>
+                        </template>
+                    </n-form-item>
+
+                    <n-form-item label="Headers" path="headers">
+                        <n-dynamic-input v-model:value="formModel.headers" preset="pair" key-placeholder="Header 名" value-placeholder="Header 值"
+                            :disabled="modalMode === 'edit' && isServerRunning" />
+                        <template #feedback>
+                            <n-text depth="3">请求头信息</n-text>
+                        </template>
+                    </n-form-item>
+                </template>
 
                 <n-form-item label="描述" path="description">
-                    <n-input v-model:value="formModel.description" type="textarea" placeholder="服务器的描述信息" />
+                    <n-input v-model:value="formModel.description" type="textarea" placeholder="服务器的描述信息" 
+                        :disabled="modalMode === 'edit' && isServerRunning" />
                 </n-form-item>
             </n-form>
 
             <template #footer>
                 <n-space justify="end">
                     <n-button @click="showServerModal = false">取消</n-button>
-                    <n-button type="primary" :loading="isLoading" @click="saveServer">保存</n-button>
+                    <n-button type="primary" :loading="isLoading" @click="saveServer" 
+                        :disabled="modalMode === 'edit' && isServerRunning">保存</n-button>
                 </n-space>
             </template>
         </n-modal>
@@ -352,13 +357,13 @@ import {
     NButton, NCard, NInput, NSelect, NSpace, NModal, NForm, NFormItem,
     NIcon, NGrid, NGridItem, NEmpty, NSpin, NText, NTag, NDivider,
     NPopconfirm, useMessage, useDialog, NBadge, NTooltip, NPagination,
-    NList, NListItem, NThing
+    NList, NListItem, NThing, NAlert, NDynamicInput
 } from 'naive-ui'
 import {
     AddOutline, RefreshOutline, SearchOutline, CloseOutline,
     TrashOutline, PencilOutline, PlayOutline, StopOutline,
     CopyOutline, TerminalOutline, GlobeOutline, ServerOutline,
-    BookOutline, OpenOutline, InformationCircleOutline, PulseOutline,
+    EyeOutline, InformationCircleOutline, PulseOutline,
     CubeOutline, CodeOutline, LinkOutline, DownloadOutline
 } from '@vicons/ionicons5'
 import IconMCP from '@/components/icons/IconMCP.vue'
@@ -384,7 +389,7 @@ const {
     fetchStatistics,
     openCreateModal,
     openEditModal,
-    saveServer,
+    saveServer: originalSaveServer,
     deleteServer,
     startServer,
     stopServer,
@@ -395,29 +400,32 @@ const {
     handlePageSizeChange,
     refreshData,
     initialize,
-    fetchServerTools
 } = useMCPViewModel()
 
 const message = useMessage()
 const router = useRouter()
 
-// 存储每个服务器的工具列表
-const serverToolsMap = reactive<Record<string, MCPTool[]>>({})
-const loadingTools = reactive<Record<string, boolean>>({})
 
-// 加载服务器工具列表
-const loadServerTools = async (serverId: string) => {
-    if (loadingTools[serverId]) return
+// 判断服务器是否正在运行
+const isServerRunning = computed(() => {
+    if (modalMode.value === 'edit' && formModel.value.id) {
+        const server = servers.value.find(s => s.id === formModel.value.id)
+        return server?.connection_state === 'connected' || server?.connection_state === 'connecting'
+    }
+    return false
+})
 
-    loadingTools[serverId] = true
+// 包装保存服务器方法，添加错误处理
+const saveServer = async () => {
     try {
-        const tools = await fetchServerTools(serverId)
-        serverToolsMap[serverId] = tools
-    } catch (error) {
-        console.error('加载工具列表失败:', error)
-        message.error('加载工具列表失败')
-    } finally {
-        loadingTools[serverId] = false
+        await originalSaveServer()
+    } catch (error: any) {
+        // 显示后台返回的错误信息
+        if (error.response?.data?.message) {
+            message.error(error.response.data.message)
+        } else {
+            message.error('保存服务器失败：' + (error.message || '未知错误'))
+        }
     }
 }
 
@@ -439,7 +447,7 @@ const copyUrl = (server: MCPServer) => {
 // 查看服务器详情
 const viewServerDetail = (serverId: string) => {
     router.push({
-        name: 'MCPDetail',
+        name: 'mcp-detail',
         params: { id: serverId }
     })
 }

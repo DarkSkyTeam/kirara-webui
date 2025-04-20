@@ -12,6 +12,8 @@ export interface MCPServer {
     args: string
     url: string | null
     connection_state: string
+    env: Record<string, string> | null
+    headers: Record<string, string> | null
 }
 
 // MCP服务器统计信息
@@ -73,7 +75,10 @@ export function useMCPViewModel() {
         description: '',
         command: '',
         args: '',
-        connection_type: 'stdio' as 'stdio' | 'sse'
+        connection_type: 'stdio' as 'stdio' | 'sse',
+        url: '',
+        env: [] as { key: string, value: string }[],
+        headers: [] as { key: string, value: string }[]
     })
 
     // 模态框状态
@@ -186,7 +191,24 @@ export function useMCPViewModel() {
                 return
             }
 
-            await http.post('/mcp/servers', formModel.value)
+            // 将环境变量和请求头从数组转换为对象格式
+            const serverData = {
+                ...formModel.value,
+                env: formModel.value.env.length > 0 
+                    ? formModel.value.env.reduce((acc, { key, value }) => {
+                        if (key.trim()) acc[key.trim()] = value;
+                        return acc;
+                      }, {} as Record<string, string>)
+                    : null,
+                headers: formModel.value.headers.length > 0
+                    ? formModel.value.headers.reduce((acc, { key, value }) => {
+                        if (key.trim()) acc[key.trim()] = value;
+                        return acc;
+                      }, {} as Record<string, string>)
+                    : null
+            };
+
+            await http.post('/mcp/servers', serverData)
             message.success('MCP服务器创建成功')
             showServerModal.value = false
             resetForm()
@@ -195,6 +217,7 @@ export function useMCPViewModel() {
         } catch (error) {
             message.error('创建MCP服务器失败')
             console.error('创建MCP服务器失败:', error)
+            throw error; // 重新抛出错误以便上层处理
         } finally {
             isLoading.value = false
         }
@@ -204,7 +227,25 @@ export function useMCPViewModel() {
     const updateServer = async () => {
         try {
             isLoading.value = true
-            await http.put(`/mcp/servers/${formModel.value.id}`, formModel.value)
+            
+            // 将环境变量和请求头从数组转换为对象格式
+            const serverData = {
+                ...formModel.value,
+                env: formModel.value.env.length > 0 
+                    ? formModel.value.env.reduce((acc, { key, value }) => {
+                        if (key.trim()) acc[key.trim()] = value;
+                        return acc;
+                      }, {} as Record<string, string>)
+                    : null,
+                headers: formModel.value.headers.length > 0
+                    ? formModel.value.headers.reduce((acc, { key, value }) => {
+                        if (key.trim()) acc[key.trim()] = value;
+                        return acc;
+                      }, {} as Record<string, string>)
+                    : null
+            };
+            
+            await http.put(`/mcp/servers/${formModel.value.id}`, serverData)
             message.success('MCP服务器更新成功')
             showServerModal.value = false
             resetForm()
@@ -213,6 +254,7 @@ export function useMCPViewModel() {
         } catch (error) {
             message.error('更新MCP服务器失败')
             console.error('更新MCP服务器失败:', error)
+            throw error; // 重新抛出错误以便上层处理
         } finally {
             isLoading.value = false
         }
@@ -276,12 +318,25 @@ export function useMCPViewModel() {
     // 打开编辑模态框
     const openEditModal = (server: MCPServer) => {
         modalMode.value = 'edit'
+        
+        // 将环境变量和请求头从对象转换为数组格式
+        const envArray = server.env 
+            ? Object.entries(server.env).map(([key, value]) => ({ key, value }))
+            : [];
+            
+        const headersArray = server.headers 
+            ? Object.entries(server.headers).map(([key, value]) => ({ key, value }))
+            : [];
+            
         formModel.value = {
             id: server.id,
             description: server.description || '',
             command: server.command || '',
             args: server.args,
-            connection_type: server.connection_type as 'stdio' | 'sse'
+            connection_type: server.connection_type as 'stdio' | 'sse',
+            url: server.url || '',
+            env: envArray,
+            headers: headersArray
         }
         showServerModal.value = true
     }
@@ -302,7 +357,10 @@ export function useMCPViewModel() {
             description: '',
             command: '',
             args: '',
-            connection_type: 'stdio'
+            connection_type: 'stdio',
+            url: '',
+            env: [],
+            headers: []
         }
     }
 
@@ -357,6 +415,21 @@ export function useMCPViewModel() {
         }
     }
 
+    // 获取单个服务器的详细信息
+    const getServerById = async (serverId: string) => {
+        try {
+            isLoading.value = true
+            const response = await http.get<MCPServer>(`/mcp/servers/${serverId}`)
+            return response
+        } catch (error) {
+            console.error(`获取MCP服务器 ${serverId} 详情失败:`, error)
+            message.error('获取服务器详情失败')
+            throw error
+        } finally {
+            isLoading.value = false
+        }
+    }
+
     return {
         // 状态
         servers,
@@ -377,8 +450,7 @@ export function useMCPViewModel() {
         // 方法
         fetchServers,
         fetchStatistics,
-        getServerDetail,
-        getServerTools,
+        getServerById,
         createServer,
         updateServer,
         deleteServer,

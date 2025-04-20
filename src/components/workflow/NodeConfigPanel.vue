@@ -259,6 +259,7 @@ function getTypeColorStyle(type: string) {
                                     <span class="connection-point-name">{{ input.label || input.name }}</span>
                                     <span class="connection-type-badge">{{ input.type }}</span>
                                     <span v-if="input.required" class="required-badge">必需</span>
+                                    <span v-else class="optional-badge">可选</span>
                                 </div>
 
                                 <div v-if="getInputConnectionsByHandle(input.name).length > 0" class="connection-list">
@@ -591,6 +592,14 @@ function getTypeColorStyle(type: string) {
     font-size: 11px;
     color: #ef4444;
     background-color: rgba(239, 68, 68, 0.1);
+    padding: 1px 6px;
+    border-radius: 10px;
+    margin-left: auto;
+}
+.optional-badge {
+    font-size: 11px;
+    color: #6b7280;
+    background-color: rgba(107, 114, 128, 0.1);
     padding: 1px 6px;
     border-radius: 10px;
     margin-left: auto;
