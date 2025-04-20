@@ -347,7 +347,7 @@ watch(() => appStore.systemStatus.uptime, (newUptime) => {
                       :border-radius="4"
                       class="resource-progress" />
                   </div>
-                  <div class="load-detail">可用: {{ appStore.systemStatus.memoryUsage.free.toFixed(2) }}MB</div>
+                  <div class="load-detail">可用: {{ appStore.systemStatus?.memoryUsage?.free?.toFixed(2) }}MB</div>
 
                 </div>
               </div>

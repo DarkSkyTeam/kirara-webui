@@ -15,6 +15,7 @@ import {
   ImageOutline,
   AnalyticsOutline
 } from '@vicons/ionicons5'
+import IconMCP from '@/components/icons/IconMCP.vue'
 import { NIcon } from 'naive-ui'
 import { useAppStore } from '@/stores/app'
 
@@ -58,6 +59,11 @@ const menuOptions: MenuOption[] = [
     icon: renderIcon(GitNetworkOutline)
   },
   {
+    label: () => 'MCP',
+    key: 'mcp',
+    icon: renderIcon(IconMCP)
+  },
+  {
     label: () => '媒体管理',
     key: 'media',
     icon: renderIcon(ImageOutline)
@@ -88,7 +94,7 @@ const handleUpdateValue = (key: string) => {
   <n-menu
     :value="activeKey"
     :options="menuOptions"
-    :collapsed="appStore.siderCollapsed"
+    :collapsed="appStore.showDrawer ? false : appStore.siderCollapsed"
     :collapsed-width="64"
     :collapsed-icon-size="22"
     @update:value="handleUpdateValue"

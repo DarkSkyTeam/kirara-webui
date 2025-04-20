@@ -108,6 +108,19 @@ const router = createRouter({
           component: () => import('@/views/media/MediaList.vue')
         },
         {
+          path: '/mcp',
+          name: 'mcp',
+          component: () => import('@/views/mcp/MCPList.vue')
+        },
+        {
+          path: '/mcp/detail/:id',
+          name: 'mcp-detail',
+          component: () => import('@/views/mcp/MCPDetail.vue'),
+          meta: {
+            title: 'MCP服务器详情'
+          }
+        },
+        {
           path: '/tracing',
           name: 'tracing',
           meta: {
