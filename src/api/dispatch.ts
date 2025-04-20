@@ -77,6 +77,7 @@ const _ruleTypeLabels = {
   'sender_mismatch': '发送者不为……',
   'bot_mention': '被@',
   'chat_type': '聊天类型',
+  'im_instance': 'IM实例',
   'fallback': '任意输入'
 }
 export const getRuleTypeLabel = (type: string) => {
