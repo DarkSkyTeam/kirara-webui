@@ -3,13 +3,17 @@
     <n-card title="媒体管理" class="main-card">
       <template #header-extra>
         <n-space>
+          <n-button @click="openConfigModal" class="action-button">
+            <div class="i-carbon-settings mr-1"></div>
+            配置
+          </n-button>
+          <n-button @click="cleanupUnreferenced" class="action-button">
+            <div class="i-carbon-document-blank mr-1"></div>
+            清理无用资源
+          </n-button>
           <n-button @click="selectAll" class="action-button">
             <div class="i-carbon-select-all mr-1"></div>
             全选本页
-          </n-button>
-          <n-button @click="selectNoReference" class="action-button">
-            <div class="i-carbon-document-blank mr-1"></div>
-            选择无引用项
           </n-button>
           <n-button type="error" :disabled="selectedMediaIds.length === 0" @click="handleBatchDelete"
             class="action-button">
@@ -21,7 +25,59 @@
 
 
       <n-space vertical size="large">
-      <p class="description">在这里可以查看所有收到和发送的媒体文件，并进行管理。</p>
+        <p class="description">在这里可以查看所有收到和发送的媒体文件，并进行管理。</p>
+
+        <!-- 新增：系统信息展示 -->
+        <n-card title="系统概览" class="system-info-card" v-if="!systemInfoLoading && systemInfo">
+          <n-grid :cols="5" :x-gap="16" :y-gap="16">
+            <n-grid-item>
+              <n-statistic label="媒体总数" :value="systemInfo.total_media_count">
+                <template #prefix>
+                  <div class="i-carbon-data-view-alt mr-1"></div>
+                </template>
+              </n-statistic>
+            </n-grid-item>
+            <n-grid-item>
+              <n-statistic label="占用空间" :value="formatFileSize(systemInfo.total_media_size)">
+                <template #prefix>
+                  <div class="i-carbon-document-size mr-1"></div>
+                </template>
+              </n-statistic>
+            </n-grid-item>
+            <n-grid-item>
+              <n-statistic label="磁盘已用" :value="formatFileSize(systemInfo.disk_used)">
+                <template #prefix>
+                  <div class="i-carbon-chart-bar mr-1"></div>
+                </template>
+                <template #suffix>
+                  / {{ formatFileSize(systemInfo.disk_total) }}
+                </template>
+              </n-statistic>
+            </n-grid-item>
+            <n-grid-item>
+              <n-statistic label="自动清理未引用">
+                <template #prefix>
+                  <div class="i-carbon-clean mr-1"></div>
+                </template>
+                <n-tag :type="systemInfo.auto_remove_unreferenced ? 'success' : 'warning'" size="small">
+                  {{ systemInfo.auto_remove_unreferenced ? '已启用' : '已禁用' }}
+                </n-tag>
+                <template #suffix>
+                  ({{ systemInfo.cleanup_duration }} 天)
+                </template>
+              </n-statistic>
+            </n-grid-item>
+            <n-grid-item>
+              <n-statistic label="上次清理时间">
+                <template #prefix>
+                  <div class="i-carbon-time mr-1"></div>
+                </template>
+                {{ systemInfo.last_cleanup_time && systemInfo.last_cleanup_time > 0 ? formatDateTime(systemInfo.last_cleanup_time) : '从未执行' }}
+              </n-statistic>
+            </n-grid-item>
+          </n-grid>
+        </n-card>
+        <n-spin v-if="systemInfoLoading" size="small" class="system-info-loading" />
 
         <!-- 搜索条件 -->
         <n-card title="搜索条件" class="search-card">
@@ -65,8 +121,8 @@
                 'media-card': true,
                 'media-card-selected': selectedMediaIds.includes(item.id),
               }" hoverable @click="handlePreview(item)" :style="{
-                  animationDelay: `${index * 0.05}s`
-                }">
+                animationDelay: `${index * 0.05}s`
+              }">
                 <div class="media-card-content">
                   <div class="media-card-image">
                     <n-image :src="getPreviewUrl(item.id)" object-fit="contain" preview-disabled
@@ -209,6 +265,28 @@
         </div>
       </div>
     </n-modal>
+
+    <!-- 新增：配置对话框 -->
+    <n-modal v-model:show="showConfigModal" preset="card" title="媒体配置" :style="{ width: '500px' }"
+      :mask-closable="false">
+      <n-space vertical>
+        <n-form-item label="自动清理未引用资源">
+          <n-switch v-model:value="configAutoRemoveUnreferenced" />
+        </n-form-item>
+        <n-form-item label="未引用资源保留天数" v-if="configAutoRemoveUnreferenced">
+          <n-input-number v-model:value="configCleanupDuration" :min="1" placeholder="输入天数">
+            <template #suffix>天</template>
+          </n-input-number>
+        </n-form-item>
+      </n-space>
+      <template #footer>
+        <n-space justify="end">
+          <n-button @click="showConfigModal = false">取消</n-button>
+          <n-button type="primary" @click="saveConfig">保存</n-button>
+        </n-space>
+      </template>
+    </n-modal>
+
   </div>
 </template>
 
@@ -235,6 +313,11 @@ import {
   NIcon,
   NPagination,
   NDataTable,
+  NStatistic,
+  NTag,
+  NFormItem,
+  NSwitch,
+  NInputNumber,
 } from 'naive-ui'
 import { ImageOutline } from '@vicons/ionicons5'
 import { useMediaViewModel } from './media.vm'
@@ -252,6 +335,11 @@ const {
   searchParams,
   dateRange,
   contentTypeOptions,
+  systemInfo,
+  systemInfoLoading,
+  showConfigModal,
+  configCleanupDuration,
+  configAutoRemoveUnreferenced,
 
   // 方法
   fetchMediaList,
@@ -266,7 +354,10 @@ const {
   getRawUrl,
   downloadMedia,
   selectAll,
-  selectNoReference,
+  cleanupUnreferenced,
+  fetchSystemInfo,
+  saveConfig,
+  openConfigModal,
 
   // 引用相关
   viewReference,
@@ -278,9 +369,10 @@ const {
   formatDateTime,
 } = useMediaViewModel()
 
-// 初始化时加载媒体列表
+// 初始化时加载媒体列表和系统信息
 onMounted(() => {
   fetchMediaList()
+  fetchSystemInfo()
 })
 
 // 分页处理函数
@@ -652,6 +744,12 @@ const getReferencesCount = (item: any) => {
 }
 
 /* 响应式调整 */
+@media (max-width: 1200px) {
+  .system-info-card .n-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+}
+
 @media (max-width: 992px) {
   .preview-modal {
     width: 90%;
@@ -659,6 +757,10 @@ const getReferencesCount = (item: any) => {
 
   .media-grid {
     grid-template-columns: repeat(4, 1fr);
+  }
+
+  .system-info-card .n-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
   }
 }
 
@@ -679,11 +781,19 @@ const getReferencesCount = (item: any) => {
   .media-preview-metadata {
     width: 100%;
   }
+
+  .system-info-card .n-grid {
+    grid-template-columns: repeat(1, 1fr) !important;
+  }
 }
 
 @media (max-width: 480px) {
   .media-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .system-info-card .n-grid {
+    grid-template-columns: repeat(1, 1fr) !important;
   }
 }
 
@@ -725,13 +835,30 @@ const getReferencesCount = (item: any) => {
   max-width: 90vw;
 }
 
-@media (max-width: 768px) {
-  .preview-modal {
-    width: 95vw !important;
-  }
+/* 新增：系统信息卡片样式 */
+.system-info-card {
+  border-radius: 16px;
+  background-color: var(--bg-color);
+  margin-bottom: 1.5rem;
+}
 
-  .references-table {
-    max-height: 200px;
-  }
+.system-info-loading {
+  display: flex;
+  justify-content: center;
+  padding: 1rem;
+}
+
+/* 调整统计项图标大小和对齐 */
+.n-statistic .n-statistic__prefix .i-carbon-data-view-alt,
+.n-statistic .n-statistic__prefix .i-carbon-document-size,
+.n-statistic .n-statistic__prefix .i-carbon-chart-bar,
+.n-statistic .n-statistic__prefix .i-carbon-clean {
+  font-size: 1.2em;
+  vertical-align: -0.2em;
+}
+
+/* 配置模态框样式 */
+.n-form-item {
+  margin-bottom: 1rem;
 }
 </style>

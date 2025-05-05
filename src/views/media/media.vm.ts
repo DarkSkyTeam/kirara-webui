@@ -47,6 +47,18 @@ export interface ReferenceRow {
     key: string
 }
 
+// 新增：系统信息接口
+export interface SystemInfo {
+    cleanup_duration: number
+    auto_remove_unreferenced: boolean
+    last_cleanup_time?: number
+    total_media_count: number
+    total_media_size: number
+    disk_total: number
+    disk_used: number
+    disk_free: number
+}
+
 export function useMediaViewModel() {
     // 状态
     const mediaList = ref<MediaItem[]>([])
@@ -74,6 +86,14 @@ export function useMediaViewModel() {
 
     const message = useMessage()
     const dialog = useDialog()
+
+    // 新增：系统信息和配置状态
+    const systemInfo = ref<SystemInfo | null>(null)
+    const systemInfoLoading = ref(false)
+    const showConfigModal = ref(false)
+    // 用于模态框编辑，初始值在获取系统信息后设置
+    const configCleanupDuration = ref<number | null>(null)
+    const configAutoRemoveUnreferenced = ref<boolean | null>(null)
 
     // 引用处理策略
     const referenceHandlers: Record<string, ReferenceHandler> = {
@@ -132,6 +152,59 @@ export function useMediaViewModel() {
             message.error(error.message)
         } else {
             message.error(defaultMessage)
+        }
+    }
+
+    // 新增：获取系统信息
+    const fetchSystemInfo = async () => {
+        systemInfoLoading.value = true
+        try {
+            const response = await http.get<SystemInfo>('/media/system')
+            systemInfo.value = response
+            // 初始化配置模态框的值
+            configCleanupDuration.value = response.cleanup_duration
+            configAutoRemoveUnreferenced.value = response.auto_remove_unreferenced
+        } catch (error) {
+            handleError(error, '获取系统信息失败')
+            systemInfo.value = null // 出错时清空
+        } finally {
+            systemInfoLoading.value = false
+        }
+    }
+
+    const saveConfig = async () => {
+        if (configCleanupDuration.value === null || configAutoRemoveUnreferenced.value === null) {
+            message.error('配置项不能为空')
+            return
+        }
+        try {
+            await http.post('/media/system/config', {
+                cleanup_duration: configCleanupDuration.value,
+                auto_remove_unreferenced: configAutoRemoveUnreferenced.value
+            })
+            message.success('配置保存成功')
+            showConfigModal.value = false
+            // 重新获取系统信息以更新显示
+            fetchSystemInfo()
+        } catch (error) {
+            handleError(error, '保存配置失败')
+        }
+    }
+
+    // 打开配置模态框
+    const openConfigModal = () => {
+        // 确保打开时加载的是最新的配置
+        if (systemInfo.value) {
+            configCleanupDuration.value = systemInfo.value.cleanup_duration
+            configAutoRemoveUnreferenced.value = systemInfo.value.auto_remove_unreferenced
+            showConfigModal.value = true
+        } else {
+            // 如果还没有加载系统信息，先加载
+            fetchSystemInfo().then(() => {
+                if (systemInfo.value) {
+                    showConfigModal.value = true
+                }
+            })
         }
     }
 
@@ -302,9 +375,23 @@ export function useMediaViewModel() {
         return date.toLocaleDateString()
     }
 
-    const formatDateTime = (dateString: string) => {
-        const date = new Date(dateString)
-        return date.toLocaleString()
+    const formatDateTime = (dateInput: string | number | Date | undefined | null) => {
+        if (!dateInput) {
+            return 'N/A' // 处理空值或无效值
+        }
+        // 如果输入是数字（时间戳），先转换为毫秒
+        const timestamp = typeof dateInput === 'number' ? dateInput * 1000 : dateInput;
+        try {
+            const date = new Date(timestamp)
+            // 检查日期是否有效
+            if (isNaN(date.getTime())) {
+                return '无效日期'
+            }
+            return date.toLocaleString()
+        } catch (e) {
+            console.error("Error formatting date:", dateInput, e);
+            return '格式化错误'
+        }
     }
 
     const selectAll = () => {
@@ -312,10 +399,23 @@ export function useMediaViewModel() {
     }
 
     // 选择无引用资源
-    const selectNoReference = () => {
-        selectedMediaIds.value = mediaList.value
-            .filter(item => !item.metadata.references || item.metadata.references.length === 0)
-            .map(item => item.id)
+    const cleanupUnreferenced = async () => {
+        dialog.warning({
+            title: '确认操作',
+            content: `这个操作将会清理所有未被引用的资源，确认继续吗？`,
+            positiveText: '确定',
+            negativeText: '取消',
+            onPositiveClick: async () => {
+                try {
+                    await http.post('/media/system/cleanup-unreferenced')
+                    message.success('清理成功')
+                    await fetchMediaList()
+                    await fetchSystemInfo()
+                } catch (error) {
+                    handleError(error, '清理失败')
+                }
+            }
+        })
     }
 
     return {
@@ -329,6 +429,11 @@ export function useMediaViewModel() {
         searchParams,
         dateRange,
         contentTypeOptions,
+        systemInfo,
+        systemInfoLoading,
+        showConfigModal,
+        configCleanupDuration,
+        configAutoRemoveUnreferenced,
 
         // 方法
         fetchMediaList,
@@ -343,7 +448,11 @@ export function useMediaViewModel() {
         getRawUrl,
         downloadMedia,
         selectAll,
-        selectNoReference,
+        cleanupUnreferenced,
+        // 新增方法
+        fetchSystemInfo,
+        saveConfig,
+        openConfigModal,
 
         // 引用相关
         viewReference,
