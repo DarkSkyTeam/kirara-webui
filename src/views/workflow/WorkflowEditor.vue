@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { routerKey, useRoute, useRouter } from 'vue-router'
-import { useMessage } from 'naive-ui'
+import { useMessage, NSpin } from 'naive-ui'
 import { getWorkflow, createWorkflow, updateWorkflow, type BlockInstance, type Wire, type WorkflowConfig } from '@/api/workflow'
 import { listBlockTypes, type BlockType } from '@/api/block'
 import WorkflowCanvas from '@/components/workflow/WorkflowCanvas.vue'
@@ -23,6 +23,7 @@ const blockTypes = ref<BlockType[]>([])
 const loading = ref(false)
 const saving = ref(false)
 const error = ref<string | null>(null)
+const initialized = ref(false)
 
 const handleSave = async (workflowName: string, workflowDesc: string, newWorkflowId: string) => {
   const [group, workflow] = newWorkflowId.split(':')
@@ -113,14 +114,19 @@ const handleWiresChange = (newWires: any[]) => {
 }
 
 onMounted(() => {
-  fetchWorkflow()
-  fetchBlockTypes()
+  Promise.all([
+    fetchWorkflow(),
+    fetchBlockTypes()
+  ]).then(() => {
+    initialized.value = true
+  })
 })
 </script>
 
 <template>
   <div class="workflow-editor">
       <WorkflowCanvas
+        v-if="initialized"
         :blocks="blocks"
         :wires="wires"
         :block-types="blockTypes"
@@ -133,6 +139,9 @@ onMounted(() => {
         @update:wires="handleWiresChange"
         @save="handleSave"
       />
+      <div v-else class="loading-spinner">
+        <NSpin :show="true" />
+      </div>
   </div>
 </template>
 

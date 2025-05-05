@@ -356,12 +356,12 @@ const restoreGraph = () => {
   setEdges(vueFlowEdges)
   // 如果存在 position 未设置的情况，则使用自动布局
   if (vueFlowNodes.every(block => block.position.x == 0 && block.position.y == 0)) {
-    console.log('layout')
+    console.log('layout', vueFlowNodes.length, vueFlowEdges.length)
     setNodes(layout(vueFlowNodes, vueFlowEdges, 'LR'))
-    nextTick(() => {
-      fitView()
-    })
   }
+  nextTick(() => {
+    fitView()
+  })
 }
 
 // ==================== 事件处理函数 ====================
@@ -483,7 +483,7 @@ const initGraphData = async () => {
   typeCompatibility.value = compatibility
 
   // 恢复数据
-  if (props.blocks.length > 0 || props.wires.length > 0) {
+  if ((props.blocks.length > 0 || props.wires.length > 0) && props.initialConfig) {
     if (_graphDataInitialized) return
     _graphDataInitialized = true
     // 更新 viewState
@@ -497,6 +497,7 @@ const initGraphData = async () => {
       config: props.initialConfig
     })
     workflowEditorModel.performActionWithoutHistory(() => {
+      console.log('restoreGraph', props.blocks.length, props.wires.length, props.initialConfig)
       restoreGraph()
     })
   }
