@@ -12,7 +12,8 @@ import {
   NSpace,
   NIcon,
   useLoadingBar,
-  NTooltip
+  NTooltip,
+  NInputNumber
 } from 'naive-ui'
 import {
   SaveOutline,
@@ -22,7 +23,7 @@ import {
   CloseOutline
 } from '@vicons/ionicons5'
 import { getTypeCompatibility, type BlockOutput, type BlockType } from '@/api/block'
-import type { BlockInstance, Wire } from '@/api/workflow'
+import type { BlockInstance, Wire, WorkflowConfig } from '@/api/workflow'
 import { workflowEditorModel } from '@/store/workflow-editor'
 import { getTypeColor } from '@/utils/node-colors'
 // 导入 vue-flow 相关组件
@@ -48,6 +49,7 @@ const props = defineProps<{
   initialName?: string
   initialDescription?: string
   initialWorkflowId?: string
+  initialConfig?: WorkflowConfig
   loading?: boolean
 }>()
 
@@ -76,7 +78,10 @@ const formRef = ref()
 const formValue = ref({
   workflowId: '',
   name: '',
-  description: ''
+  description: '',
+  config: {
+    max_execution_time: 0
+  }
 })
 
 // 初始化工作流ID
@@ -463,7 +468,8 @@ const handleEditInfo = () => {
   formValue.value = {
     workflowId: viewState.value.workflowId || '',
     name: viewState.value.name || '',
-    description: viewState.value.description || ''
+    description: viewState.value.description || '',
+    config: viewState.value.config || {}
   }
   showSettingsModal.value = true
 }
@@ -487,7 +493,8 @@ const initGraphData = async () => {
       blockTypes: props.blockTypes,
       name: props.initialName,
       description: props.initialDescription,
-      workflowId: props.initialWorkflowId
+      workflowId: props.initialWorkflowId,
+      config: props.initialConfig
     })
     workflowEditorModel.performActionWithoutHistory(() => {
       restoreGraph()
@@ -698,6 +705,10 @@ const onDrop = (event: DragEvent) => {
         </NFormItem>
         <NFormItem label="描述" path="description">
           <NInput v-model:value="formValue.description" type="textarea" placeholder="请输入工作流描述" />
+        </NFormItem>
+        <NFormItem label="最大执行时间(秒)" path="config.max_execution_time">
+          <NInputNumber v-model:value="formValue.config.max_execution_time" placeholder="执行超过此时间后将强制停止"
+            :min="0" />
         </NFormItem>
       </NForm>
       <template #footer>

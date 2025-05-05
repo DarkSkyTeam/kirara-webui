@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { routerKey, useRoute, useRouter } from 'vue-router'
 import { useMessage } from 'naive-ui'
-import { getWorkflow, createWorkflow, updateWorkflow, type BlockInstance, type Wire } from '@/api/workflow'
+import { getWorkflow, createWorkflow, updateWorkflow, type BlockInstance, type Wire, type WorkflowConfig } from '@/api/workflow'
 import { listBlockTypes, type BlockType } from '@/api/block'
 import WorkflowCanvas from '@/components/workflow/WorkflowCanvas.vue'
 
@@ -16,6 +16,9 @@ const name = ref('')
 const description = ref('')
 const blocks = ref<BlockInstance[]>([])
 const wires = ref<Wire[]>([])
+const config = ref<WorkflowConfig>({
+  max_execution_time: 36000
+})
 const blockTypes = ref<BlockType[]>([])
 const loading = ref(false)
 const saving = ref(false)
@@ -29,7 +32,8 @@ const handleSave = async (workflowName: string, workflowDesc: string, newWorkflo
     name: workflowName,
     description: workflowDesc,
     blocks: blocks.value,
-    wires: wires.value
+    wires: wires.value,
+    config: config.value
   }
 
   saving.value = true
@@ -123,6 +127,7 @@ onMounted(() => {
         :initial-name="name"
         :initial-description="description"
         :initial-workflow-id="groupId + ':' + workflowId"
+        :initial-config="config"
         :loading="saving"
         @update:blocks="handleBlocksChange"
         @update:wires="handleWiresChange"

@@ -7,7 +7,8 @@ export interface Workflow {
   description: string
   blocks: any[]
   wires: any[]
-  metadata?: Record<string, any>
+  metadata?: Record<string, any>,
+  config: WorkflowConfig
 }
 
 export interface WorkflowInfo {
@@ -17,6 +18,10 @@ export interface WorkflowInfo {
   description: string
   block_count: number
   metadata?: Record<string, any>
+}
+
+export interface WorkflowConfig {
+  max_execution_time: number
 }
 
 export interface WorkflowListResponse {

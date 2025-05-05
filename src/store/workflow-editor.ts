@@ -1,7 +1,6 @@
 import { ref, computed } from 'vue'
-import type { BlockInstance, Wire } from '@/api/workflow'
+import type { BlockInstance, Wire, WorkflowConfig } from '@/api/workflow'
 import type { BlockType } from '@/api/block'
-import type { Positionable } from 'node_modules/@comfyorg/litegraph/dist/interfaces'
 
 // 定义意图（Intent）
 export interface WorkflowEditorIntent {
@@ -11,7 +10,8 @@ export interface WorkflowEditorIntent {
     blockTypes: BlockType[]
     name?: string
     description?: string
-    workflowId?: string
+    workflowId?: string,
+    config: WorkflowConfig
   }) => void
   updateBlocks: (blocks: BlockInstance[]) => void
   updateWires: (wires: Wire[]) => void
@@ -32,6 +32,7 @@ export interface WorkflowEditorViewState {
   name: string
   description: string
   workflowId: string
+  config: WorkflowConfig
   canUndo: boolean
   canRedo: boolean
   hasClipboard: boolean
@@ -57,7 +58,10 @@ class WorkflowEditorModel {
     workflowId: '',
     undoStack: [] as HistoryState[],
     redoStack: [] as HistoryState[],
-    clipboard: null as any
+    clipboard: null as any,
+    config: {
+      max_execution_time: 0
+    }
   })
 
   // 新增：是否跳过保存历史记录的标志
@@ -74,8 +78,8 @@ class WorkflowEditorModel {
     canUndo: this.state.value.undoStack.length > 0,
     canRedo: this.state.value.redoStack.length > 0,
     hasClipboard: this.state.value.clipboard !== null,
-    // 新增：是否跳过保存历史记录
-    skipSavingHistory: this.skipSavingHistory.value
+    skipSavingHistory: this.skipSavingHistory.value,
+    config: this.state.value.config
   }))
 
   // 新增：执行操作但不保存历史记录的高阶函数
@@ -135,7 +139,8 @@ class WorkflowEditorModel {
           blockTypes: data.blockTypes,
           name: data.name || '',
           description: data.description || '',
-          workflowId: data.workflowId || ''
+          workflowId: data.workflowId || '',
+          config: data.config || {}
         })
       })
     },
