@@ -28,7 +28,7 @@ const configSchema = ref<any>(null)
 const adapters = ref<IMAdapter[]>([])
 const currentAdapter = ref<IMAdapter | null>(null)
 const formRef = ref<FormInst | null>(null)
-const isEdit = ref(false)
+const isEdit = ref<string | null>(null)
 
 const md = new MarkdownIt()
 const defaultRender = md.renderer.rules.link_open || function (tokens, idx, options, env, self) {
@@ -94,7 +94,7 @@ const fetchAdapters = async () => {
 
 // 添加适配器
 const addAdapter = async () => {
-    isEdit.value = false
+    isEdit.value = null
     await fetchAdapterConfigSchema()
     currentAdapter.value = {
         name: '',
@@ -108,7 +108,7 @@ const addAdapter = async () => {
 
 // 编辑适配器
 const editAdapter = (adapter: IMAdapter) => {
-    isEdit.value = true
+    isEdit.value = adapter.name
     currentAdapter.value = { ...adapter }
 }
 
@@ -127,10 +127,11 @@ const saveAdapter = async () => {
         }
 
         if (isEdit.value) {
-            await imApi.updateAdapter(currentAdapter.value.name, currentAdapter.value)
+            await imApi.updateAdapter(isEdit.value, currentAdapter.value)
+            isEdit.value = currentAdapter.value.name
         } else {
             await imApi.createAdapter(currentAdapter.value)
-            isEdit.value = true
+            isEdit.value = currentAdapter.value.name
         }
         message.success('保存适配器成功')
     } catch (error) {
@@ -147,7 +148,10 @@ const deleteAdapter = async (adapterName: string) => {
     try {
         processing.value = true
         await imApi.deleteAdapter(adapterName)
-        currentAdapter.value = null
+        if (currentAdapter.value?.name === adapterName || isEdit.value === adapterName) {
+            currentAdapter.value = null
+            isEdit.value = null
+        }
         message.success('删除适配器成功')
     } catch (error) {
         message.error('删除适配器失败: ' + error)
@@ -172,7 +176,7 @@ const formRules = {
                 if (!currentAdapter.value) return true
 
                 const exists = adapters.value.some(
-                    a => a.name === value && a.name !== currentAdapter.value?.name
+                    a => a.name === value && a.name !== isEdit.value
                 )
 
                 if (exists) {
