@@ -165,9 +165,9 @@ const getShortId = (typeName: string) => {
     <div class="panel-header">
       <NIcon size="18" class="header-icon">
         <AppsOutline />
-        </NIcon>
-        <span class="header-title">节点列表</span>
-      </div>
+      </NIcon>
+      <span class="header-title">节点列表</span>
+    </div>
 
     <div class="search-container">
       <NInput v-model:value="searchQuery" placeholder="搜索节点..." clearable class="search-input">
@@ -179,43 +179,41 @@ const getShortId = (typeName: string) => {
       </NInput>
     </div>
 
-    <div class="node-list-scrollbar">
 
-      <NScrollbar>
-        <div v-if="Object.keys(groupedBlockTypes).length === 0" class="empty-state">
-          <NEmpty description="没有找到匹配的节点" />
-        </div>
+    <NScrollbar>
+      <div v-if="Object.keys(groupedBlockTypes).length === 0" class="empty-state">
+        <NEmpty description="没有找到匹配的节点" />
+      </div>
 
-        <NCollapse arrow-placement="right" :default-expanded-names="sortedGroupKeys" class="node-list-collapse">
-          <NCollapseItem v-for="groupId in sortedGroupKeys" :key="groupId" :title="getGroupDisplayName(groupId)"
-            :name="groupId">
-            <div class="node-list">
-              <div v-for="blockType in groupedBlockTypes[groupId]" :key="blockType.type_name" class="node-item"
-                draggable="true" @dragstart="onDragStart($event, blockType)">
-                <div class="custom-node" :style="{ borderLeft: `3px solid ${getBlockTypeColor(blockType)}` }">
-                  <div class="custom-node-header">
-                    <div class="header-content">
-                      <span class="node-label">{{ blockType.label }}</span>
-                      <span class="node-id" :title="blockType.type_name">#{{ getShortId(blockType.type_name) }}</span>
-                    </div>
+      <NCollapse arrow-placement="right" :default-expanded-names="sortedGroupKeys" class="node-list-collapse">
+        <NCollapseItem v-for="groupId in sortedGroupKeys" :key="groupId" :title="getGroupDisplayName(groupId)"
+          :name="groupId">
+          <div class="node-list">
+            <div v-for="blockType in groupedBlockTypes[groupId]" :key="blockType.type_name" class="node-item"
+              draggable="true" @dragstart="onDragStart($event, blockType)">
+              <div class="custom-node" :style="{ borderLeft: `3px solid ${getBlockTypeColor(blockType)}` }">
+                <div class="custom-node-header">
+                  <div class="header-content">
+                    <span class="node-label">{{ blockType.label }}</span>
+                    <span class="node-id" :title="blockType.type_name">#{{ getShortId(blockType.type_name) }}</span>
+                  </div>
+                </div>
+
+                <div class="custom-node-body">
+                  <div v-if="blockType.description" class="node-description">
+                    {{ blockType.description }}
                   </div>
 
-                  <div class="custom-node-body">
-                    <div v-if="blockType.description" class="node-description">
-                      {{ blockType.description }}
-                    </div>
+                  <div class="node-meta">
 
-                    <div class="node-meta">
-
-                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </NCollapseItem>
-        </NCollapse>
-      </NScrollbar>
-    </div>
+          </div>
+        </NCollapseItem>
+      </NCollapse>
+    </NScrollbar>
 
     <div class="drag-hint">
       <NIcon size="16" class="hint-icon">
@@ -269,12 +267,6 @@ const getShortId = (typeName: string) => {
 
 .search-input {
   border-radius: 8px;
-}
-
-.node-list-scrollbar {
-  flex: 1;
-  height: calc(100vh - 180px);
-  overflow: auto;
 }
 
 .node-list-collapse {

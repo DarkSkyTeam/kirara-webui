@@ -29,7 +29,8 @@ import { getTypeColor } from '@/utils/node-colors'
 import { VueFlow, useVueFlow, Panel, connectionExists } from '@vue-flow/core'
 import { Background } from '@vue-flow/background'
 import { Controls } from '@vue-flow/controls'
-import CustomNode from './CustomNode.vue'
+import CustomNode from './nodes/CustomNode.vue'
+import CodeNode from './nodes/CodeNode.vue'
 import NodeConfigPanel from './NodeConfigPanel.vue'
 import NodeListPanel from './NodeListPanel.vue'
 import '@vue-flow/core/dist/style.css'
@@ -131,7 +132,6 @@ const isValidConnection = (connection: Connection) => {
   if (!sourceNode || !targetNode) return false
 
   // 获取源输出和目标输入的类型
-  // TODO: 使用 handle
   const sourceOutput = sourceNode.data.outputs.find(output => output.name === connection.sourceHandle)
   const sourceBlockType = props.blockTypes.find(type => type.type_name === sourceNode.data.blockType.type_name)
   const targetInput = targetNode.data.inputs.find(input => input.name === connection.targetHandle)
@@ -139,8 +139,20 @@ const isValidConnection = (connection: Connection) => {
   if (!sourceOutput || !targetInput || !sourceBlockType || !targetBlockType) return false
 
   // 检查类型兼容性
-  const sourceType = sourceBlockType.outputs.find(output => output.name === connection.sourceHandle)?.type
-  const targetType = targetBlockType.inputs.find(input => input.name === connection.targetHandle)?.type
+  let sourceType = null
+  let targetType = null
+  // 如果是代码节点，则使用配置中的类型
+  if (sourceNode.data.blockType.type_name == 'internal:code') {
+    sourceType = sourceNode.data.config.outputs.find((output: any) => output.name === connection.sourceHandle)?.type
+  } else {
+    sourceType = sourceBlockType.outputs.find((output: any) => output.name === connection.sourceHandle)?.type
+  }
+
+  if (targetNode.data.blockType.type_name == 'internal:code') {
+    targetType = targetNode.data.config.inputs.find((input: any) => input.name === connection.targetHandle)?.type
+  } else {
+    targetType = targetBlockType.inputs.find((input: any) => input.name === connection.targetHandle)?.type
+  }
   if (!sourceType || !targetType) return false
   // 使用类型兼容性映射检查
   return typeCompatibility.value[sourceType]?.[targetType] === true
@@ -191,7 +203,12 @@ const buildEdge = (params: Connection): Edge | null => {
   const blockType = props.blockTypes.find(type => type.type_name === sourceBlock.type_name)
   if (!blockType) return null
 
-  const type = blockType.outputs.find((output: BlockOutput) => output.name === params.sourceHandle)?.type
+  let type = null
+  if (blockType.type_name == 'internal:code') {
+    type = sourceBlock.config.outputs.find((output: any) => output.name === params.sourceHandle)?.type
+  } else {
+    type = blockType.outputs.find((output: BlockOutput) => output.name === params.sourceHandle)?.type
+  }
   if (!type) return null
 
   return {
@@ -206,23 +223,45 @@ const buildEdge = (params: Connection): Edge | null => {
 
 // ==================== 数据转换函数 ====================
 // 将 BlockInstance 转换为 vue-flow 节点
+const convertCustomNodeToVueFlowNode = (block: BlockInstance, blockType: BlockType): Node => {
+  return {
+    id: block.name,
+    type: 'custom', // 使用自定义节点类型
+      position: { x: block.position.x, y: block.position.y },
+      data: {
+        label: blockType.label,
+        blockType: blockType,
+        config: block.config || {},
+        inputs: blockType.inputs,
+        outputs: blockType.outputs
+      }
+    }
+}
+
+const convertCodeNodeToVueFlowNode = (block: BlockInstance, blockType: BlockType): Node => {
+  return {
+    id: block.name,
+    type: 'code', // 使用自定义节点类型
+      position: { x: block.position.x, y: block.position.y },
+      data: {
+        label: blockType.label,
+        blockType: blockType,
+        config: block.config || {},
+        inputs: block.config?.inputs || [],
+        outputs: block.config?.outputs || []
+      }
+    }
+}
+
 const convertBlocksToNodes = (blocks: BlockInstance[]): Node[] => {
   return blocks
     .map(block => {
       const blockType = props.blockTypes.find(type => type.type_name === block.type_name)
       if (!blockType) return null
-      return {
-        id: block.name,
-        type: 'custom', // 使用自定义节点类型
-        position: { x: block.position.x, y: block.position.y },
-        data: {
-          label: blockType.label,
-          blockType: blockType,
-          config: block.config || {},
-          inputs: blockType.inputs,
-          outputs: blockType.outputs
-        }
+      if (blockType.type_name == 'internal:code') {
+        return convertCodeNodeToVueFlowNode(block, blockType)
       }
+      return convertCustomNodeToVueFlowNode(block, blockType)
     }).filter(it => it !== null)
 }
 
@@ -521,30 +560,34 @@ const closeNodeConfig = () => {
 // 添加拖放处理函数
 const onDrop = (event: DragEvent) => {
   if (!event.dataTransfer) return
-  
+
   const data = event.dataTransfer.getData('application/vueflow')
   if (!data) return
-  
+
   try {
     const blockType = JSON.parse(data) as BlockType
-    
+
     // 获取画布上的位置
     const { x, y } = project({ x: event.clientX, y: event.clientY })
-    
+
     // 生成唯一ID
     const baseName = blockType.type_name.split('.').pop() || 'node'
     let newId = baseName
     let counter = 1
-    
+
     while (nodes.value.some(node => node.id === newId)) {
       newId = `${baseName}_${counter}`
       counter++
     }
-    
+    var type = 'custom'
+    if (blockType.type_name == 'internal:code') {
+      type = 'code'
+    }
+
     // 创建新节点
     const newNode = {
       id: newId,
-      type: 'custom',
+      type: type,
       position: { x, y },
       data: {
         label: blockType.label,
@@ -554,7 +597,7 @@ const onDrop = (event: DragEvent) => {
         outputs: blockType.outputs
       }
     }
-    
+
     addNodes([newNode])
     updateBlocks()
   } catch (error) {
@@ -565,12 +608,14 @@ const onDrop = (event: DragEvent) => {
 
 <template>
   <div class="workflow-canvas">
-    <VueFlow :nodes="nodes" :edges="edges" fit-view-on-init
-      @nodes-change="updateBlocks" @edges-change="updateWires" @edge-update="handleEdgeUpdate" @connect="handleConnect"
-      :default-zoom="1" :min-zoom="0.2" :max-zoom="4" :snap-to-grid="true" class="vue-flow-canvas"
-      @drop="onDrop" @dragover.prevent>
+    <VueFlow :nodes="nodes" :edges="edges" fit-view-on-init @nodes-change="updateBlocks" @edges-change="updateWires"
+      @edge-update="handleEdgeUpdate" @connect="handleConnect" :default-zoom="1" :min-zoom="0.2" :max-zoom="4"
+      :snap-to-grid="true" class="vue-flow-canvas" @drop="onDrop" @dragover.prevent>
       <template #node-custom="customNodeProps">
         <CustomNode v-bind="customNodeProps" :isValidConnection="isValidConnection" />
+      </template>
+      <template #node-code="codeNdoeProps">
+        <CodeNode v-bind="codeNdoeProps" :isValidConnection="isValidConnection" />
       </template>
       <Background pattern-color="#aaa" :gap="20" />
       <Controls />
@@ -628,7 +673,7 @@ const onDrop = (event: DragEvent) => {
       </Panel>
       <Panel position="top-right" style="margin: 0; height: 100%">
         <NodeConfigPanel v-if="selectedNode" :selected-node="selectedNode" @close="closeNodeConfig"
-          :block-types="props.blockTypes" />
+          :block-types="props.blockTypes" :type-compatibility="typeCompatibility" />
       </Panel>
       <Panel position="top-left" style="margin: 0; height: 100%">
         <NodeListPanel :block-types="props.blockTypes"></NodeListPanel>

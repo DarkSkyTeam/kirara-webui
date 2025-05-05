@@ -5,7 +5,6 @@ import { useMessage } from 'naive-ui'
 import { getWorkflow, createWorkflow, updateWorkflow, type BlockInstance, type Wire } from '@/api/workflow'
 import { listBlockTypes, type BlockType } from '@/api/block'
 import WorkflowCanvas from '@/components/workflow/WorkflowCanvas.vue'
-import { LiteGraph } from '@comfyorg/litegraph'
 
 const route = useRoute()
 const router = useRouter()

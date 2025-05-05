@@ -1,4 +1,5 @@
 import { fileURLToPath, URL } from 'node:url'
+import importMetaUrlPlugin from '@codingame/esbuild-import-meta-url-plugin'
 
 import { defineConfig, normalizePath } from 'vite'
 import vue from '@vitejs/plugin-vue'
@@ -42,6 +43,11 @@ export default defineConfig({
         target: 'ws://127.0.0.1:8080',
         ws: true,
         changeOrigin: true,
+      },
+      '/backend-api/api/block/code/lsp': {
+        target: 'ws://127.0.0.1:8080',
+        ws: true,
+        changeOrigin: true,
       }
     }
   },
@@ -50,16 +56,33 @@ export default defineConfig({
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
       '@comfyorg/litegraph/dist/css/litegraph.css': path.resolve(__dirname, 'node_modules/@comfyorg/litegraph/dist/css/litegraph.css'),
-    }
+    },
+    dedupe: ['vscode']
   },
   build: {
     rollupOptions: {
       output: {
+        compact: true,
         entryFileNames: `assets/[name].js`,
         chunkFileNames: `assets/[name].js`,
         assetFileNames: `assets/[name].[ext]`,
         manualChunks: {
-          'cryptojs': ['crypto-js']
+          'cryptojs': ['crypto-js'],
+          'naiveui': ['naive-ui'],
+          'vsc': [
+            '@codingame/monaco-vscode-api', 
+            '@codingame/monaco-vscode-extension-api', 
+            '@codingame/monaco-vscode-languages-service-override', 
+            '@codingame/monaco-vscode-theme-service-override', 
+            '@codingame/monaco-vscode-textmate-service-override',
+            '@codingame/monaco-vscode-language-pack-zh-hans',
+            'monaco-editor',
+            'vscode',
+            'vscode-languageclient',
+            'vscode-ws-jsonrpc',
+            'vscode-languageserver-protocol',
+            'vscode-jsonrpc'
+          ]
         }
       }
       
@@ -67,5 +90,18 @@ export default defineConfig({
   },
   define: {
     'import.meta.env.VITE_APP_VERSION': JSON.stringify(getGitVersion())
+  },
+  optimizeDeps: {
+    esbuildOptions: {
+      plugins: [importMetaUrlPlugin],
+    },
+    include: [
+        'vscode/localExtensionHost',
+        'vscode-textmate',
+        'vscode-oniguruma'
+    ]
+  },
+  worker: {
+    format: "es"
   }
 })
