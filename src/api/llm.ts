@@ -1,3 +1,4 @@
+import type { ModelInfo } from '@/components/form/types'
 import { http } from '@/utils/http'
 
 export interface LLMBackend {
@@ -5,7 +6,7 @@ export interface LLMBackend {
   adapter: string
   config: Record<string, any>
   enable: boolean
-  models: string[]
+  models: ModelInfo[]
 }
 
 export interface ConfigSchema {
@@ -85,6 +86,6 @@ export const llmApi = {
    * 获取后端支持的模型列表
    */
   getBackendModels(backendName: string) {
-    return http.get<{ models: string[] }>(`/llm/backends/${backendName}/auto-detect-models`)
+    return http.get<{ models: ModelInfo[] }>(`/llm/backends/${backendName}/auto-detect-models`)
   }
 } 

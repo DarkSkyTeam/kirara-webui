@@ -13,3 +13,9 @@ export interface Schema {
   }>
   required?: string[]
 } 
+
+export interface ModelInfo {
+  id: string
+  type: string
+  ability: number
+}
