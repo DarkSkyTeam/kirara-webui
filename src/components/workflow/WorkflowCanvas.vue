@@ -313,12 +313,17 @@ const convertEdgesToWires = (): Wire[] => {
 const debounce = (func: () => void, delay: number) => {
   let timer: number | null = null;
   return function (this: any, ...args: any[]) {
-    if (timer === null) {
-      timer = window.setTimeout(() => {
-        func.apply(this, args);
-        timer = null;
-      }, delay);
-    }
+    return new Promise<void>((resolve) => {
+      if (timer === null) {
+        timer = window.setTimeout(() => {
+          func.apply(this, args);
+          timer = null;
+          resolve();
+        }, delay);
+      } else {
+        resolve()
+      }
+    });
   };
 };
 // 更新区块数据
@@ -358,7 +363,7 @@ const restoreGraph = () => {
 // 保存处理函数
 const handleSave = async () => {
   try {
-    updateBlocks()
+    await updateBlocks()
     const errors = await formRef.value?.validate()
     if (errors?.length > 0 || !formValue.value.name || !formValue.value.workflowId) {
       message.error('工作流信息需要修改')
@@ -368,7 +373,7 @@ const handleSave = async () => {
     saving.value = true
     loadingBar.start()
     showSettingsModal.value = false
-    updateWires()
+    await updateWires()
     emit('save', formValue.value.name, formValue.value.description, formValue.value.workflowId)
   } catch (error: any) {
     message.error(error?.message || '保存失败')
