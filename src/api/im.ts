@@ -74,17 +74,20 @@ export interface IMAdapterDetail {
 export interface ConfigSchema {
   title: string
   type: string
-  properties: Record<string, {
-    title: string
-    type: string
-    description?: string
-    default?: any
-    minimum?: number
-    maximum?: number
-    enum?: any[]
-    enumNames?: string[]
-    readonly?: boolean
-  }>
+  properties: Record<
+    string,
+    {
+      title: string
+      type: string
+      description?: string
+      default?: any
+      minimum?: number
+      maximum?: number
+      enum?: any[]
+      enumNames?: string[]
+      readonly?: boolean
+    }
+  >
   required?: string[]
 }
 
@@ -93,7 +96,7 @@ export const imApi = {
    * 获取适配器类型列表
    */
   getAdapterTypes() {
-    return http.get<{ types: string[], adapters: Record<string, IMAdapterInfo> }>('/im/types')
+    return http.get<{ types: string[]; adapters: Record<string, IMAdapterInfo> }>('/im/types')
   },
 
   /**
@@ -157,5 +160,5 @@ export const imApi = {
    */
   getAdapterConfigSchema(adapterType: string) {
     return http.get<{ configSchema: ConfigSchema }>(`/im/types/${adapterType}/config-schema`)
-  },
-} 
+  }
+}

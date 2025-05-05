@@ -1,28 +1,41 @@
 <script setup lang="ts">
 import { NResult, NButton, NSpace } from 'naive-ui'
-import { ref, onMounted } from 'vue';
+import { ref, onMounted } from 'vue'
 
-const building = ref(false);
+const building = ref(false)
 
 onMounted(() => {
-  building.value = true;
-});
+  building.value = true
+})
 </script>
 
 <template>
   <div class="container">
-    <NResult status="404" :title="building ? '努力 строительстве 中... 喵~' : '迷路了吗？'"
-      description="这个功能还在小猫咪的秘密工坊里，加班加点 строительстве 呢... 🚀">
+    <NResult
+      status="404"
+      :title="building ? '努力 строительстве 中... 喵~' : '迷路了吗？'"
+      description="这个功能还在小猫咪的秘密工坊里，加班加点 строительстве 呢... 🚀"
+    >
       <template #icon>
         <div class="text-8xl animated-icon">🚧</div>
       </template>
       <template #footer>
-        <NSpace style="width: 100%; justify-content: center;">
-          <NButton tag="a" href="https://github.com/DarkSkyTeam/chatgpt-for-bot-webui" target="_blank" type="primary">
+        <NSpace style="width: 100%; justify-content: center">
+          <NButton
+            tag="a"
+            href="https://github.com/DarkSkyTeam/chatgpt-for-bot-webui"
+            target="_blank"
+            type="primary"
+          >
             去 GitHub 看看
           </NButton>
 
-          <NButton tag="a" href="https://kirara-docs.app.lss233.com/" target="_blank" type="primary">
+          <NButton
+            tag="a"
+            href="https://kirara-docs.app.lss233.com/"
+            target="_blank"
+            type="primary"
+          >
             去文档看看
           </NButton>
         </NSpace>
@@ -30,12 +43,16 @@ onMounted(() => {
     </NResult>
     <div class="badges">
       <a href="https://github.com/DarkSkyTeam/chatgpt-for-bot-webui" target="_blank">
-        <img src="https://img.shields.io/github/stars/DarkSkyTeam/chatgpt-for-bot-webui?style=flat&color=green"
-          alt="GitHub Stars">
+        <img
+          src="https://img.shields.io/github/stars/DarkSkyTeam/chatgpt-for-bot-webui?style=flat&color=green"
+          alt="GitHub Stars"
+        />
       </a>
       <a href="https://github.com/lss233/chatgpt-mirai-qq-bot" target="_blank">
-        <img src="https://img.shields.io/github/stars/lss233/chatgpt-mirai-qq-bot?style=flat&color=blue"
-          alt="GitHub Stars">
+        <img
+          src="https://img.shields.io/github/stars/lss233/chatgpt-mirai-qq-bot?style=flat&color=blue"
+          alt="GitHub Stars"
+        />
       </a>
     </div>
   </div>
@@ -59,7 +76,6 @@ onMounted(() => {
 .badges {
   margin-top: 20px;
 }
-
 
 .badges a {
   margin: 0 10px;

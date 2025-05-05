@@ -15,14 +15,17 @@
             <div class="i-carbon-select-all mr-1"></div>
             全选本页
           </n-button>
-          <n-button type="error" :disabled="selectedMediaIds.length === 0" @click="handleBatchDelete"
-            class="action-button">
+          <n-button
+            type="error"
+            :disabled="selectedMediaIds.length === 0"
+            @click="handleBatchDelete"
+            class="action-button"
+          >
             <div class="i-carbon-trash-can mr-1"></div>
             批量删除
           </n-button>
         </n-space>
       </template>
-
 
       <n-space vertical size="large">
         <p class="description">在这里可以查看所有收到和发送的媒体文件，并进行管理。</p>
@@ -49,9 +52,7 @@
                 <template #prefix>
                   <div class="i-carbon-chart-bar mr-1"></div>
                 </template>
-                <template #suffix>
-                  / {{ formatFileSize(systemInfo.disk_total) }}
-                </template>
+                <template #suffix> / {{ formatFileSize(systemInfo.disk_total) }} </template>
               </n-statistic>
             </n-grid-item>
             <n-grid-item>
@@ -59,12 +60,13 @@
                 <template #prefix>
                   <div class="i-carbon-clean mr-1"></div>
                 </template>
-                <n-tag :type="systemInfo.auto_remove_unreferenced ? 'success' : 'warning'" size="small">
+                <n-tag
+                  :type="systemInfo.auto_remove_unreferenced ? 'success' : 'warning'"
+                  size="small"
+                >
                   {{ systemInfo.auto_remove_unreferenced ? '已启用' : '已禁用' }}
                 </n-tag>
-                <template #suffix>
-                  ({{ systemInfo.cleanup_duration }} 天)
-                </template>
+                <template #suffix> ({{ systemInfo.cleanup_duration }} 天) </template>
               </n-statistic>
             </n-grid-item>
             <n-grid-item>
@@ -72,7 +74,11 @@
                 <template #prefix>
                   <div class="i-carbon-time mr-1"></div>
                 </template>
-                {{ systemInfo.last_cleanup_time && systemInfo.last_cleanup_time > 0 ? formatDateTime(systemInfo.last_cleanup_time) : '从未执行' }}
+                {{
+                  systemInfo.last_cleanup_time && systemInfo.last_cleanup_time > 0
+                    ? formatDateTime(systemInfo.last_cleanup_time)
+                    : '从未执行'
+                }}
               </n-statistic>
             </n-grid-item>
           </n-grid>
@@ -83,19 +89,34 @@
         <n-card title="搜索条件" class="search-card">
           <n-grid :cols="4" :x-gap="16">
             <n-grid-item>
-              <n-input v-model:value="searchParams.query" placeholder="搜索关键词" clearable class="search-input">
+              <n-input
+                v-model:value="searchParams.query"
+                placeholder="搜索关键词"
+                clearable
+                class="search-input"
+              >
                 <template #prefix>
                   <div class="i-carbon-search"></div>
                 </template>
               </n-input>
             </n-grid-item>
             <n-grid-item>
-              <n-select v-model:value="searchParams.content_type" placeholder="媒体类型" :options="contentTypeOptions"
-                clearable class="search-select">
+              <n-select
+                v-model:value="searchParams.content_type"
+                placeholder="媒体类型"
+                :options="contentTypeOptions"
+                clearable
+                class="search-select"
+              >
               </n-select>
             </n-grid-item>
             <n-grid-item>
-              <n-date-picker v-model:value="dateRange" type="daterange" clearable class="search-date-picker">
+              <n-date-picker
+                v-model:value="dateRange"
+                type="daterange"
+                clearable
+                class="search-date-picker"
+              >
               </n-date-picker>
             </n-grid-item>
             <n-grid-item>
@@ -117,16 +138,26 @@
         <div class="media-grid" v-if="!loading">
           <n-grid :cols="5" :x-gap="16" :y-gap="16">
             <n-grid-item v-for="(item, index) in mediaList" :key="item.id">
-              <n-card :class="{
-                'media-card': true,
-                'media-card-selected': selectedMediaIds.includes(item.id),
-              }" hoverable @click="handlePreview(item)" :style="{
-                animationDelay: `${index * 0.05}s`
-              }">
+              <n-card
+                :class="{
+                  'media-card': true,
+                  'media-card-selected': selectedMediaIds.includes(item.id)
+                }"
+                hoverable
+                @click="handlePreview(item)"
+                :style="{
+                  animationDelay: `${index * 0.05}s`
+                }"
+              >
                 <div class="media-card-content">
                   <div class="media-card-image">
-                    <n-image :src="getPreviewUrl(item.id)" object-fit="contain" preview-disabled
-                      @click.stop="handlePreview(item)" class="bg">
+                    <n-image
+                      :src="getPreviewUrl(item.id)"
+                      object-fit="contain"
+                      preview-disabled
+                      @click.stop="handlePreview(item)"
+                      class="bg"
+                    >
                       <template #error>
                         <n-icon :size="100" color="lightGrey">
                           <ImageOutline />
@@ -134,9 +165,11 @@
                       </template>
                     </n-image>
                     <div class="media-card-checkbox">
-                      <n-checkbox :checked="selectedMediaIds.includes(item.id)" @click.stop @update:checked="
-                        (checked) => handleCheckboxChange(checked, item.id)
-                      " />
+                      <n-checkbox
+                        :checked="selectedMediaIds.includes(item.id)"
+                        @click.stop
+                        @update:checked="(checked) => handleCheckboxChange(checked, item.id)"
+                      />
                     </div>
                     <div class="media-card-type-badge">
                       {{ getMediaTypeLabel(item.metadata.content_type) }}
@@ -167,7 +200,11 @@
           </n-grid>
         </div>
 
-        <n-empty v-if="!loading && mediaList.length === 0" description="暂无媒体文件" class="empty-state">
+        <n-empty
+          v-if="!loading && mediaList.length === 0"
+          description="暂无媒体文件"
+          class="empty-state"
+        >
           <template #icon>
             <div class="i-carbon-no-image text-6xl opacity-50"></div>
           </template>
@@ -176,25 +213,52 @@
         <n-spin v-if="loading" size="large" class="loading-spinner" />
 
         <!-- 分页 -->
-        <n-pagination v-if="!loading && mediaList.length > 0" v-model:page="searchParams.page" :item-count="total"
-          :page-size="searchParams.page_size" :show-size-picker="true" :page-sizes="[20, 40, 80, 160]"
-          @update:page="handlePageChange" @update:page-size="handlePageSizeChange" class="pagination" />
+        <n-pagination
+          v-if="!loading && mediaList.length > 0"
+          v-model:page="searchParams.page"
+          :item-count="total"
+          :page-size="searchParams.page_size"
+          :show-size-picker="true"
+          :page-sizes="[20, 40, 80, 160]"
+          @update:page="handlePageChange"
+          @update:page-size="handlePageSizeChange"
+          class="pagination"
+        />
       </n-space>
     </n-card>
 
     <!-- 预览对话框 -->
-    <n-modal v-model:show="showPreviewModal" preset="card" class="preview-modal" :style="{ width: '900px' }"
-      title="媒体预览" :mask-closable="false" :show-footer="false">
+    <n-modal
+      v-model:show="showPreviewModal"
+      preset="card"
+      class="preview-modal"
+      :style="{ width: '900px' }"
+      title="媒体预览"
+      :mask-closable="false"
+      :show-footer="false"
+    >
       <div v-if="previewItem" class="media-preview">
         <n-grid :cols="2" :x-gap="16">
           <n-grid-item>
             <div class="media-preview-content bg">
-              <img v-if="previewItem.metadata.content_type.startsWith('image/')" :src="getRawUrl(previewItem.id)"
-                object-fit="contain" class="preview-image" />
-              <video v-else-if="previewItem.metadata.content_type.startsWith('video/')" :src="getRawUrl(previewItem.id)"
-                controls class="preview-video"></video>
-              <audio v-else-if="previewItem.metadata.content_type.startsWith('audio/')" :src="getRawUrl(previewItem.id)"
-                controls class="preview-audio"></audio>
+              <img
+                v-if="previewItem.metadata.content_type.startsWith('image/')"
+                :src="getRawUrl(previewItem.id)"
+                object-fit="contain"
+                class="preview-image"
+              />
+              <video
+                v-else-if="previewItem.metadata.content_type.startsWith('video/')"
+                :src="getRawUrl(previewItem.id)"
+                controls
+                class="preview-video"
+              ></video>
+              <audio
+                v-else-if="previewItem.metadata.content_type.startsWith('audio/')"
+                :src="getRawUrl(previewItem.id)"
+                controls
+                class="preview-audio"
+              ></audio>
               <n-card v-else title="无法预览" size="small" class="preview-fallback">
                 <div class="i-carbon-document-unknown text-6xl mb-4"></div>
                 <n-button @click="downloadMedia(previewItem)" class="download-button">
@@ -244,7 +308,11 @@
                   <div class="i-carbon-download mr-1"></div>
                   下载
                 </n-button>
-                <n-button type="error" @click="handleDeleteMedia(previewItem)" class="preview-action-button">
+                <n-button
+                  type="error"
+                  @click="handleDeleteMedia(previewItem)"
+                  class="preview-action-button"
+                >
                   <div class="i-carbon-trash-can mr-1"></div>
                   删除
                 </n-button>
@@ -260,15 +328,27 @@
         <!-- 引用列表表格 -->
         <n-divider>引用列表</n-divider>
         <div class="references-table-container">
-          <n-data-table :columns="referenceColumns" :data="referenceData" :bordered="false" :single-line="false"
-            size="small" class="references-table" :max-height="300" />
+          <n-data-table
+            :columns="referenceColumns"
+            :data="referenceData"
+            :bordered="false"
+            :single-line="false"
+            size="small"
+            class="references-table"
+            :max-height="300"
+          />
         </div>
       </div>
     </n-modal>
 
     <!-- 新增：配置对话框 -->
-    <n-modal v-model:show="showConfigModal" preset="card" title="媒体配置" :style="{ width: '500px' }"
-      :mask-closable="false">
+    <n-modal
+      v-model:show="showConfigModal"
+      preset="card"
+      title="媒体配置"
+      :style="{ width: '500px' }"
+      :mask-closable="false"
+    >
       <n-space vertical>
         <n-form-item label="自动清理未引用资源">
           <n-switch v-model:value="configAutoRemoveUnreferenced" />
@@ -286,7 +366,6 @@
         </n-space>
       </template>
     </n-modal>
-
   </div>
 </template>
 
@@ -317,7 +396,7 @@ import {
   NTag,
   NFormItem,
   NSwitch,
-  NInputNumber,
+  NInputNumber
 } from 'naive-ui'
 import { ImageOutline } from '@vicons/ionicons5'
 import { useMediaViewModel } from './media.vm'
@@ -366,7 +445,7 @@ const {
   // 工具函数
   formatFileSize,
   formatDate,
-  formatDateTime,
+  formatDateTime
 } = useMediaViewModel()
 
 // 初始化时加载媒体列表和系统信息
@@ -390,15 +469,15 @@ const handlePageSizeChange = (pageSize: number) => {
 // 获取媒体类型标签
 const getMediaTypeLabel = (contentType: string) => {
   if (contentType.startsWith('image/')) {
-    return '图片';
+    return '图片'
   } else if (contentType.startsWith('video/')) {
-    return '视频';
+    return '视频'
   } else if (contentType.startsWith('audio/')) {
-    return '音频';
+    return '音频'
   } else {
-    return '文件';
+    return '文件'
   }
-};
+}
 
 // 引用表格列定义
 const referenceColumns = [
@@ -441,10 +520,7 @@ const referenceColumns = [
                 }
               },
               {
-                default: () => [
-                  h('div', { class: 'i-carbon-view mr-1' }),
-                  '查看'
-                ]
+                default: () => [h('div', { class: 'i-carbon-view mr-1' }), '查看']
               }
             ),
             h(
@@ -459,10 +535,7 @@ const referenceColumns = [
                 }
               },
               {
-                default: () => [
-                  h('div', { class: 'i-carbon-trash-can mr-1' }),
-                  '删除'
-                ]
+                default: () => [h('div', { class: 'i-carbon-trash-can mr-1' }), '删除']
               }
             )
           ]
@@ -478,7 +551,7 @@ const referenceData = computed(() => {
     return []
   }
 
-  return previewItem.value.metadata.references.map(ref => {
+  return previewItem.value.metadata.references.map((ref) => {
     const parts = ref.split(':')
     const module = parts[0]
     const key = parts.slice(1).join(':')

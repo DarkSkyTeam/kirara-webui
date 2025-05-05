@@ -48,7 +48,10 @@ export function usePasswordViewModel() {
     }
     loading.value = true
     try {
-      let response: { error?: boolean, message?: string } = await http.post<{ error?: boolean, message?: string }>('/auth/change-password', {
+      const response: { error?: boolean; message?: string } = await http.post<{
+        error?: boolean
+        message?: string
+      }>('/auth/change-password', {
         old_password: formData.value.old_password,
         new_password: formData.value.new_password
       })
@@ -82,4 +85,4 @@ export function usePasswordViewModel() {
     rules,
     handleSubmit
   }
-} 
+}

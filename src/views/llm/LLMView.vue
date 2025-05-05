@@ -35,32 +35,31 @@ const currentModel = ref<ModelInfo>({
 // 根据模型类型定义不同的能力选项
 const modelAbilities: Record<string, { label: string; value: number }[]> = {
   llm: [
-    { label: '聊天对话', value: (1 << 1) + (1 << 2)  + (1 << 3)},
+    { label: '聊天对话', value: (1 << 1) + (1 << 2) + (1 << 3) },
     { label: '图像输入', value: 1 << 4 },
     { label: '图像输出', value: 1 << 5 },
     { label: '音频输入', value: 1 << 6 },
     { label: '音频输出', value: 1 << 7 },
-    { label: '函数调用', value: 1 << 8 },
+    { label: '函数调用', value: 1 << 8 }
   ],
   embedding: [
     { label: '文本嵌入', value: 1 << 1 },
     { label: '图像嵌入', value: 1 << 2 },
     { label: '音频嵌入', value: 1 << 3 },
     { label: '视频嵌入', value: 1 << 4 },
-    { label: '批量调用', value: 1 << 5 },
+    { label: '批量调用', value: 1 << 5 }
   ],
   image_generation: [
     { label: '文生图', value: 1 << 1 },
     { label: '图生图', value: 1 << 2 },
     { label: '局部重绘', value: 1 << 3 },
     { label: '图像扩展', value: 1 << 4 },
-    { label: '图像放大', value: 1 << 5 },
-
+    { label: '图像放大', value: 1 << 5 }
   ],
   audio: [
     { label: '音频输入', value: 1 << 6 },
-    { label: '音频输出', value: 1 << 7 },
-  ],
+    { label: '音频输出', value: 1 << 7 }
+  ]
 }
 
 // 当前选中的适配器实例
@@ -79,7 +78,9 @@ const fetchAdapters = async () => {
     adapterTypes.value = Array.isArray(typesResponse) ? typesResponse : typesResponse.types
 
     const adaptersResponse = await llmApi.getBackends()
-    adapters.value = Array.isArray(adaptersResponse) ? adaptersResponse : adaptersResponse.data.backends
+    adapters.value = Array.isArray(adaptersResponse)
+      ? adaptersResponse
+      : adaptersResponse.data.backends
   } catch (error: any) {
     $message.error(`加载适配器失败: ${error.message || error}`)
   }
@@ -130,9 +131,7 @@ const handleCreateAdapter = async (adapter: string | null = null) => {
 }
 
 const isCreating = computed(() => {
-  const existingAdapter = adapters.value.find(
-    a => a.name === originalAdapterName.value
-  )
+  const existingAdapter = adapters.value.find((a) => a.name === originalAdapterName.value)
   return !existingAdapter
 })
 
@@ -183,7 +182,8 @@ const confirmAutoDetect = async () => {
   autoDetectLoading.value = true
   try {
     if (await handleSave()) {
-      currentAdapter.value!!.models = (await llmApi.getBackendModels(currentAdapter.value!!.name)).models as ModelInfo[]
+      currentAdapter.value!!.models = (await llmApi.getBackendModels(currentAdapter.value!!.name))
+        .models as ModelInfo[]
       await handleSave() // 保存检测到的模型列表
     }
   } catch (error: any) {
@@ -265,21 +265,28 @@ const cancelDelete = () => {
 }
 
 // 监听适配器类型变化
-watch(() => currentAdapter.value?.adapter, async (newAdapter) => {
-  if (newAdapter) {
-    await fetchAdapterConfigSchema(newAdapter)
+watch(
+  () => currentAdapter.value?.adapter,
+  async (newAdapter) => {
+    if (newAdapter) {
+      await fetchAdapterConfigSchema(newAdapter)
+    }
   }
-})
+)
 
-watch(() => currentAdapter.value, async (newAdapter) => {
-  if (newAdapter?.adapter && newAdapter?.name) {
-    isAutoDetectModelsSupported.value = (
-      await llmApi.getAdapterSupportsAutoDetectModels(newAdapter.adapter)
-    ).supportsAutoDetectModels
-  } else {
-    isAutoDetectModelsSupported.value = true
-  }
-}, { deep: true })
+watch(
+  () => currentAdapter.value,
+  async (newAdapter) => {
+    if (newAdapter?.adapter && newAdapter?.name) {
+      isAutoDetectModelsSupported.value = (
+        await llmApi.getAdapterSupportsAutoDetectModels(newAdapter.adapter)
+      ).supportsAutoDetectModels
+    } else {
+      isAutoDetectModelsSupported.value = true
+    }
+  },
+  { deep: true }
+)
 
 // 初始化加载
 onMounted(() => {
@@ -290,8 +297,8 @@ onMounted(() => {
 <template>
   <div class="llm-container">
     <!-- 适配器列表 -->
-    <LLMAdapterList 
-      :adapters="adapters" 
+    <LLMAdapterList
+      :adapters="adapters"
       :selectedAdapter="selectedAdapter"
       @select="handleAdapterSelect"
       @create="handleCreateAdapter"
@@ -299,7 +306,7 @@ onMounted(() => {
 
     <!-- 主内容区域 -->
     <template v-if="currentAdapter">
-      <LLMAdapterConfig 
+      <LLMAdapterConfig
         :adapter="currentAdapter"
         :adapterTypes="adapterTypes"
         :configSchema="configSchema"
@@ -315,10 +322,7 @@ onMounted(() => {
       />
     </template>
     <template v-else>
-      <LLMEmptyState 
-        :adapterTypes="adapterTypes"
-        @create="handleCreateAdapter"
-      />
+      <LLMEmptyState :adapterTypes="adapterTypes" @create="handleCreateAdapter" />
     </template>
   </div>
 

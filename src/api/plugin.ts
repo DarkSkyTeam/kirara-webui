@@ -100,4 +100,4 @@ export const pluginApi = {
   updatePlugin(packageName: string) {
     return http.put<void>(`/plugin/plugins/${packageName}`)
   }
-} 
+}

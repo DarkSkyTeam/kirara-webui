@@ -10,7 +10,7 @@ export interface WorkflowEditorIntent {
     blockTypes: BlockType[]
     name?: string
     description?: string
-    workflowId?: string,
+    workflowId?: string
     config: WorkflowConfig
   }) => void
   updateBlocks: (blocks: BlockInstance[]) => void
@@ -204,4 +204,4 @@ class WorkflowEditorModel {
 }
 
 // 创建单例实例
-export const workflowEditorModel = new WorkflowEditorModel() 
+export const workflowEditorModel = new WorkflowEditorModel()

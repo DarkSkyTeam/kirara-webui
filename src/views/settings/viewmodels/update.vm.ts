@@ -36,17 +36,17 @@ export function useUpdateViewModel() {
 
   // 预设的镜像源选项
   const pypiRegistryOptions: SelectOption[] = [
-    { 
+    {
       label: 'PyPI 官方',
       value: 'https://pypi.org/simple',
       description: 'https://pypi.org/simple'
     },
-    { 
+    {
       label: '阿里云镜像',
       value: 'https://mirrors.aliyun.com/pypi/simple',
       description: 'https://mirrors.aliyun.com/pypi/simple'
     },
-    { 
+    {
       label: '清华镜像',
       value: 'https://pypi.tuna.tsinghua.edu.cn/simple',
       description: 'https://pypi.tuna.tsinghua.edu.cn/simple'
@@ -54,12 +54,12 @@ export function useUpdateViewModel() {
   ]
 
   const npmRegistryOptions: SelectOption[] = [
-    { 
+    {
       label: 'NPM 官方',
       value: 'https://registry.npmjs.org',
       description: 'https://registry.npmjs.org'
     },
-    { 
+    {
       label: '淘宝镜像',
       value: 'https://registry.npmmirror.com',
       description: 'https://registry.npmmirror.com'
@@ -112,4 +112,4 @@ export function useUpdateViewModel() {
     fetchConfig,
     handleSubmit
   }
-} 
+}

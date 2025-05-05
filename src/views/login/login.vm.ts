@@ -44,7 +44,6 @@ export function useLoginViewModel() {
         isFirstTime.value = true
       }
     }
-
   }
 
   // 处理登录/设置密码
@@ -71,4 +70,4 @@ export function useLoginViewModel() {
     handleSubmit,
     checkFirstTime
   }
-} 
+}

@@ -30,7 +30,7 @@ const router = createRouter({
         {
           path: '/im/platforms',
           name: 'im-platforms',
-          component: () => import('@/views/workflow/WorkflowTemplates.vue'),
+          component: () => import('@/views/workflow/WorkflowTemplates.vue')
         },
         {
           path: '/llm',
@@ -125,7 +125,7 @@ const router = createRouter({
           name: 'tracing',
           meta: {
             title: '系统追踪',
-            requiresAuth: true,
+            requiresAuth: true
           },
           children: [
             {

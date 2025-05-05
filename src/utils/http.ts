@@ -15,7 +15,7 @@ class Http {
           'Content-Type': 'application/json',
           ...headers,
           ...config.headers,
-          ...this.getAuthHeader(),
+          ...this.getAuthHeader()
         }
         config = {
           ...config,
@@ -24,7 +24,7 @@ class Http {
       }
       return await fetch(actualPath, {
         ...config,
-        headers: headers,
+        headers: headers
       })
     } catch (error) {
       const message = error instanceof Error ? error.message : '请求失败'
@@ -43,7 +43,7 @@ class Http {
           'Content-Type': 'application/json',
           ...headers,
           ...config.headers,
-          ...this.getAuthHeader(),
+          ...this.getAuthHeader()
         }
         config = {
           ...config,
@@ -52,7 +52,7 @@ class Http {
       }
       const response = await fetch(actualPath, {
         ...config,
-        headers: headers,
+        headers: headers
       })
 
       const data = await response.json()
@@ -86,7 +86,7 @@ class Http {
     return this.request<T>(path, {
       ...config,
       method: 'POST',
-      body: JSON.stringify(data),
+      body: JSON.stringify(data)
     })
   }
 
@@ -94,7 +94,7 @@ class Http {
     return this.request<T>(path, {
       ...config,
       method: 'PUT',
-      body: JSON.stringify(data),
+      body: JSON.stringify(data)
     })
   }
 
@@ -107,11 +107,11 @@ class Http {
   }
 
   ws(path: string) {
-    const wsUrl = new URL(window.location.href);
+    const wsUrl = new URL(window.location.href)
     wsUrl.protocol = window.location.protocol === 'https' ? 'wss' : 'ws'
     wsUrl.pathname = `${BASE_URL}${path}`
     return new WebSocket(wsUrl.toString())
   }
 }
 
-export const http = new Http() 
+export const http = new Http()

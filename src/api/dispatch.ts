@@ -2,7 +2,7 @@ import { http } from '@/utils/http'
 
 export interface SimpleRule {
   type: string
-  config: Record<string, any>  // 规则类型特定的配置
+  config: Record<string, any> // 规则类型特定的配置
 }
 
 export interface RuleGroup {
@@ -17,8 +17,8 @@ export interface DispatchRule {
   workflow_id: string
   priority: number
   enabled: boolean
-  rule_groups: RuleGroup[]  // 规则组列表，组之间是 AND 关系
-  metadata: Record<string, any>  // 其他元数据
+  rule_groups: RuleGroup[] // 规则组列表，组之间是 AND 关系
+  metadata: Record<string, any> // 其他元数据
 }
 
 export interface DispatchRuleConfigSchema {
@@ -69,18 +69,17 @@ export const dispatchApi = {
 }
 
 const _ruleTypeLabels = {
-  'prefix': '以……开头',
-  'regex': '正则表达式',
-  'keyword': '包含……词',
-  'random': '以……概率',
-  'sender': '发送者为……',
-  'sender_mismatch': '发送者不为……',
-  'bot_mention': '被@',
-  'chat_type': '聊天类型',
-  'im_instance': 'IM实例',
-  'fallback': '任意输入'
+  prefix: '以……开头',
+  regex: '正则表达式',
+  keyword: '包含……词',
+  random: '以……概率',
+  sender: '发送者为……',
+  sender_mismatch: '发送者不为……',
+  bot_mention: '被@',
+  chat_type: '聊天类型',
+  im_instance: 'IM实例',
+  fallback: '任意输入'
 }
 export const getRuleTypeLabel = (type: string) => {
   return _ruleTypeLabels[type as keyof typeof _ruleTypeLabels] || type
 }
-

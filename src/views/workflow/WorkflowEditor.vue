@@ -2,7 +2,14 @@
 import { ref, onMounted } from 'vue'
 import { routerKey, useRoute, useRouter } from 'vue-router'
 import { useMessage, NSpin } from 'naive-ui'
-import { getWorkflow, createWorkflow, updateWorkflow, type BlockInstance, type Wire, type WorkflowConfig } from '@/api/workflow'
+import {
+  getWorkflow,
+  createWorkflow,
+  updateWorkflow,
+  type BlockInstance,
+  type Wire,
+  type WorkflowConfig
+} from '@/api/workflow'
 import { listBlockTypes, type BlockType } from '@/api/block'
 import WorkflowCanvas from '@/components/workflow/WorkflowCanvas.vue'
 
@@ -114,10 +121,7 @@ const handleWiresChange = (newWires: any[]) => {
 }
 
 onMounted(() => {
-  Promise.all([
-    fetchWorkflow(),
-    fetchBlockTypes()
-  ]).then(() => {
+  Promise.all([fetchWorkflow(), fetchBlockTypes()]).then(() => {
     initialized.value = true
   })
 })
@@ -125,23 +129,23 @@ onMounted(() => {
 
 <template>
   <div class="workflow-editor">
-      <WorkflowCanvas
-        v-if="initialized"
-        :blocks="blocks"
-        :wires="wires"
-        :block-types="blockTypes"
-        :initial-name="name"
-        :initial-description="description"
-        :initial-workflow-id="groupId + ':' + workflowId"
-        :initial-config="config"
-        :loading="saving"
-        @update:blocks="handleBlocksChange"
-        @update:wires="handleWiresChange"
-        @save="handleSave"
-      />
-      <div v-else class="loading-spinner">
-        <NSpin :show="true" />
-      </div>
+    <WorkflowCanvas
+      v-if="initialized"
+      :blocks="blocks"
+      :wires="wires"
+      :block-types="blockTypes"
+      :initial-name="name"
+      :initial-description="description"
+      :initial-workflow-id="groupId + ':' + workflowId"
+      :initial-config="config"
+      :loading="saving"
+      @update:blocks="handleBlocksChange"
+      @update:wires="handleWiresChange"
+      @save="handleSave"
+    />
+    <div v-else class="loading-spinner">
+      <NSpin :show="true" />
+    </div>
   </div>
 </template>
 
@@ -199,7 +203,7 @@ onMounted(() => {
 
 :deep(.node) {
   transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
-              box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 :deep(.node:hover) {
@@ -214,4 +218,4 @@ onMounted(() => {
 :deep(.connection:hover) {
   stroke-width: 3px;
 }
-</style> 
+</style>

@@ -15,11 +15,10 @@ const emit = defineEmits<{
 // 根据当前路由获取二级菜单配置
 const menuOptions = computed<MenuOption[]>(() => {
   const currentPath = route.path.split('/')[1]
-  
+
   switch (currentPath) {
     case 'im':
-      return [
-      ]
+      return []
     case 'llm':
       return []
     case 'workflow':
@@ -109,24 +108,27 @@ const getMenuTitle = (key: string) => {
       return '系统记录'
     default:
       return ''
-      
   }
 }
 // 监听菜单变化，更新当前路由
 const handleUpdateValue = (key: string) => {
-  const selectedMenu = menuOptions.value.find(option => option.key === key);
+  const selectedMenu = menuOptions.value.find((option) => option.key === key)
   if (selectedMenu && selectedMenu.path) {
-    router.push(selectedMenu.path);
+    router.push(selectedMenu.path)
   }
 }
 
-watch(() => menuOptions.value, () => {
-  if (menuOptions.value.length === 0) {
-    emit('hasContent', false)
-  } else {
-    emit('hasContent', true)
-  }
-}, { immediate: true })
+watch(
+  () => menuOptions.value,
+  () => {
+    if (menuOptions.value.length === 0) {
+      emit('hasContent', false)
+    } else {
+      emit('hasContent', true)
+    }
+  },
+  { immediate: true }
+)
 </script>
 
 <template>
@@ -177,4 +179,4 @@ watch(() => menuOptions.value, () => {
   font-size: 14px;
   font-weight: 500;
 }
-</style> 
+</style>

@@ -18,5 +18,4 @@ export const authApi = {
   login(password: string) {
     return http.post<LoginResponse>('/auth/login', { password })
   }
-
-} 
+}

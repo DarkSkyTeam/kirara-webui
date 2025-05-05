@@ -17,7 +17,7 @@ import { SearchOutline as SearchIcon, AddOutline as AddIcon } from '@vicons/ioni
 import type { LLMBackend } from '@/api/llm'
 
 const props = defineProps<{
-  adapters: LLMBackend[],
+  adapters: LLMBackend[]
   selectedAdapter: string
 }>()
 
@@ -32,9 +32,9 @@ const searchQuery = ref('')
 const filteredAdapters = computed(() => {
   if (!searchQuery.value) return props.adapters
   const query = searchQuery.value.toLowerCase()
-  return props.adapters.filter(adapter =>
-    adapter.name.toLowerCase().includes(query) ||
-    adapter.adapter.toLowerCase().includes(query)
+  return props.adapters.filter(
+    (adapter) =>
+      adapter.name.toLowerCase().includes(query) || adapter.adapter.toLowerCase().includes(query)
   )
 })
 
@@ -70,10 +70,19 @@ const handleCreateAdapter = () => {
     </div>
     <n-list hoverable clickable class="adapter-list-scroll">
       <n-scrollbar>
-        <n-list-item v-for="adapter in filteredAdapters" :key="adapter.name" @click="handleAdapterSelect(adapter)"
-          :class="{ active: selectedAdapter === adapter.name, 'adapter-item': true }">
+        <n-list-item
+          v-for="adapter in filteredAdapters"
+          :key="adapter.name"
+          @click="handleAdapterSelect(adapter)"
+          :class="{ active: selectedAdapter === adapter.name, 'adapter-item': true }"
+        >
           <template #prefix>
-            <n-avatar width="32" round :src="getAdapterIcon(adapter.adapter)" color="var(--n-color)">
+            <n-avatar
+              width="32"
+              round
+              :src="getAdapterIcon(adapter.adapter)"
+              color="var(--n-color)"
+            >
             </n-avatar>
           </template>
           <template #suffix>
@@ -81,8 +90,11 @@ const handleCreateAdapter = () => {
               {{ adapter.enable ? '已启用' : '已禁用' }}
             </n-tag>
           </template>
-          <n-thing :title="adapter.adapter" :description="adapter.name"
-            description-style="width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+          <n-thing
+            :title="adapter.adapter"
+            :description="adapter.name"
+            description-style="width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+          >
           </n-thing>
         </n-list-item>
         <n-list-item v-if="filteredAdapters.length === 0 && adapters.length > 0">
@@ -141,4 +153,4 @@ const handleCreateAdapter = () => {
   margin-left: 8px;
   font-size: 0.8rem;
 }
-</style> 
+</style>

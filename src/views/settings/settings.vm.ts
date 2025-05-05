@@ -79,7 +79,10 @@ export function useSettingsViewModel() {
   const saveWebConfig = async () => {
     loading.value = true
     try {
-      const response = await http.post<{ status: string; restart_required: boolean }>('/system/config/web', config.value.web)
+      const response = await http.post<{ status: string; restart_required: boolean }>(
+        '/system/config/web',
+        config.value.web
+      )
       if (response.restart_required) {
         dialog.warning({
           title: '需要重启',
@@ -136,4 +139,4 @@ export function useSettingsViewModel() {
     savePluginsConfig,
     saveUpdateConfig
   }
-} 
+}

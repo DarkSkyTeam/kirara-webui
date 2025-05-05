@@ -19,8 +19,8 @@ import {
   NDivider
 } from 'naive-ui'
 import { useAppStore } from '@/stores/app'
-import { 
-  ArrowForwardOutline, 
+import {
+  ArrowForwardOutline,
   CloseCircleOutline,
   CheckmarkCircleOutline,
   AlertCircleOutline,
@@ -50,7 +50,7 @@ const hideGuide = () => {
 const stepsStatus = computed(() => {
   // 从 localStorage 获取已完成的步骤
   const completedSteps = JSON.parse(localStorage.getItem('completedSteps') || '{}')
-  
+
   const steps = [
     {
       key: 'plugins',
@@ -88,13 +88,13 @@ const stepsStatus = computed(() => {
       path: '/workflow'
     }
   ]
-  
+
   return steps
 })
 
 // 计算当前应该进行的步骤
 const currentStep = computed(() => {
-  return stepsStatus.value.findIndex(step => !step.completed)
+  return stepsStatus.value.findIndex((step) => !step.completed)
 })
 
 const handleStepClick = (step: number, path: string) => {
@@ -102,7 +102,7 @@ const handleStepClick = (step: number, path: string) => {
   const completedSteps = JSON.parse(localStorage.getItem('completedSteps') || '{}')
   completedSteps[stepsStatus.value[step].key] = true
   localStorage.setItem('completedSteps', JSON.stringify(completedSteps))
-  
+
   // 跳转到目标页面
   router.push(path)
 }
@@ -123,7 +123,7 @@ const getStatusColor = (status: string) => {
 // 计算完成进度
 const completionProgress = computed(() => {
   const total = stepsStatus.value.length
-  const completed = stepsStatus.value.filter(step => step.completed).length
+  const completed = stepsStatus.value.filter((step) => step.completed).length
   return Math.round((completed / total) * 100)
 })
 
@@ -158,7 +158,7 @@ const getRailColor = () => {
 
 // 计算是否所有步骤都已完成
 const isAllCompleted = computed(() => {
-  return stepsStatus.value.every(step => step.completed)
+  return stepsStatus.value.every((step) => step.completed)
 })
 
 // 解析运行时间
@@ -194,16 +194,24 @@ onUnmounted(() => {
 })
 
 // 当系统状态更新时，重新计算启动时间
-watch(() => appStore.systemStatus.uptime, (newUptime) => {
-  startTime.value = Date.now() - newUptime * 1000
-})
+watch(
+  () => appStore.systemStatus.uptime,
+  (newUptime) => {
+    startTime.value = Date.now() - newUptime * 1000
+  }
+)
 </script>
 
 <template>
   <div class="guide-container">
     <n-space vertical :size="16">
       <!-- 快速开始引导 -->
-      <n-card v-if="showGuide && !isAllCompleted" title="快速开始" :bordered="false" class="guide-card">
+      <n-card
+        v-if="showGuide && !isAllCompleted"
+        title="快速开始"
+        :bordered="false"
+        class="guide-card"
+      >
         <template #header-extra>
           <n-tooltip trigger="hover">
             <template #trigger>
@@ -217,13 +225,24 @@ watch(() => appStore.systemStatus.uptime, (newUptime) => {
           </n-tooltip>
         </template>
         <n-steps :current="currentStep" class="guide-steps">
-          <n-step v-for="(step, index) in stepsStatus" :key="index" :title="step.title" :description="step.description"
-            :status="step.completed ? 'finish' : index === currentStep ? 'process' : 'wait'">
+          <n-step
+            v-for="(step, index) in stepsStatus"
+            :key="index"
+            :title="step.title"
+            :description="step.description"
+            :status="step.completed ? 'finish' : index === currentStep ? 'process' : 'wait'"
+          >
             <template #default>
               <div class="step-content">
                 <div class="step-description">{{ step.description }}</div>
-                <n-button text type="primary" @click="handleStepClick(index, step.path)"
-                  :disabled="index !== currentStep && !step.completed" v-if="index === currentStep" class="step-button">
+                <n-button
+                  text
+                  type="primary"
+                  @click="handleStepClick(index, step.path)"
+                  :disabled="index !== currentStep && !step.completed"
+                  v-if="index === currentStep"
+                  class="step-button"
+                >
                   立刻前往
                   <template #icon>
                     <n-icon>
@@ -239,7 +258,13 @@ watch(() => appStore.systemStatus.uptime, (newUptime) => {
 
       <!-- 系统状态概览卡片 -->
       <n-card :bordered="false" class="status-overview-card">
-        <n-grid cols="1 s:2 m:4" :x-gap="16" :y-gap="16" responsive="screen" :item-responsive="true">
+        <n-grid
+          cols="1 s:2 m:4"
+          :x-gap="16"
+          :y-gap="16"
+          responsive="screen"
+          :item-responsive="true"
+        >
           <!-- 运行时长 -->
           <n-gi>
             <div class="status-item">
@@ -254,7 +279,7 @@ watch(() => appStore.systemStatus.uptime, (newUptime) => {
               </div>
             </div>
           </n-gi>
-          
+
           <!-- 已接入 IM -->
           <n-gi>
             <div class="status-item">
@@ -269,7 +294,7 @@ watch(() => appStore.systemStatus.uptime, (newUptime) => {
               </div>
             </div>
           </n-gi>
-          
+
           <!-- 已接入 LLM -->
           <n-gi>
             <div class="status-item">
@@ -284,7 +309,7 @@ watch(() => appStore.systemStatus.uptime, (newUptime) => {
               </div>
             </div>
           </n-gi>
-          
+
           <!-- 已安装插件 -->
           <n-gi>
             <div class="status-item">
@@ -303,7 +328,13 @@ watch(() => appStore.systemStatus.uptime, (newUptime) => {
       </n-card>
 
       <!-- 系统负载和系统信息 -->
-      <n-grid cols="1 s:1 m:2 l:2" :x-gap="16" :y-gap="16" responsive="screen" :item-responsive="true">
+      <n-grid
+        cols="1 s:1 m:2 l:2"
+        :x-gap="16"
+        :y-gap="16"
+        responsive="screen"
+        :item-responsive="true"
+      >
         <!-- 系统负载卡片 -->
         <n-gi>
           <n-card :bordered="false" class="system-load-card" title="系统负载">
@@ -317,20 +348,22 @@ watch(() => appStore.systemStatus.uptime, (newUptime) => {
                   </div>
                   <div class="load-value">{{ Math.round(appStore.systemStatus.cpuUsage) }}%</div>
                   <div class="load-progress">
-                    <n-progress type="line" 
-                      :percentage="Math.round(appStore.systemStatus.cpuUsage)" 
+                    <n-progress
+                      type="line"
+                      :percentage="Math.round(appStore.systemStatus.cpuUsage)"
                       :color="getCPUColor(appStore.systemStatus.cpuUsage)"
                       :rail-color="getRailColor()"
                       :height="8"
                       :border-radius="4"
                       :show-indicator="false"
-                      class="resource-progress" />
+                      class="resource-progress"
+                    />
                   </div>
                 </div>
               </div>
-              
+
               <n-divider vertical />
-              
+
               <!-- 内存使用率 -->
               <div class="load-item">
                 <div class="load-info">
@@ -338,16 +371,20 @@ watch(() => appStore.systemStatus.uptime, (newUptime) => {
                     <n-icon size="18"><ServerOutline /></n-icon>
                     <span>内存可用率</span>
                   </div>
-                  <div class="load-value">{{ Math.round(appStore.systemStatus.memoryUsage.percent * 100) }}%</div>
+                  <div class="load-value">
+                    {{ Math.round(appStore.systemStatus.memoryUsage.percent * 100) }}%
+                  </div>
                   <div class="load-progress">
-                    <n-progress type="line" 
-                      :percentage="Math.round(appStore.systemStatus.memoryUsage.percent * 100)" 
+                    <n-progress
+                      type="line"
+                      :percentage="Math.round(appStore.systemStatus.memoryUsage.percent * 100)"
                       :color="getMemoryColor(appStore.systemStatus.memoryUsage.percent * 100)"
                       :rail-color="getRailColor()"
                       :height="8"
                       :border-radius="4"
                       :show-indicator="false"
-                      class="resource-progress" />
+                      class="resource-progress"
+                    />
                   </div>
                   <div class="load-detail">
                     <div>
@@ -357,17 +394,22 @@ watch(() => appStore.systemStatus.uptime, (newUptime) => {
                       系统可用: {{ appStore.systemStatus?.memoryUsage?.free?.toFixed(2) }}MB
                     </div>
                   </div>
-
                 </div>
               </div>
             </div>
           </n-card>
         </n-gi>
-        
+
         <!-- 系统信息卡片 -->
         <n-gi>
           <n-card :bordered="false" class="system-info-card" title="系统信息">
-            <n-grid cols="1 s:2 m:2 l:2" :x-gap="16" :y-gap="16" responsive="screen" :item-responsive="true">
+            <n-grid
+              cols="1 s:2 m:2 l:2"
+              :x-gap="16"
+              :y-gap="16"
+              responsive="screen"
+              :item-responsive="true"
+            >
               <n-gi>
                 <div class="info-item">
                   <div class="info-label">Kirara AI</div>
@@ -397,11 +439,11 @@ watch(() => appStore.systemStatus.uptime, (newUptime) => {
         </n-gi>
       </n-grid>
 
-                  <!-- LLM 统计 -->
-                  <div class="llm-stats-container">
-              <div class="llm-stats-title">LLM 统计</div>
-              <LLMStatistics />
-            </div>
+      <!-- LLM 统计 -->
+      <div class="llm-stats-container">
+        <div class="llm-stats-title">LLM 统计</div>
+        <LLMStatistics />
+      </div>
     </n-space>
   </div>
 </template>
@@ -410,7 +452,11 @@ watch(() => appStore.systemStatus.uptime, (newUptime) => {
 .guide-container {
   padding: 24px;
   min-height: 100vh;
-  background: linear-gradient(135deg, var(--body-bg-color) 0%, rgba(var(--primary-color-rgb), 0.05) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--body-bg-color) 0%,
+    rgba(var(--primary-color-rgb), 0.05) 100%
+  );
 }
 
 .guide-card,
@@ -470,7 +516,11 @@ watch(() => appStore.systemStatus.uptime, (newUptime) => {
 
 :deep(.n-step.n-step--finish) {
   .n-step-indicator {
-    background: linear-gradient(135deg, var(--success-color) 0%, rgba(var(--success-color-rgb), 0.8) 100%);
+    background: linear-gradient(
+      135deg,
+      var(--success-color) 0%,
+      rgba(var(--success-color-rgb), 0.8) 100%
+    );
     border: none;
     box-shadow: 0 4px 12px rgba(var(--success-color-rgb), 0.2);
   }
@@ -478,7 +528,11 @@ watch(() => appStore.systemStatus.uptime, (newUptime) => {
 
 :deep(.n-step.n-step--process) {
   .n-step-indicator {
-    background: linear-gradient(135deg, var(--primary-color) 0%, rgba(var(--primary-color-rgb), 0.8) 100%);
+    background: linear-gradient(
+      135deg,
+      var(--primary-color) 0%,
+      rgba(var(--primary-color-rgb), 0.8) 100%
+    );
     border: none;
     box-shadow: 0 4px 12px rgba(var(--primary-color-rgb), 0.2);
   }
@@ -511,27 +565,47 @@ watch(() => appStore.systemStatus.uptime, (newUptime) => {
   width: 48px;
   height: 48px;
   border-radius: 12px;
-  background: linear-gradient(135deg, rgba(var(--primary-color-rgb), 0.1) 0%, rgba(var(--primary-color-rgb), 0.2) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(var(--primary-color-rgb), 0.1) 0%,
+    rgba(var(--primary-color-rgb), 0.2) 100%
+  );
   color: var(--primary-color);
 }
 
 .status-icon.uptime {
-  background: linear-gradient(135deg, rgba(var(--primary-color-rgb), 0.1) 0%, rgba(var(--primary-color-rgb), 0.2) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(var(--primary-color-rgb), 0.1) 0%,
+    rgba(var(--primary-color-rgb), 0.2) 100%
+  );
   color: var(--primary-color);
 }
 
 .status-icon.chat {
-  background: linear-gradient(135deg, rgba(var(--info-color-rgb), 0.1) 0%, rgba(var(--info-color-rgb), 0.2) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(var(--info-color-rgb), 0.1) 0%,
+    rgba(var(--info-color-rgb), 0.2) 100%
+  );
   color: var(--info-color);
 }
 
 .status-icon.brain {
-  background: linear-gradient(135deg, rgba(var(--success-color-rgb), 0.1) 0%, rgba(var(--success-color-rgb), 0.2) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(var(--success-color-rgb), 0.1) 0%,
+    rgba(var(--success-color-rgb), 0.2) 100%
+  );
   color: var(--success-color);
 }
 
 .status-icon.plugin {
-  background: linear-gradient(135deg, rgba(var(--warning-color-rgb), 0.1) 0%, rgba(var(--warning-color-rgb), 0.2) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(var(--warning-color-rgb), 0.1) 0%,
+    rgba(var(--warning-color-rgb), 0.2) 100%
+  );
   color: var(--warning-color);
 }
 

@@ -1,8 +1,23 @@
 <script setup lang="ts">
 import { imApi } from '@/api/im'
 import type { IMAdapter, IMAdapterInfo } from '@/api/im'
-import { ref, onMounted, h } from 'vue';
-import { NCard, NSpace, NButton, NModal, NForm, NFormItem, NInput, NSpin, useMessage, NGrid, NGridItem, NIcon, NTag, NAvatar } from 'naive-ui'
+import { ref, onMounted, h } from 'vue'
+import {
+  NCard,
+  NSpace,
+  NButton,
+  NModal,
+  NForm,
+  NFormItem,
+  NInput,
+  NSpin,
+  useMessage,
+  NGrid,
+  NGridItem,
+  NIcon,
+  NTag,
+  NAvatar
+} from 'naive-ui'
 import { useRouter } from 'vue-router'
 
 const message = useMessage()
@@ -18,7 +33,6 @@ const fetchAdapterTypes = async () => {
     const { types, adapters } = await imApi.getAdapterTypes()
     adapterTypes.value = types
     adapterInfos.value = adapters ?? {}
-
   } catch (error) {
     message.error('获取适配器类型失败: ' + error)
     console.error('获取适配器类型失败:', error)
@@ -38,7 +52,7 @@ const fetchAdapters = async () => {
 
 // 检查适配器是否已配置
 const isAdapterConfigured = (adapterType: string) => {
-  return adapters.value.some(a => a.adapter === adapterType)
+  return adapters.value.some((a) => a.adapter === adapterType)
 }
 
 // 点击适配器卡片
@@ -57,15 +71,17 @@ onMounted(() => {
   <div class="im-view">
     <n-card title="聊天平台管理" class="im-card">
       <template #header-extra>
-        <n-button type="primary" @click="fetchAdapterTypes" class="refresh-button">
-          刷新
-        </n-button>
+        <n-button type="primary" @click="fetchAdapterTypes" class="refresh-button"> 刷新 </n-button>
       </template>
-      
+
       <div class="im-view-description">
-        在这里配置 Kirara AI 与聊天平台的连接方式，更多介绍请阅读<a href="https://kirara-docs.app.lss233.com/guide/configuration/im.html" target="_blank">官方文档</a>。
+        在这里配置 Kirara AI 与聊天平台的连接方式，更多介绍请阅读<a
+          href="https://kirara-docs.app.lss233.com/guide/configuration/im.html"
+          target="_blank"
+          >官方文档</a
+        >。
       </div>
-      
+
       <n-spin :show="loading">
         <n-grid :cols="3" :x-gap="16" :y-gap="16" responsive="screen">
           <n-grid-item v-for="type in adapterTypes" :key="type" :span="1">
@@ -73,13 +89,22 @@ onMounted(() => {
               <template #header>
                 <div class="adapter-card-header">
                   <n-space>
-                    <n-avatar :size="30" round 
-                    :src="'/assets/icons/im/' + type + '.png'" 
-                    fallback-src="/assets/icons/im/fallback-im.svg" />
-                    <span class="adapter-type">{{ adapterInfos[type]?.localized_name || type }}</span>
+                    <n-avatar
+                      :size="30"
+                      round
+                      :src="'/assets/icons/im/' + type + '.png'"
+                      fallback-src="/assets/icons/im/fallback-im.svg"
+                    />
+                    <span class="adapter-type">{{
+                      adapterInfos[type]?.localized_name || type
+                    }}</span>
                   </n-space>
 
-                  <n-tag :type="isAdapterConfigured(type) ? 'success' : 'default'" size="small" round>
+                  <n-tag
+                    :type="isAdapterConfigured(type) ? 'success' : 'default'"
+                    size="small"
+                    round
+                  >
                     {{ isAdapterConfigured(type) ? '已配置' : '未配置' }}
                   </n-tag>
                 </div>
@@ -181,13 +206,13 @@ onMounted(() => {
   .adapter-edit-container {
     flex-direction: column;
   }
-  
+
   .adapter-basic-form {
     flex: none;
     padding-right: 0;
     margin-bottom: 16px;
   }
-  
+
   .adapter-extra-form {
     flex: none;
     padding-left: 0;

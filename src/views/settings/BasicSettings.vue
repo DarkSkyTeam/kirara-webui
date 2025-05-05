@@ -13,8 +13,13 @@ import TracingCard from './components/TracingCard.vue'
 <template>
   <div class="settings-page">
     <n-card title="系统设置" class="settings-card">
-      <n-tabs type="line" animated class="settings-tabs" pane-wrapper-style="margin: 0 -4px"
-        pane-style="padding-left: 4px; padding-right: 4px; box-sizing: border-box;">
+      <n-tabs
+        type="line"
+        animated
+        class="settings-tabs"
+        pane-wrapper-style="margin: 0 -4px"
+        pane-style="padding-left: 4px; padding-right: 4px; box-sizing: border-box;"
+      >
         <n-tab-pane name="webservice" tab="Web服务">
           <n-space vertical :gap="32">
             <WebServiceCard />

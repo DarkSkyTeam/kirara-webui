@@ -3,53 +3,57 @@ import { http } from '@/utils/http'
 import { useMessage, useDialog } from 'naive-ui'
 
 export interface TracingForm {
-    llm_tracing_content: boolean
+  llm_tracing_content: boolean
 }
 
 export interface TracingConfig {
-    tracing: {
-        llm_tracing_content: boolean
-    }
+  tracing: {
+    llm_tracing_content: boolean
+  }
 }
 
 export function useTracingViewModel() {
-    const loading = ref(false)
-    const message = useMessage()
-    const dialog = useDialog()
+  const loading = ref(false)
+  const message = useMessage()
+  const dialog = useDialog()
 
-    const formData = ref<TracingForm>({
-        llm_tracing_content: false
-    })
+  const formData = ref<TracingForm>({
+    llm_tracing_content: false
+  })
 
-    const fetchConfig = async () => {
-        loading.value = true
-        try {
-            const response = await http.get<TracingConfig>('/system/config')
-            formData.value = {
-                llm_tracing_content: response.tracing.llm_tracing_content
-            }
-        } catch (error: any) {
-            if (error.response?.data?.message) {
-                message.error(error.response.data.message)
-            } else {
-                message.error('获取配置失败')
-            }
-        } finally {
-            loading.value = false
-        }
+  const fetchConfig = async () => {
+    loading.value = true
+    try {
+      const response = await http.get<TracingConfig>('/system/config')
+      formData.value = {
+        llm_tracing_content: response.tracing.llm_tracing_content
+      }
+    } catch (error: any) {
+      if (error.response?.data?.message) {
+        message.error(error.response.data.message)
+      } else {
+        message.error('获取配置失败')
+      }
+    } finally {
+      loading.value = false
     }
+  }
 
-    const handleSubmit = async () => {
-        loading.value = true
-        try {
-            if (formData.value.llm_tracing_content) {
-                dialog.warning({
-                    title: 'LLM 内容追踪功能启用告知书',
-                    style: {
-                        width: '550px',
-                        fontSize: '14px'
-                    },
-                    content: () => h('div', { style: { whiteSpace: 'pre-line' } }, `
+  const handleSubmit = async () => {
+    loading.value = true
+    try {
+      if (formData.value.llm_tracing_content) {
+        dialog.warning({
+          title: 'LLM 内容追踪功能启用告知书',
+          style: {
+            width: '550px',
+            fontSize: '14px'
+          },
+          content: () =>
+            h(
+              'div',
+              { style: { whiteSpace: 'pre-line' } },
+              `
 您即将启用 LLM 内容追踪功能。请您仔细阅读以下条款，充分了解相关风险与责任：
 
 1. 功能说明：
@@ -69,46 +73,47 @@ export function useTracingViewModel() {
    - 因您未履行告知义务、安全防护措施不足或违反相关法律法规而导致的损失，由您全权承担。
 
 请您确认已充分理解并接受以上条款，并承诺对启用本功能后的数据安全负责。
-        `),
-                    positiveText: '确认开启',
-                    negativeText: '取消操作',
-                    onPositiveClick: async () => {
-                        await saveConfig()
-                    },
-                    onNegativeClick: () => {
-                        formData.value.llm_tracing_content = false
-                        loading.value = false
-                    }
-                })
-            } else {
-                await saveConfig()
-            }
-        } catch (error) {
+        `
+            ),
+          positiveText: '确认开启',
+          negativeText: '取消操作',
+          onPositiveClick: async () => {
+            await saveConfig()
+          },
+          onNegativeClick: () => {
+            formData.value.llm_tracing_content = false
             loading.value = false
-        }
+          }
+        })
+      } else {
+        await saveConfig()
+      }
+    } catch (error) {
+      loading.value = false
     }
+  }
 
-    const saveConfig = async () => {
-        try {
-            await http.post('/system/config/tracing', {
-                llm_tracing_content: formData.value.llm_tracing_content
-            })
-            message.success('追踪设置已保存')
-        } catch (error: any) {
-            if (error.response?.data?.message) {
-                message.error(error.response.data.message)
-            } else {
-                message.error('保存配置失败')
-            }
-        } finally {
-            loading.value = false
-        }
+  const saveConfig = async () => {
+    try {
+      await http.post('/system/config/tracing', {
+        llm_tracing_content: formData.value.llm_tracing_content
+      })
+      message.success('追踪设置已保存')
+    } catch (error: any) {
+      if (error.response?.data?.message) {
+        message.error(error.response.data.message)
+      } else {
+        message.error('保存配置失败')
+      }
+    } finally {
+      loading.value = false
     }
+  }
 
-    return {
-        loading,
-        formData,
-        fetchConfig,
-        handleSubmit
-    }
-} 
+  return {
+    loading,
+    formData,
+    fetchConfig,
+    handleSubmit
+  }
+}

@@ -15,8 +15,9 @@ const connecting = ref(false)
 const webUIVersion = import.meta.env.VITE_APP_VERSION || 'unknown'
 
 const fetchStatus = () => {
-  http.get<{ status: SystemStatus }>('/system/status')
-    .then(data => {
+  http
+    .get<{ status: SystemStatus }>('/system/status')
+    .then((data) => {
       connecting.value = false
       appStore.updateSystemStatus({
         status: 'normal',
@@ -40,7 +41,7 @@ const fetchStatus = () => {
         hasProxy: data.status.has_proxy
       })
     })
-    .catch(error => {
+    .catch((error) => {
       console.error('获取系统状态失败:', error)
       connecting.value = false
       appStore.updateSystemStatus({
@@ -63,7 +64,6 @@ const fetchStatus = () => {
 }
 // 模拟状态更新
 let timer: number
-
 
 onMounted(() => {
   updateCheckerRef.value?.checkUpdate()
@@ -99,12 +99,12 @@ onUnmounted(() => {
     <!-- 桌面版布局 -->
     <n-space align="center" :size="20" class="desktop-view">
       <n-space align="center" :size="4">
-        <n-badge dot :type="connecting
-          ? 'warning'
-          : appStore.systemStatus.status === 'normal'
-            ? 'success'
-            : 'error'
-          " />
+        <n-badge
+          dot
+          :type="
+            connecting ? 'warning' : appStore.systemStatus.status === 'normal' ? 'success' : 'error'
+          "
+        />
         <n-text>
           系统状态:
           <span v-if="connecting">连接中...</span>
@@ -120,21 +120,26 @@ onUnmounted(() => {
       </n-space>
 
       <n-space align="center">
-        <n-text>
-          WebUI 版本: {{ webUIVersion }}
-        </n-text>
+        <n-text> WebUI 版本: {{ webUIVersion }} </n-text>
         <n-text v-if="appStore.systemStatus.status === 'normal'">
           后端版本: {{ appStore.systemStatus.version }}
         </n-text>
-        <n-text @click="updateCheckerRef!!.showUpdateModal = true"
-          v-if="appStore.updateInfo?.backend_update_available || appStore.updateInfo?.webui_update_available"
-          type="success" class="version-text" style="margin-left: 4px;">
+        <n-text
+          @click="updateCheckerRef!!.showUpdateModal = true"
+          v-if="
+            appStore.updateInfo?.backend_update_available ||
+            appStore.updateInfo?.webui_update_available
+          "
+          type="success"
+          class="version-text"
+          style="margin-left: 4px"
+        >
           有更新
         </n-text>
       </n-space>
 
       <n-space v-if="appStore.systemStatus.status === 'normal'">
-        <n-text>内存使用: {{ (appStore.systemStatus.memoryUsage.used).toFixed(2) }} MB</n-text>
+        <n-text>内存使用: {{ appStore.systemStatus.memoryUsage.used.toFixed(2) }} MB</n-text>
         <n-text>CPU: {{ appStore.systemStatus.cpuUsage }}%</n-text>
         <n-text>IM: {{ appStore.systemStatus.activeAdapters }}</n-text>
         <n-text>LLM: {{ appStore.systemStatus.activeBackends }}</n-text>
@@ -147,16 +152,21 @@ onUnmounted(() => {
     <div class="mobile-view">
       <n-space align="center" :size="8">
         <n-space align="center" :size="4">
-            <n-badge dot :type="appStore.systemStatus.apiConnected ? 'success' : 'error'" />
+          <n-badge dot :type="appStore.systemStatus.apiConnected ? 'success' : 'error'" />
           <n-text>API: {{ appStore.systemStatus.apiConnected ? '已连接' : '未连接' }}</n-text>
         </n-space>
         <n-space align="center">
-          <n-text>
-            版本: {{ webUIVersion }}
-          </n-text>
-          <n-text @click="updateCheckerRef!!.showUpdateModal = true"
-            v-if="appStore.updateInfo?.backend_update_available || appStore.updateInfo?.webui_update_available"
-            type="success" class="version-text" style="margin-left: 4px;">
+          <n-text> 版本: {{ webUIVersion }} </n-text>
+          <n-text
+            @click="updateCheckerRef!!.showUpdateModal = true"
+            v-if="
+              appStore.updateInfo?.backend_update_available ||
+              appStore.updateInfo?.webui_update_available
+            "
+            type="success"
+            class="version-text"
+            style="margin-left: 4px"
+          >
             有更新
           </n-text>
         </n-space>
@@ -201,7 +211,7 @@ onUnmounted(() => {
   .desktop-view {
     display: none !important;
   }
-  
+
   .mobile-view {
     display: flex;
   }

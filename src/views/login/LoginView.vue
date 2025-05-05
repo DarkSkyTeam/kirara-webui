@@ -2,7 +2,7 @@
   <div class="login-view">
     <!-- 背景图层 -->
     <div class="login-bg-layer"></div>
-    
+
     <div class="login-container">
       <!-- 左侧图片区域 -->
       <div class="login-image-section">
@@ -11,7 +11,7 @@
           <p class="brand-slogan">探索人工智能的无限可能</p>
         </div>
       </div>
-      
+
       <!-- 右侧登录表单区域 -->
       <div class="login-form-section">
         <div class="login-form-wrapper">
@@ -20,9 +20,11 @@
               <div class="i-carbon-bot text-36px animate-float" />
             </div>
             <h2 class="login-title">欢迎使用 Kirara AI</h2>
-            <p class="login-subtitle">{{ isFirstTime ? '首次使用，请设置管理员密码' : '请输入管理员密码继续' }}</p>
+            <p class="login-subtitle">
+              {{ isFirstTime ? '首次使用，请设置管理员密码' : '请输入管理员密码继续' }}
+            </p>
           </div>
-          
+
           <n-form
             ref="formRef"
             :model="formModel"
@@ -47,7 +49,7 @@
                 </template>
               </n-input>
             </n-form-item>
-            
+
             <n-form-item v-if="isFirstTime" path="confirmPassword" class="form-item">
               <n-input
                 v-model:value="formModel.confirmPassword"
@@ -62,7 +64,7 @@
                 </template>
               </n-input>
             </n-form-item>
-            
+
             <div class="form-actions">
               <n-button
                 type="primary"
@@ -75,13 +77,11 @@
                 {{ isFirstTime ? '设置密码' : '登录' }}
                 <div class="button-effect"></div>
               </n-button>
-              
+
               <div class="forgot-password" v-if="!isFirstTime">
                 <n-tooltip trigger="hover" placement="bottom">
                   <template #trigger>
-                    <span class="forgot-password-text">
-                      忘记密码？
-                    </span>
+                    <span class="forgot-password-text"> 忘记密码？ </span>
                   </template>
                   <span>删除项目下的 data\web\password.hash 文件即可重置密码</span>
                 </n-tooltip>
@@ -91,7 +91,7 @@
         </div>
       </div>
     </div>
-    
+
     <div class="login-footer">
       <a href="https://github.com/lss233/kirara-ai" target="_blank" class="footer-link">
         <span>Powered by Kirara AI</span>
@@ -102,24 +102,10 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import {
-  NForm,
-  NFormItem,
-  NInput,
-  NButton,
-  NTooltip,
-  useMessage,
-} from 'naive-ui'
+import { NForm, NFormItem, NInput, NButton, NTooltip, useMessage } from 'naive-ui'
 import { useLoginViewModel } from './login.vm'
 
-const {
-  isFirstTime,
-  loading,
-  formModel,
-  rules,
-  handleSubmit,
-  checkFirstTime
-} = useLoginViewModel()
+const { isFirstTime, loading, formModel, rules, handleSubmit, checkFirstTime } = useLoginViewModel()
 
 const message = useMessage()
 const passwordFeedback = ref<string | undefined>(undefined)
@@ -127,12 +113,12 @@ const passwordFeedback = ref<string | undefined>(undefined)
 const handleLogin = async () => {
   try {
     passwordFeedback.value = undefined
-    await handleSubmit();
+    await handleSubmit()
   } catch (error: any) {
     passwordFeedback.value = 'error'
-    message.error('登录失败，请重试');
+    message.error('登录失败，请重试')
   }
-};
+}
 
 onMounted(() => {
   checkFirstTime()
@@ -290,7 +276,7 @@ onMounted(() => {
   left: -50%;
   width: 200%;
   height: 200%;
-  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 70%);
   animation: rotate 20s linear infinite;
 }
 
@@ -424,7 +410,7 @@ onMounted(() => {
 }
 
 .footer-link:hover {
-  color: rgba(var(--n-text-color-rgb), 1.0);
+  color: rgba(var(--n-text-color-rgb), 1);
   text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
 }
 
@@ -433,14 +419,24 @@ onMounted(() => {
 }
 
 @keyframes rotate {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes image-float {
-  0% { transform: translateY(0) scale(1); }
-  50% { transform: translateY(-10px) scale(1.02); }
-  100% { transform: translateY(0) scale(1); }
+  0% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-10px) scale(1.02);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
 }
 
 /* 响应式布局 */
@@ -450,27 +446,27 @@ onMounted(() => {
     width: 95%;
     max-width: 500px;
   }
-  
+
   .login-image-section {
     padding: 2rem;
     min-height: 250px;
   }
-  
+
   .brand-title {
     font-size: 2.5rem;
   }
-  
+
   .brand-slogan {
     font-size: 1.2rem;
     margin-bottom: 1.5rem;
   }
-  
+
   .brand-features {
     flex-direction: row;
     justify-content: space-around;
     gap: 1rem;
   }
-  
+
   .feature-item {
     flex-direction: column;
     text-align: center;
@@ -485,7 +481,7 @@ onMounted(() => {
     border-radius: 0;
     margin: 0;
   }
-  
+
   .login-image-section {
     position: absolute;
     top: 0;
@@ -495,18 +491,18 @@ onMounted(() => {
     z-index: -1;
     background: linear-gradient(135deg, rgba(64, 128, 255, 0.5) 0%, rgba(102, 153, 255, 0.5) 100%);
   }
-  
+
   .login-form-section {
     background-color: rgba(255, 255, 255, 0.85);
     backdrop-filter: blur(15px);
     min-height: 100vh;
     padding: 2rem 1.5rem;
   }
-  
+
   .brand-features {
     display: none;
   }
-  
+
   .login-form-wrapper {
     padding: 2rem;
     border-radius: 20px;
@@ -519,17 +515,17 @@ onMounted(() => {
   .login-form-wrapper {
     padding: 1.5rem;
   }
-  
+
   .login-title {
     font-size: 1.5rem;
   }
-  
+
   .login-subtitle {
     font-size: 0.9rem;
   }
-  
+
   .login-logo div {
     font-size: 2.5rem;
   }
 }
-</style> 
+</style>

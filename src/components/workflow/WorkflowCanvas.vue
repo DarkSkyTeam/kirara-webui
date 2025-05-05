@@ -56,7 +56,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   'update:blocks': [blocks: BlockInstance[]]
   'update:wires': [wires: Wire[]]
-  'save': [name: string, description: string, workflowId: string]
+  save: [name: string, description: string, workflowId: string]
 }>()
 
 // ==================== 状态管理 ====================
@@ -85,7 +85,8 @@ const formValue = ref({
 })
 
 // 初始化工作流ID
-viewState.value.workflowId = 'user:' + Array.from({ length: 5 }, () => Math.floor(Math.random() * 36).toString(36)).join('')
+viewState.value.workflowId =
+  'user:' + Array.from({ length: 5 }, () => Math.floor(Math.random() * 36).toString(36)).join('')
 viewState.value.name = formValue.value.name
 viewState.value.description = formValue.value.description
 
@@ -127,20 +128,28 @@ const {
 } = useVueFlow()
 
 const { layout } = useLayout()
-const selectedNode = computed(() => getSelectedNodes.value.length > 0 ? getSelectedNodes.value[0] : null)
+const selectedNode = computed(() =>
+  getSelectedNodes.value.length > 0 ? getSelectedNodes.value[0] : null
+)
 
 // 连接验证功能
 const isValidConnection = (connection: Connection) => {
   // 获取源节点和目标节点
-  const sourceNode = nodes.value.find(node => node.id === connection.source)
-  const targetNode = nodes.value.find(node => node.id === connection.target)
+  const sourceNode = nodes.value.find((node) => node.id === connection.source)
+  const targetNode = nodes.value.find((node) => node.id === connection.target)
   if (!sourceNode || !targetNode) return false
 
   // 获取源输出和目标输入的类型
-  const sourceOutput = sourceNode.data.outputs.find(output => output.name === connection.sourceHandle)
-  const sourceBlockType = props.blockTypes.find(type => type.type_name === sourceNode.data.blockType.type_name)
-  const targetInput = targetNode.data.inputs.find(input => input.name === connection.targetHandle)
-  const targetBlockType = props.blockTypes.find(type => type.type_name === targetNode.data.blockType.type_name)
+  const sourceOutput = sourceNode.data.outputs.find(
+    (output) => output.name === connection.sourceHandle
+  )
+  const sourceBlockType = props.blockTypes.find(
+    (type) => type.type_name === sourceNode.data.blockType.type_name
+  )
+  const targetInput = targetNode.data.inputs.find((input) => input.name === connection.targetHandle)
+  const targetBlockType = props.blockTypes.find(
+    (type) => type.type_name === targetNode.data.blockType.type_name
+  )
   if (!sourceOutput || !targetInput || !sourceBlockType || !targetBlockType) return false
 
   // 检查类型兼容性
@@ -148,15 +157,23 @@ const isValidConnection = (connection: Connection) => {
   let targetType = null
   // 如果是代码节点，则使用配置中的类型
   if (sourceNode.data.blockType.type_name == 'internal:code') {
-    sourceType = sourceNode.data.config.outputs.find((output: any) => output.name === connection.sourceHandle)?.type
+    sourceType = sourceNode.data.config.outputs.find(
+      (output: any) => output.name === connection.sourceHandle
+    )?.type
   } else {
-    sourceType = sourceBlockType.outputs.find((output: any) => output.name === connection.sourceHandle)?.type
+    sourceType = sourceBlockType.outputs.find(
+      (output: any) => output.name === connection.sourceHandle
+    )?.type
   }
 
   if (targetNode.data.blockType.type_name == 'internal:code') {
-    targetType = targetNode.data.config.inputs.find((input: any) => input.name === connection.targetHandle)?.type
+    targetType = targetNode.data.config.inputs.find(
+      (input: any) => input.name === connection.targetHandle
+    )?.type
   } else {
-    targetType = targetBlockType.inputs.find((input: any) => input.name === connection.targetHandle)?.type
+    targetType = targetBlockType.inputs.find(
+      (input: any) => input.name === connection.targetHandle
+    )?.type
   }
   if (!sourceType || !targetType) return false
   // 使用类型兼容性映射检查
@@ -190,7 +207,7 @@ const handleEdgeUpdate = ({ edge, connection }: EdgeUpdateEvent) => {
     const newEdge = buildEdge(connection)
     if (newEdge) {
       removeEdges([edge])
-      if (edges.value.find(e => e.id === newEdge.id) === undefined) {
+      if (edges.value.find((e) => e.id === newEdge.id) === undefined) {
         addEdges([newEdge])
       }
       updateWires()
@@ -202,17 +219,21 @@ const handleEdgeUpdate = ({ edge, connection }: EdgeUpdateEvent) => {
 
 const buildEdge = (params: Connection): Edge | null => {
   // 获取源节点类型和输出类型
-  const sourceBlock = viewState.value.blocks.find(block => block.name === params.source)
+  const sourceBlock = viewState.value.blocks.find((block) => block.name === params.source)
   if (!sourceBlock) return null
 
-  const blockType = props.blockTypes.find(type => type.type_name === sourceBlock.type_name)
+  const blockType = props.blockTypes.find((type) => type.type_name === sourceBlock.type_name)
   if (!blockType) return null
 
   let type = null
   if (blockType.type_name == 'internal:code') {
-    type = sourceBlock.config.outputs.find((output: any) => output.name === params.sourceHandle)?.type
+    type = sourceBlock.config.outputs.find(
+      (output: any) => output.name === params.sourceHandle
+    )?.type
   } else {
-    type = blockType.outputs.find((output: BlockOutput) => output.name === params.sourceHandle)?.type
+    type = blockType.outputs.find(
+      (output: BlockOutput) => output.name === params.sourceHandle
+    )?.type
   }
   if (!type) return null
 
@@ -232,65 +253,68 @@ const convertCustomNodeToVueFlowNode = (block: BlockInstance, blockType: BlockTy
   return {
     id: block.name,
     type: 'custom', // 使用自定义节点类型
-      position: { x: block.position.x, y: block.position.y },
-      data: {
-        label: blockType.label,
-        blockType: blockType,
-        config: block.config || {},
-        inputs: blockType.inputs,
-        outputs: blockType.outputs
-      }
+    position: { x: block.position.x, y: block.position.y },
+    data: {
+      label: blockType.label,
+      blockType: blockType,
+      config: block.config || {},
+      inputs: blockType.inputs,
+      outputs: blockType.outputs
     }
+  }
 }
 
 const convertCodeNodeToVueFlowNode = (block: BlockInstance, blockType: BlockType): Node => {
   return {
     id: block.name,
     type: 'code', // 使用自定义节点类型
-      position: { x: block.position.x, y: block.position.y },
-      data: {
-        label: blockType.label,
-        blockType: blockType,
-        config: block.config || {},
-        inputs: block.config?.inputs || [],
-        outputs: block.config?.outputs || []
-      }
+    position: { x: block.position.x, y: block.position.y },
+    data: {
+      label: blockType.label,
+      blockType: blockType,
+      config: block.config || {},
+      inputs: block.config?.inputs || [],
+      outputs: block.config?.outputs || []
     }
+  }
 }
 
 const convertBlocksToNodes = (blocks: BlockInstance[]): Node[] => {
   return blocks
-    .map(block => {
-      const blockType = props.blockTypes.find(type => type.type_name === block.type_name)
+    .map((block) => {
+      const blockType = props.blockTypes.find((type) => type.type_name === block.type_name)
       if (!blockType) return null
       if (blockType.type_name == 'internal:code') {
         return convertCodeNodeToVueFlowNode(block, blockType)
       }
       return convertCustomNodeToVueFlowNode(block, blockType)
-    }).filter(it => it !== null)
+    })
+    .filter((it) => it !== null)
 }
 
 // 将 Wire 转换为 vue-flow Edge
 const convertWiresToEdges = (wires: Wire[]): Edge[] => {
-  return wires.map(wire => {
-    const block = viewState.value.blocks.find(block => block.name === wire.source_block)
-    if (!block) return null
+  return wires
+    .map((wire) => {
+      const block = viewState.value.blocks.find((block) => block.name === wire.source_block)
+      if (!block) return null
 
-    // 构造一个Connection对象，然后使用buildEdge函数
-    const connection: Connection = {
-      source: wire.source_block,
-      sourceHandle: wire.source_output,
-      target: wire.target_block,
-      targetHandle: wire.target_input
-    }
+      // 构造一个Connection对象，然后使用buildEdge函数
+      const connection: Connection = {
+        source: wire.source_block,
+        sourceHandle: wire.source_output,
+        target: wire.target_block,
+        targetHandle: wire.target_input
+      }
 
-    return buildEdge(connection) as Edge
-  }).filter(it => it !== null)
+      return buildEdge(connection) as Edge
+    })
+    .filter((it) => it !== null)
 }
 
 // 将 vue-flow 节点转换回 BlockInstance
 const convertNodesToBlocks = (): BlockInstance[] => {
-  return nodes.value.map(node => {
+  return nodes.value.map((node) => {
     return {
       type_name: node.data?.blockType?.type_name,
       name: node.id,
@@ -305,7 +329,7 @@ const convertNodesToBlocks = (): BlockInstance[] => {
 
 // 将 vue-flow 边转换回 Wire
 const convertEdgesToWires = (): Wire[] => {
-  return edges.value.map(edge => ({
+  return edges.value.map((edge) => ({
     source_block: edge.source,
     source_output: edge.sourceHandle || '',
     target_block: edge.target,
@@ -316,21 +340,21 @@ const convertEdgesToWires = (): Wire[] => {
 // ==================== 数据更新函数 ====================
 
 const debounce = (func: () => void, delay: number) => {
-  let timer: number | null = null;
+  let timer: number | null = null
   return function (this: any, ...args: any[]) {
     return new Promise<void>((resolve) => {
       if (timer === null) {
         timer = window.setTimeout(() => {
-          func.apply(this, args);
-          timer = null;
-          resolve();
-        }, delay);
+          func.apply(this, args)
+          timer = null
+          resolve()
+        }, delay)
       } else {
         resolve()
       }
-    });
-  };
-};
+    })
+  }
+}
 // 更新区块数据
 const updateBlocks = debounce(() => {
   const blocks = convertNodesToBlocks()
@@ -355,7 +379,7 @@ const restoreGraph = () => {
   setNodes(vueFlowNodes)
   setEdges(vueFlowEdges)
   // 如果存在 position 未设置的情况，则使用自动布局
-  if (vueFlowNodes.every(block => block.position.x == 0 && block.position.y == 0)) {
+  if (vueFlowNodes.every((block) => block.position.x == 0 && block.position.y == 0)) {
     console.log('layout', vueFlowNodes.length, vueFlowEdges.length)
     setNodes(layout(vueFlowNodes, vueFlowEdges, 'LR'))
   }
@@ -515,15 +539,23 @@ const initPropertiesData = () => {
     description: props.initialDescription || ''
   }
   if (formValue.value.workflowId == ':') {
-    formValue.value.workflowId = 'user:' + Array.from({ length: 5 }, () => Math.floor(Math.random() * 36).toString(36)).join('')
+    formValue.value.workflowId =
+      'user:' +
+      Array.from({ length: 5 }, () => Math.floor(Math.random() * 36).toString(36)).join('')
   }
 }
 
 // ==================== 生命周期钩子和监听器 ====================
 
 // 监听 props 变化
-watch([() => props.blocks, () => props.wires, () => props.blockTypes], initGraphData, { deep: true })
-watch([() => props.initialName, () => props.initialDescription, () => props.initialWorkflowId], initPropertiesData, { deep: true })
+watch([() => props.blocks, () => props.wires, () => props.blockTypes], initGraphData, {
+  deep: true
+})
+watch(
+  [() => props.initialName, () => props.initialDescription, () => props.initialWorkflowId],
+  initPropertiesData,
+  { deep: true }
+)
 
 // 页面离开确认处理函数
 const beforeunloadHandler = (event: BeforeUnloadEvent) => {
@@ -588,7 +620,7 @@ const onDrop = (event: DragEvent) => {
     let newId = baseName
     let counter = 1
 
-    while (nodes.value.some(node => node.id === newId)) {
+    while (nodes.value.some((node) => node.id === newId)) {
       newId = `${baseName}_${counter}`
       counter++
     }
@@ -621,9 +653,22 @@ const onDrop = (event: DragEvent) => {
 
 <template>
   <div class="workflow-canvas">
-    <VueFlow :nodes="nodes" :edges="edges" fit-view-on-init @nodes-change="updateBlocks" @edges-change="updateWires"
-      @edge-update="handleEdgeUpdate" @connect="handleConnect" :default-zoom="1" :min-zoom="0.2" :max-zoom="4"
-      :snap-to-grid="true" class="vue-flow-canvas" @drop="onDrop" @dragover.prevent>
+    <VueFlow
+      :nodes="nodes"
+      :edges="edges"
+      fit-view-on-init
+      @nodes-change="updateBlocks"
+      @edges-change="updateWires"
+      @edge-update="handleEdgeUpdate"
+      @connect="handleConnect"
+      :default-zoom="1"
+      :min-zoom="0.2"
+      :max-zoom="4"
+      :snap-to-grid="true"
+      class="vue-flow-canvas"
+      @drop="onDrop"
+      @dragover.prevent
+    >
       <template #node-custom="customNodeProps">
         <CustomNode v-bind="customNodeProps" :isValidConnection="isValidConnection" />
       </template>
@@ -636,7 +681,13 @@ const onDrop = (event: DragEvent) => {
         <NSpace>
           <NTooltip placement="bottom" trigger="hover">
             <template #trigger>
-              <NButton quaternary circle :loading="saving" @click="handleSave" class="toolbar-button">
+              <NButton
+                quaternary
+                circle
+                :loading="saving"
+                @click="handleSave"
+                class="toolbar-button"
+              >
                 <template #icon>
                   <NIcon>
                     <SaveOutline />
@@ -648,7 +699,13 @@ const onDrop = (event: DragEvent) => {
           </NTooltip>
           <NTooltip placement="bottom" trigger="hover">
             <template #trigger>
-              <NButton quaternary circle :loading="resetting" @click="handleReset" class="toolbar-button">
+              <NButton
+                quaternary
+                circle
+                :loading="resetting"
+                @click="handleReset"
+                class="toolbar-button"
+              >
                 <template #icon>
                   <NIcon>
                     <RefreshOutline />
@@ -660,7 +717,13 @@ const onDrop = (event: DragEvent) => {
           </NTooltip>
           <NTooltip placement="bottom" trigger="hover">
             <template #trigger>
-              <NButton quaternary circle :loading="importing" @click="handleImport" class="toolbar-button">
+              <NButton
+                quaternary
+                circle
+                :loading="importing"
+                @click="handleImport"
+                class="toolbar-button"
+              >
                 <template #icon>
                   <NIcon>
                     <DownloadOutline />
@@ -685,8 +748,13 @@ const onDrop = (event: DragEvent) => {
         </NSpace>
       </Panel>
       <Panel position="top-right" style="margin: 0; height: 100%">
-        <NodeConfigPanel v-if="selectedNode" :selected-node="selectedNode" @close="closeNodeConfig"
-          :block-types="props.blockTypes" :type-compatibility="typeCompatibility" />
+        <NodeConfigPanel
+          v-if="selectedNode"
+          :selected-node="selectedNode"
+          @close="closeNodeConfig"
+          :block-types="props.blockTypes"
+          :type-compatibility="typeCompatibility"
+        />
       </Panel>
       <Panel position="top-left" style="margin: 0; height: 100%">
         <NodeListPanel :block-types="props.blockTypes"></NodeListPanel>
@@ -694,10 +762,23 @@ const onDrop = (event: DragEvent) => {
     </VueFlow>
 
     <!-- 设置对话框 -->
-    <NModal v-model:show="showSettingsModal" preset="card" title="工作流设置" class="settings-modal"
-      :style="{ width: '600px' }">
-      <NForm ref="formRef" :model="formValue" :rules="formRules" label-placement="left" label-width="100"
-        require-mark-placement="right-hanging" size="medium" class="settings-form">
+    <NModal
+      v-model:show="showSettingsModal"
+      preset="card"
+      title="工作流设置"
+      class="settings-modal"
+      :style="{ width: '600px' }"
+    >
+      <NForm
+        ref="formRef"
+        :model="formValue"
+        :rules="formRules"
+        label-placement="left"
+        label-width="100"
+        require-mark-placement="right-hanging"
+        size="medium"
+        class="settings-form"
+      >
         <NFormItem label="工作流ID" path="workflowId">
           <NInput v-model:value="formValue.workflowId" placeholder="请输入 group_id:workflow_id" />
         </NFormItem>
@@ -705,21 +786,24 @@ const onDrop = (event: DragEvent) => {
           <NInput v-model:value="formValue.name" placeholder="请输入工作流名称" />
         </NFormItem>
         <NFormItem label="描述" path="description">
-          <NInput v-model:value="formValue.description" type="textarea" placeholder="请输入工作流描述" />
+          <NInput
+            v-model:value="formValue.description"
+            type="textarea"
+            placeholder="请输入工作流描述"
+          />
         </NFormItem>
         <NFormItem label="最大执行时间(秒)" path="config.max_execution_time">
-          <NInputNumber v-model:value="formValue.config.max_execution_time" placeholder="执行超过此时间后将强制停止"
-            :min="0" />
+          <NInputNumber
+            v-model:value="formValue.config.max_execution_time"
+            placeholder="执行超过此时间后将强制停止"
+            :min="0"
+          />
         </NFormItem>
       </NForm>
       <template #footer>
         <NSpace justify="end">
-          <NButton @click="showSettingsModal = false">
-            取消
-          </NButton>
-          <NButton type="primary" :loading="saving" @click="handleSave">
-            保存
-          </NButton>
+          <NButton @click="showSettingsModal = false"> 取消 </NButton>
+          <NButton type="primary" :loading="saving" @click="handleSave"> 保存 </NButton>
         </NSpace>
       </template>
     </NModal>
@@ -759,7 +843,7 @@ const onDrop = (event: DragEvent) => {
   z-index: 100;
 }
 
-.toolbar>* {
+.toolbar > * {
   margin: 0 0.5rem;
 }
 

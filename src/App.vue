@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
-import { 
-  NLoadingBarProvider, 
-  NDialogProvider, 
-  NMessageProvider, 
-  NConfigProvider, 
-  lightTheme, 
+import {
+  NLoadingBarProvider,
+  NDialogProvider,
+  NMessageProvider,
+  NConfigProvider,
+  lightTheme,
   NModalProvider,
   useLoadingBar
 } from 'naive-ui'
@@ -17,32 +17,30 @@ import json from 'highlight.js/lib/languages/json'
 
 hljs.registerLanguage('json', json)
 
-
 const theme = {
   common: {
     primaryColor: '#007AFF',
     primaryColorHover: '#0063CC',
     primaryColorPressed: '#005AB3',
     borderRadius: '10px',
-    fontSize: '14px',
+    fontSize: '14px'
   },
   Button: {
     textColor: '#007AFF',
     borderRadius: '8px',
     heightMedium: '38px',
-    fontWeight: '500',
+    fontWeight: '500'
   },
   Card: {
-    borderRadius: '12px',
+    borderRadius: '12px'
   },
   Dialog: {
-    borderRadius: '12px',
+    borderRadius: '12px'
   },
   Input: {
-    borderRadius: '8px',
+    borderRadius: '8px'
   }
 }
-
 </script>
 
 <template>
@@ -61,25 +59,25 @@ const theme = {
   </n-config-provider>
 </template>
 
-
 <style>
 :root {
-  --primary-color: #007AFF;
-  --secondary-color: #5856D6;
-  --success-color: #34C759;
-  --warning-color: #FF9500;
-  --error-color: #FF3B30;
-  --background-color: #F2F2F7;
+  --primary-color: #007aff;
+  --secondary-color: #5856d6;
+  --success-color: #34c759;
+  --warning-color: #ff9500;
+  --error-color: #ff3b30;
+  --background-color: #f2f2f7;
   --text-primary: #000000;
-  --text-secondary: #8E8E93;
+  --text-secondary: #8e8e93;
 }
 
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   width: 100%;
   height: 100%;
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif;
   background-color: var(--background-color);
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;

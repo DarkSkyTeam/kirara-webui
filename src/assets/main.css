@@ -5,41 +5,41 @@
   --primary-color: #4080ff;
   --primary-color-hover: #6699ff;
   --primary-color-rgb: 64, 128, 255;
-  
+
   /* 文本颜色 */
   --text-color: #333639;
   --text-color-secondary: #606266;
   --text-color-tertiary: #909399;
-  
+
   /* 背景颜色 */
   --bg-color: #f5f7fa;
   --card-bg-color: #ffffff;
   --sidebar-bg-color: #ffffff;
-  
+
   /* 边框颜色 */
   --border-color: #e5e7eb;
-  
+
   /* 状态颜色 */
   --success-color: #18a058;
   --warning-color: #f0a020;
   --error-color: #d03050;
   --info-color: #5c6ac4;
-  
+
   /* 圆角 */
   --border-radius: 8px;
   --border-radius-small: 4px;
-  
+
   /* 阴影 */
   --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   --box-shadow-hover: 0 6px 16px rgba(0, 0, 0, 0.12);
-  
+
   /* 过渡 */
   --transition-duration: 0.2s;
   --transition-timing-function: ease;
   --n-border-color: rgba(0, 0, 0, 0.1);
 
   --n-padding-md: 20px;
-  
+
   --n-window-width: 1000px;
   --n-window-height: calc(100vh - 100px);
 
@@ -55,28 +55,29 @@
   --text-color: #e5e7eb;
   --text-color-secondary: #c9cdd4;
   --text-color-tertiary: #8b949e;
-  
+
   /* 背景颜色 */
   --bg-color: #121212;
   --card-bg-color: #1e1e1e;
   --sidebar-bg-color: #1e1e1e;
-  
+
   /* 边框颜色 */
   --border-color: #333639;
-  
+
   /* 状态颜色 */
   --success-color: #63e2b7;
   --warning-color: #f3a769;
   --error-color: #e88080;
   --info-color: #7a89d0;
-  
+
   /* 阴影 */
   --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   --box-shadow-hover: 0 6px 16px rgba(0, 0, 0, 0.3);
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC',
+    'Microsoft YaHei', sans-serif;
   background-color: var(--bg-color);
   color: var(--text-color);
   transition: background-color var(--transition-duration) var(--transition-timing-function);
@@ -114,7 +115,7 @@ a {
 .n-card {
   border-radius: var(--border-radius);
   transition: box-shadow var(--transition-duration) var(--transition-timing-function),
-              transform var(--transition-duration) var(--transition-timing-function);
+    transform var(--transition-duration) var(--transition-timing-function);
   background-color: var(--card-bg-color);
   border: 1px solid var(--border-color);
 }
@@ -123,9 +124,9 @@ a {
 .n-button {
   border-radius: var(--border-radius-small);
   transition: background-color var(--transition-duration) var(--transition-timing-function),
-              color var(--transition-duration) var(--transition-timing-function),
-              border-color var(--transition-duration) var(--transition-timing-function),
-              box-shadow var(--transition-duration) var(--transition-timing-function);
+    color var(--transition-duration) var(--transition-timing-function),
+    border-color var(--transition-duration) var(--transition-timing-function),
+    box-shadow var(--transition-duration) var(--transition-timing-function);
 }
 
 /* 标签样式 */
@@ -141,7 +142,8 @@ a {
   transition: all 0.3s ease;
 }
 
-.n-input:hover, .n-input:focus-within {
+.n-input:hover,
+.n-input:focus-within {
   transform: translateY(-2px);
   box-shadow: var(--box-shadow);
   border-color: var(--primary-color);
@@ -153,7 +155,8 @@ a {
   transition: all 0.3s ease;
 }
 
-.n-select:hover, .n-select:focus-within {
+.n-select:hover,
+.n-select:focus-within {
   transform: translateY(-2px);
   box-shadow: var(--box-shadow);
 }
@@ -164,7 +167,8 @@ a {
   transition: all 0.3s ease;
 }
 
-.n-date-picker:hover, .n-date-picker:focus-within {
+.n-date-picker:hover,
+.n-date-picker:focus-within {
   transform: translateY(-2px);
   box-shadow: var(--box-shadow);
 }
@@ -250,7 +254,10 @@ a {
 
 /* 背景图案 */
 .bg {
-  background-image: radial-gradient(color-mix(in oklab, oklch(.13 .028 261.692) 5%, transparent) 1px, transparent 0);
+  background-image: radial-gradient(
+    color-mix(in oklab, oklch(0.13 0.028 261.692) 5%, transparent) 1px,
+    transparent 0
+  );
   background-size: 10px 10px;
 }
 
@@ -262,9 +269,9 @@ a {
 }
 
 .vue-flow__handle {
-  height:24px;
-  width:8px;
-  border-radius:4px !important;
+  height: 24px;
+  width: 8px;
+  border-radius: 4px !important;
 }
 
 /* 全局动画 */
@@ -280,31 +287,37 @@ a {
 }
 
 @keyframes slide-up {
-  from { 
+  from {
     opacity: 0;
     transform: translateY(20px);
   }
-  to { 
+  to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
 @keyframes slide-in-left {
-  from { 
+  from {
     opacity: 0;
     transform: translateX(-20px);
   }
-  to { 
+  to {
     opacity: 1;
     transform: translateX(0);
   }
 }
 
 @keyframes float {
-  0% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-  100% { transform: translateY(0); }
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0);
+  }
 }
 
 @keyframes container-appear {
@@ -329,7 +342,7 @@ a {
   .main-content {
     padding: 16px;
   }
-  
+
   .n-card-header {
     flex-direction: column;
   }

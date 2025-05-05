@@ -17,7 +17,7 @@ export function useTimezoneViewModel() {
   const loading = ref(false)
   const message = useMessage()
   const dialog = useDialog()
-  
+
   // 常用时区列表
   const timezoneOptions = ref([
     { label: '亚洲/上海 (UTC+8)', value: 'Asia/Shanghai' },
@@ -97,4 +97,4 @@ export function useTimezoneViewModel() {
     fetchConfig,
     handleSubmit
   }
-} 
+}

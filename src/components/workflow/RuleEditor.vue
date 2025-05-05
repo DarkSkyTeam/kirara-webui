@@ -1,6 +1,16 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { NCard, NForm, NFormItem, NInput, NSelect, NInputNumber, NSwitch, useMessage, NButton } from 'naive-ui'
+import {
+  NCard,
+  NForm,
+  NFormItem,
+  NInput,
+  NSelect,
+  NInputNumber,
+  NSwitch,
+  useMessage,
+  NButton
+} from 'naive-ui'
 import type { FormInst, FormRules } from 'naive-ui'
 
 const props = defineProps<{
@@ -53,7 +63,7 @@ const rules: FormRules = {
 
 const handleSubmit = (e: MouseEvent) => {
   e.preventDefault()
-  formRef.value?.validate(async errors => {
+  formRef.value?.validate(async (errors) => {
     if (!errors) {
       try {
         // TODO: 保存规则
@@ -93,11 +103,7 @@ const handleSubmit = (e: MouseEvent) => {
       </NFormItem>
 
       <NFormItem label="规则类型" path="type">
-        <NSelect
-          v-model:value="formValue.type"
-          :options="ruleTypes"
-          placeholder="请选择规则类型"
-        />
+        <NSelect v-model:value="formValue.type" :options="ruleTypes" placeholder="请选择规则类型" />
       </NFormItem>
 
       <NFormItem
@@ -111,11 +117,7 @@ const handleSubmit = (e: MouseEvent) => {
         />
       </NFormItem>
 
-      <NFormItem
-        v-if="formValue.type === 'keyword'"
-        label="关键词"
-        path="keywords"
-      >
+      <NFormItem v-if="formValue.type === 'keyword'" label="关键词" path="keywords">
         <NInput
           v-model:value="formValue.keywords"
           type="textarea"
@@ -141,4 +143,4 @@ const handleSubmit = (e: MouseEvent) => {
       </div>
     </NForm>
   </NCard>
-</template> 
+</template>

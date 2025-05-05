@@ -1,9 +1,32 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { NCard, NSpace, NButton, NGrid, NGridItem, NTag, NInput, NPagination, NEmpty, NLoadingBarProvider, useLoadingBar, NMessageProvider, useMessage, NSkeleton, NSwitch, NModal, NIcon } from 'naive-ui'
+import {
+  NCard,
+  NSpace,
+  NButton,
+  NGrid,
+  NGridItem,
+  NTag,
+  NInput,
+  NPagination,
+  NEmpty,
+  NLoadingBarProvider,
+  useLoadingBar,
+  NMessageProvider,
+  useMessage,
+  NSkeleton,
+  NSwitch,
+  NModal,
+  NIcon
+} from 'naive-ui'
 import { pluginApi } from '@/api/plugin'
 import type { MarketPlugin } from '@/api/plugin'
-import { SearchOutline, HomeOutline, HelpCircleOutline, DocumentTextOutline } from '@vicons/ionicons5'
+import {
+  SearchOutline,
+  HomeOutline,
+  HelpCircleOutline,
+  DocumentTextOutline
+} from '@vicons/ionicons5'
 
 const loadingBar = useLoadingBar()
 const message = useMessage()
@@ -15,7 +38,12 @@ const totalCount = ref(0)
 const loading = ref(false)
 const skeletonVisible = ref(true)
 const isFirstLoad = ref(true)
-const operationStates = ref<Record<string, { loading: boolean, operation: 'install' | 'uninstall' | 'update' | 'toggle' | null }>>({})
+const operationStates = ref<
+  Record<
+    string,
+    { loading: boolean; operation: 'install' | 'uninstall' | 'update' | 'toggle' | null }
+  >
+>({})
 const expandedDescriptions = ref<Record<string, boolean>>({})
 
 const errorModal = ref(false)
@@ -29,7 +57,11 @@ const getCurrentOperation = (plugin: MarketPlugin) => {
   return operationStates.value[plugin.pypiPackage]?.operation || null
 }
 
-const setOperationState = (plugin: MarketPlugin, operation: 'install' | 'uninstall' | 'update' | 'toggle' | null, loading: boolean) => {
+const setOperationState = (
+  plugin: MarketPlugin,
+  operation: 'install' | 'uninstall' | 'update' | 'toggle' | null,
+  loading: boolean
+) => {
   operationStates.value[plugin.pypiPackage] = { loading, operation }
 }
 
@@ -181,24 +213,31 @@ onMounted(() => {
         <n-card title="插件市场" class="market-card">
           <template #header-extra>
             <div class="search-container">
-              <n-input v-model:value="searchQuery" placeholder="搜索插件..." class="search-input" @keyup.enter="handleSearch">
+              <n-input
+                v-model:value="searchQuery"
+                placeholder="搜索插件..."
+                class="search-input"
+                @keyup.enter="handleSearch"
+              >
                 <template #prefix>
                   <n-icon><SearchOutline /></n-icon>
                 </template>
               </n-input>
-              <n-button type="primary" @click="handleSearch" :disabled="loading">
-                搜索
-              </n-button>
+              <n-button type="primary" @click="handleSearch" :disabled="loading"> 搜索 </n-button>
             </div>
           </template>
 
-          <div class="market-description">
-            在这里浏览和安装可用的插件，扩展 Kirara AI 的功能。
-          </div>
+          <div class="market-description">在这里浏览和安装可用的插件，扩展 Kirara AI 的功能。</div>
 
           <div class="plugins-grid">
             <template v-if="skeletonVisible">
-              <n-card v-for="(plugin, index) in skeletonPlugins" :key="index" size="small" class="plugin-card" :bordered="true">
+              <n-card
+                v-for="(plugin, index) in skeletonPlugins"
+                :key="index"
+                size="small"
+                class="plugin-card"
+                :bordered="true"
+              >
                 <div class="plugin-header">
                   <n-skeleton text style="width: 60%" :sharp="false">
                     <h3>{{ plugin.name }}</h3>
@@ -211,7 +250,7 @@ onMounted(() => {
                     </n-skeleton>
                   </div>
                 </div>
-                
+
                 <n-skeleton text :repeat="2" :sharp="false" style="margin: 16px 0">
                   <div class="plugin-description">{{ plugin.description }}</div>
                 </n-skeleton>
@@ -242,8 +281,13 @@ onMounted(() => {
             </template>
 
             <template v-else-if="plugins.length > 0">
-              <n-card v-for="plugin in plugins" :key="plugin.pypiPackage" size="small" class="plugin-card"
-                :bordered="true">
+              <n-card
+                v-for="plugin in plugins"
+                :key="plugin.pypiPackage"
+                size="small"
+                class="plugin-card"
+                :bordered="true"
+              >
                 <template #header>
                   <div class="plugin-header">
                     <h3>{{ plugin.name }}</h3>
@@ -255,10 +299,20 @@ onMounted(() => {
                       <n-tag v-if="plugin.isInstalled" size="small" type="info" class="status-tag">
                         已安装 v{{ plugin.installedVersion }}
                       </n-tag>
-                      <n-tag v-if="plugin.isUpgradable" size="small" type="warning" class="update-tag">
+                      <n-tag
+                        v-if="plugin.isUpgradable"
+                        size="small"
+                        type="warning"
+                        class="update-tag"
+                      >
                         可更新至 v{{ plugin.pypiInfo.version }}
                       </n-tag>
-                      <n-tag v-if="plugin.isEnabled !== undefined" size="small" :type="plugin.isEnabled ? 'success' : 'error'" class="status-tag">
+                      <n-tag
+                        v-if="plugin.isEnabled !== undefined"
+                        size="small"
+                        :type="plugin.isEnabled ? 'success' : 'error'"
+                        class="status-tag"
+                      >
                         {{ plugin.isEnabled ? '已启用' : '已禁用' }}
                       </n-tag>
                     </template>
@@ -268,11 +322,19 @@ onMounted(() => {
                   </div>
                 </template>
 
-                <div class="plugin-description" :class="{ 'expanded': expandedDescriptions[plugin.pypiPackage] }">
+                <div
+                  class="plugin-description"
+                  :class="{ expanded: expandedDescriptions[plugin.pypiPackage] }"
+                >
                   {{ plugin.description }}
                 </div>
-                <n-button v-if="plugin.description && plugin.description.length > 100" text size="small"
-                  @click="toggleDescription(plugin)" class="toggle-description">
+                <n-button
+                  v-if="plugin.description && plugin.description.length > 100"
+                  text
+                  size="small"
+                  @click="toggleDescription(plugin)"
+                  class="toggle-description"
+                >
                   {{ expandedDescriptions[plugin.pypiPackage] ? '收起' : '展开' }}
                 </n-button>
 
@@ -286,19 +348,39 @@ onMounted(() => {
 
                 <div class="plugin-actions">
                   <n-space align="center" :size="12">
-                    <n-button quaternary size="small" tag="a" :href="plugin.pypiInfo.homePage" target="_blank">
+                    <n-button
+                      quaternary
+                      size="small"
+                      tag="a"
+                      :href="plugin.pypiInfo.homePage"
+                      target="_blank"
+                    >
                       <template #icon>
                         <n-icon><HomeOutline /></n-icon>
                       </template>
                       主页
                     </n-button>
-                    <n-button quaternary size="small" tag="a" :href="plugin.pypiInfo.bugTrackerUrl" target="_blank" v-if="plugin.pypiInfo.bugTrackerUrl">
+                    <n-button
+                      quaternary
+                      size="small"
+                      tag="a"
+                      :href="plugin.pypiInfo.bugTrackerUrl"
+                      target="_blank"
+                      v-if="plugin.pypiInfo.bugTrackerUrl"
+                    >
                       <template #icon>
                         <n-icon><HelpCircleOutline /></n-icon>
                       </template>
                       问题反馈
                     </n-button>
-                    <n-button quaternary size="small" tag="a" :href="plugin.pypiInfo.documentUrl" target="_blank" v-if="plugin.pypiInfo.documentUrl">
+                    <n-button
+                      quaternary
+                      size="small"
+                      tag="a"
+                      :href="plugin.pypiInfo.documentUrl"
+                      target="_blank"
+                      v-if="plugin.pypiInfo.documentUrl"
+                    >
                       <template #icon>
                         <n-icon><DocumentTextOutline /></n-icon>
                       </template>
@@ -307,22 +389,46 @@ onMounted(() => {
                   </n-space>
                   <div class="action-buttons">
                     <template v-if="plugin.isInstalled">
-                      <n-button v-if="plugin.isUpgradable" type="warning" size="small" :loading="isOperating(plugin) && getCurrentOperation(plugin) === 'update'"
-                        @click="handleUpdate(plugin)" class="action-button">
+                      <n-button
+                        v-if="plugin.isUpgradable"
+                        type="warning"
+                        size="small"
+                        :loading="isOperating(plugin) && getCurrentOperation(plugin) === 'update'"
+                        @click="handleUpdate(plugin)"
+                        class="action-button"
+                      >
                         更新
                       </n-button>
-                      <n-button v-if="plugin.isEnabled !== undefined" :type="plugin.isEnabled ? 'error' : 'success'" size="small"
+                      <n-button
+                        v-if="plugin.isEnabled !== undefined"
+                        :type="plugin.isEnabled ? 'error' : 'success'"
+                        size="small"
                         :loading="isOperating(plugin) && getCurrentOperation(plugin) === 'toggle'"
-                        @click="handleToggleStatus(plugin)" class="action-button">
+                        @click="handleToggleStatus(plugin)"
+                        class="action-button"
+                      >
                         {{ plugin.isEnabled ? '禁用' : '启用' }}
                       </n-button>
-                      <n-button type="error" size="small" :loading="isOperating(plugin) && getCurrentOperation(plugin) === 'uninstall'"
-                        @click="handleUninstall(plugin)" class="action-button">
+                      <n-button
+                        type="error"
+                        size="small"
+                        :loading="
+                          isOperating(plugin) && getCurrentOperation(plugin) === 'uninstall'
+                        "
+                        @click="handleUninstall(plugin)"
+                        class="action-button"
+                      >
                         卸载
                       </n-button>
                     </template>
-                    <n-button v-else type="primary" size="small" :loading="isOperating(plugin) && getCurrentOperation(plugin) === 'install'"
-                      @click="handleInstall(plugin)" class="action-button">
+                    <n-button
+                      v-else
+                      type="primary"
+                      size="small"
+                      :loading="isOperating(plugin) && getCurrentOperation(plugin) === 'install'"
+                      @click="handleInstall(plugin)"
+                      class="action-button"
+                    >
                       安装
                     </n-button>
                   </div>
@@ -334,11 +440,21 @@ onMounted(() => {
           </div>
 
           <div class="pagination-container" v-if="totalCount > 0">
-            <n-pagination v-model:page="currentPage" :page-count="Math.ceil(totalCount / pageSize)" @update:page="handlePageChange" />
+            <n-pagination
+              v-model:page="currentPage"
+              :page-count="Math.ceil(totalCount / pageSize)"
+              @update:page="handlePageChange"
+            />
           </div>
         </n-card>
 
-        <n-modal v-model:show="errorModal" title="操作失败" preset="dialog" type="error" style="width: 600px;">
+        <n-modal
+          v-model:show="errorModal"
+          title="操作失败"
+          preset="dialog"
+          type="error"
+          style="width: 600px"
+        >
           错误信息：
           <div class="error-message">{{ errorMessage }}</div>
           <template #action>
@@ -489,17 +605,17 @@ onMounted(() => {
   .plugins-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .plugin-actions {
     flex-direction: column;
     gap: 16px;
   }
-  
+
   .action-buttons {
     width: 100%;
     justify-content: flex-end;
   }
-  
+
   .search-container {
     width: 100%;
   }

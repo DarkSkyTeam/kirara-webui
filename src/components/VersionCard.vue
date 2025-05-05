@@ -21,23 +21,29 @@ const handleCheckUpdate = () => {
       <div class="version-row">
         <span class="version-label">WebUI 版本：</span>
         <n-text>{{ webUIVersion }}</n-text>
-        <n-text v-if="appStore.updateInfo?.webui_update_available" type="success" style="margin-left: 8px">
+        <n-text
+          v-if="appStore.updateInfo?.webui_update_available"
+          type="success"
+          style="margin-left: 8px"
+        >
           (有更新: {{ appStore.updateInfo?.latest_webui_version }})
         </n-text>
       </div>
-      
+
       <div class="version-row">
         <span class="version-label">后端版本：</span>
         <n-text>{{ appStore.systemStatus.version }}</n-text>
-        <n-text v-if="appStore.updateInfo?.backend_update_available" type="success" style="margin-left: 8px">
+        <n-text
+          v-if="appStore.updateInfo?.backend_update_available"
+          type="success"
+          style="margin-left: 8px"
+        >
           (有更新: {{ appStore.updateInfo?.latest_backend_version }})
         </n-text>
       </div>
 
-      <div style="text-align: right; margin-top: 12px;">
-        <n-button type="primary" size="small" @click="handleCheckUpdate">
-          检查更新
-        </n-button>
+      <div style="text-align: right; margin-top: 12px">
+        <n-button type="primary" size="small" @click="handleCheckUpdate"> 检查更新 </n-button>
       </div>
     </n-space>
   </n-card>
@@ -60,4 +66,4 @@ const handleCheckUpdate = () => {
   width: 100px;
   color: #666;
 }
-</style> 
+</style>

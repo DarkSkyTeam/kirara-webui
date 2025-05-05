@@ -7,7 +7,7 @@ export interface Workflow {
   description: string
   blocks: any[]
   wires: any[]
-  metadata?: Record<string, any>,
+  metadata?: Record<string, any>
   config: WorkflowConfig
 }
 
@@ -72,4 +72,4 @@ export async function updateWorkflow(groupId: string, workflowId: string, data: 
 
 export async function deleteWorkflow(groupId: string, workflowId: string) {
   return http.delete(`/workflow/${groupId}/${workflowId}`)
-} 
+}

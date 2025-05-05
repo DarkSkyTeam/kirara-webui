@@ -28,15 +28,18 @@ export function useWebViewModel() {
       message: '请输入服务地址',
       trigger: 'blur'
     },
-    port: [{
-      required: true,
-      message: '请输入服务端口',
-      trigger: 'blur'
-    }, {
-      validator: (rule: FormItemRule, value: number) => {
-        return value > 0 && value < 65536 || new Error('端口号必须在1-65535之间')
+    port: [
+      {
+        required: true,
+        message: '请输入服务端口',
+        trigger: 'blur'
+      },
+      {
+        validator: (rule: FormItemRule, value: number) => {
+          return (value > 0 && value < 65536) || new Error('端口号必须在1-65535之间')
+        }
       }
-    }]
+    ]
   }
 
   const fetchConfig = async () => {
@@ -60,12 +63,16 @@ export function useWebViewModel() {
     try {
       dialog.warning({
         title: '修改确认',
-        content: '修改Web服务配置可能会导致服务暂时不可用，修改后需要重启服务才能生效。如果配置了错误的地址或端口，可能会导致无法访问Web界面，请确认配置正确。是否继续？',
+        content:
+          '修改Web服务配置可能会导致服务暂时不可用，修改后需要重启服务才能生效。如果配置了错误的地址或端口，可能会导致无法访问Web界面，请确认配置正确。是否继续？',
         positiveText: '确定',
         negativeText: '取消',
         onPositiveClick: async () => {
           try {
-            const response = await http.post<{ status: string; restart_required: boolean }>('/system/config/web', formData.value)
+            const response = await http.post<{ status: string; restart_required: boolean }>(
+              '/system/config/web',
+              formData.value
+            )
             if (response.restart_required) {
               dialog.warning({
                 title: '重启确认',
@@ -101,4 +108,4 @@ export function useWebViewModel() {
     fetchConfig,
     handleSubmit
   }
-} 
+}

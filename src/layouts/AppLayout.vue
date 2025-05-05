@@ -80,15 +80,25 @@
     </n-drawer>
   </n-layout>
 </template>
-  
+
 <script setup lang="ts">
-import { NLayout, NLayoutSider, NLayoutContent, NLayoutFooter, NAvatar, 
-         NLayoutHeader, NDrawer, NDrawerContent, NButton, NIcon } from 'naive-ui'
+import {
+  NLayout,
+  NLayoutSider,
+  NLayoutContent,
+  NLayoutFooter,
+  NAvatar,
+  NLayoutHeader,
+  NDrawer,
+  NDrawerContent,
+  NButton,
+  NIcon
+} from 'naive-ui'
 import { RouterView, useRoute } from 'vue-router'
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useAppStore } from '@/stores/app'
 import MainSidebar from '@/components/layout/MainSidebar.vue'
-import SecondarySidebar from '@/components/layout/SecondarySidebar.vue' 
+import SecondarySidebar from '@/components/layout/SecondarySidebar.vue'
 import StatusBar from '@/components/layout/StatusBar.vue'
 import { MenuOutline } from '@vicons/ionicons5'
 

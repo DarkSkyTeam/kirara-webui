@@ -1,13 +1,5 @@
 <script setup lang="ts">
-import {
-  NModal,
-  NCard,
-  NSpace,
-  NButton,
-  NProgress,
-  NText,
-  NIcon
-} from 'naive-ui'
+import { NModal, NCard, NSpace, NButton, NProgress, NText, NIcon } from 'naive-ui'
 import { CloudDownload } from '@vicons/ionicons5'
 import { useAppStore } from '@/stores/app'
 import { useUpdateViewModel } from '@/views/system/update.vm'
@@ -45,7 +37,7 @@ defineExpose({
           <cloud-download />
         </n-icon>
       </template>
-      
+
       <n-space vertical size="large">
         <div v-if="!updateInProgress">
           <div class="version-info">
@@ -61,7 +53,7 @@ defineExpose({
               </n-text>
             </div>
           </div>
-          
+
           <div class="version-info">
             <div class="version-title">WebUI 版本</div>
             <div class="version-row">
@@ -76,7 +68,7 @@ defineExpose({
             </div>
           </div>
         </div>
-        
+
         <div v-else class="update-progress">
           <div class="progress-step">{{ updateProgress.step }}</div>
           <n-progress
@@ -87,25 +79,15 @@ defineExpose({
           />
         </div>
       </n-space>
-      
+
       <template #footer>
         <n-space justify="end">
-          <n-button v-if="!updateInProgress" @click="skipVersion">
-            跳过此版本
-          </n-button>
-          <n-button v-if="!updateInProgress" @click="remindLater">
-            稍后提醒
-          </n-button>
-          <n-button
-            v-if="!updateInProgress"
-            type="primary"
-            @click="startUpdate"
-          >
+          <n-button v-if="!updateInProgress" @click="skipVersion"> 跳过此版本 </n-button>
+          <n-button v-if="!updateInProgress" @click="remindLater"> 稍后提醒 </n-button>
+          <n-button v-if="!updateInProgress" type="primary" @click="startUpdate">
             立即更新
           </n-button>
-          <n-text v-else>
-            更新进行中，请勿关闭窗口...
-          </n-text>
+          <n-text v-else> 更新进行中，请勿关闭窗口... </n-text>
         </n-space>
       </template>
     </n-card>
@@ -148,4 +130,4 @@ defineExpose({
   color: #666;
   text-align: center;
 }
-</style> 
+</style>

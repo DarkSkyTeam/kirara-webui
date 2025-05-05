@@ -10,11 +10,11 @@ const { getHandleConnections } = useVueFlow()
 
 // 获取短ID
 const shortId = computed(() => {
-  if (!props.id) return '';
+  if (!props.id) return ''
   if (props.id.length > 8) {
-    return props.id.slice(-6);
+    return props.id.slice(-6)
   }
-  return props.id;
+  return props.id
 })
 
 // 获取输入端口颜色
@@ -47,12 +47,10 @@ const isValidConnection = (connection: Connection) => {
 
 // 获取代码预览
 const codePreview = computed(() => {
-  const code = props.data.config?.code || '';
-  if (!code) return '# 请在配置面板编写代码';
-  const lines = code.split('\n');
-  return lines.length > 5 
-    ? lines.slice(0, 5).join('\n') + '\n# ...' 
-    : code;
+  const code = props.data.config?.code || ''
+  if (!code) return '# 请在配置面板编写代码'
+  const lines = code.split('\n')
+  return lines.length > 5 ? lines.slice(0, 5).join('\n') + '\n# ...' : code
 })
 </script>
 
@@ -64,30 +62,42 @@ const codePreview = computed(() => {
         <span class="node-id" :title="id">#{{ shortId }}</span>
       </div>
     </div>
-    
+
     <!-- 端口双列布局 -->
     <div class="ports-container">
       <!-- 左侧输入端口 -->
       <div class="port-column input-ports">
         <div v-for="input in data.inputs" :key="input.name" class="port-container">
-          <Handle :id="input.name" type="target" :position="Position.Left"
-            :style="{ height: '16px', width: '6px', backgroundColor: getInputColor(input.type, input.required) }"
-            :isValidConnection="(connection: Connection) => isValidConnection(connection)" />
+          <Handle
+            :id="input.name"
+            type="target"
+            :position="Position.Left"
+            :style="{
+              height: '16px',
+              width: '6px',
+              backgroundColor: getInputColor(input.type, input.required)
+            }"
+            :isValidConnection="(connection: Connection) => isValidConnection(connection)"
+          />
           <div class="port-label">{{ input.label || input.name }}</div>
         </div>
       </div>
-      
+
       <!-- 右侧输出端口 -->
       <div class="port-column output-ports">
         <div v-for="output in data.outputs" :key="output.name" class="port-container output-port">
           <div class="port-label">{{ output.label || output.name }}</div>
-          <Handle :id="output.name" type="source" :position="Position.Right"
+          <Handle
+            :id="output.name"
+            type="source"
+            :position="Position.Right"
             :style="{ height: '16px', width: '6px', backgroundColor: getOutputColor(output.type) }"
-            :is-valid-connection="(connection: Connection) => isValidConnection(connection)" />
+            :is-valid-connection="(connection: Connection) => isValidConnection(connection)"
+          />
         </div>
       </div>
     </div>
-    
+
     <!-- 代码预览区 -->
     <div class="code-node-body">
       <div class="code-preview-header">
@@ -110,7 +120,7 @@ const codePreview = computed(() => {
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
   min-width: 200px;
   max-width: 300px;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: #f9fafb;
 }

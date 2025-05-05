@@ -33,7 +33,7 @@ const groupedBlockTypes = computed(() => {
   const groups: Record<string, BlockType[]> = {}
 
   // 过滤搜索结果
-  const filteredTypes = props.blockTypes.filter(blockType => {
+  const filteredTypes = props.blockTypes.filter((blockType) => {
     if (!isSearching.value) return true
 
     const query = searchQuery.value.toLowerCase()
@@ -45,7 +45,7 @@ const groupedBlockTypes = computed(() => {
   })
 
   // 按 groupId 分组
-  filteredTypes.forEach(blockType => {
+  filteredTypes.forEach((blockType) => {
     // 从 type_name 中提取 groupId (通常是第一部分)
     const groupId = blockType.type_name.split(':')[0] || '其他'
     if (!groups[groupId]) {
@@ -78,10 +78,10 @@ const sortedGroupKeys = computed(() => {
 // 获取分组的显示名称
 const getGroupDisplayName = (groupId: string) => {
   const groupNameMap: Record<string, string> = {
-    'internal': '内部组件',
-    'system': '系统组件',
-    'mcp': 'MCP组件',
-    'game': '娱乐组件'
+    internal: '内部组件',
+    system: '系统组件',
+    mcp: 'MCP组件',
+    game: '娱乐组件'
   }
 
   return groupNameMap[groupId] || groupId
@@ -114,7 +114,7 @@ const onDrop = (event: DragEvent) => {
     let newId = baseName
     let counter = 1
 
-    while (existingNodes.some(node => node.id === newId)) {
+    while (existingNodes.some((node) => node.id === newId)) {
       newId = `${baseName}_${counter}`
       counter++
     }
@@ -179,23 +179,40 @@ const getShortId = (typeName: string) => {
       </NInput>
     </div>
 
-
     <NScrollbar>
       <div v-if="Object.keys(groupedBlockTypes).length === 0" class="empty-state">
         <NEmpty description="没有找到匹配的节点" />
       </div>
 
-      <NCollapse arrow-placement="right" :default-expanded-names="sortedGroupKeys" class="node-list-collapse">
-        <NCollapseItem v-for="groupId in sortedGroupKeys" :key="groupId" :title="getGroupDisplayName(groupId)"
-          :name="groupId">
+      <NCollapse
+        arrow-placement="right"
+        :default-expanded-names="sortedGroupKeys"
+        class="node-list-collapse"
+      >
+        <NCollapseItem
+          v-for="groupId in sortedGroupKeys"
+          :key="groupId"
+          :title="getGroupDisplayName(groupId)"
+          :name="groupId"
+        >
           <div class="node-list">
-            <div v-for="blockType in groupedBlockTypes[groupId]" :key="blockType.type_name" class="node-item"
-              draggable="true" @dragstart="onDragStart($event, blockType)">
-              <div class="custom-node" :style="{ borderLeft: `3px solid ${getBlockTypeColor(blockType)}` }">
+            <div
+              v-for="blockType in groupedBlockTypes[groupId]"
+              :key="blockType.type_name"
+              class="node-item"
+              draggable="true"
+              @dragstart="onDragStart($event, blockType)"
+            >
+              <div
+                class="custom-node"
+                :style="{ borderLeft: `3px solid ${getBlockTypeColor(blockType)}` }"
+              >
                 <div class="custom-node-header">
                   <div class="header-content">
                     <span class="node-label">{{ blockType.label }}</span>
-                    <span class="node-id" :title="blockType.type_name">#{{ getShortId(blockType.type_name) }}</span>
+                    <span class="node-id" :title="blockType.type_name"
+                      >#{{ getShortId(blockType.type_name) }}</span
+                    >
                   </div>
                 </div>
 
@@ -204,9 +221,7 @@ const getShortId = (typeName: string) => {
                     {{ blockType.description }}
                   </div>
 
-                  <div class="node-meta">
-
-                  </div>
+                  <div class="node-meta"></div>
                 </div>
               </div>
             </div>
@@ -217,8 +232,17 @@ const getShortId = (typeName: string) => {
 
     <div class="drag-hint">
       <NIcon size="16" class="hint-icon">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
           <path d="M14 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0z"></path>
           <path d="M18 14a2 2 0 1 1-4 0 2 2 0 0 1 4 0z"></path>
           <path d="M8 18a2 2 0 1 1-4 0 2 2 0 0 1 4 0z"></path>
@@ -301,7 +325,7 @@ const getShortId = (typeName: string) => {
   background: linear-gradient(to bottom, #f8f9fa, #ffffff);
   border-radius: 6px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   border: 1px solid rgba(0, 0, 0, 0.06);
   transition: all 0.2s ease;
 }

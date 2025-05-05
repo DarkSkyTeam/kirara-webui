@@ -24,7 +24,7 @@ jobs:
         run: yarn install --frozen-lockfile
       
       - name: Build
-        run: yarn build
+        run: yarn build-only
       
       - name: Publish to NPM
         run: |

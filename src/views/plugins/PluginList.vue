@@ -1,6 +1,19 @@
 <script setup lang="ts">
 import { h, onMounted } from 'vue'
-import { NCard, NSpace, NButton, NDataTable, NTag, NSwitch, NModal, NForm, NFormItem, NInput, NSpin, NIcon } from 'naive-ui'
+import {
+  NCard,
+  NSpace,
+  NButton,
+  NDataTable,
+  NTag,
+  NSwitch,
+  NModal,
+  NForm,
+  NFormItem,
+  NInput,
+  NSpin,
+  NIcon
+} from 'naive-ui'
 import type { DataTableColumns } from 'naive-ui'
 import { useRouter } from 'vue-router'
 import { usePluginViewModel } from './plugin.vm'
@@ -26,14 +39,10 @@ const createColumns = (): DataTableColumns<PluginInfo> => {
       title: '名称',
       key: 'name',
       render(row) {
-        return h(
-          'div',
-          {},
-          [
-            h('div', {}, row.name),
-            h('div', { style: 'font-size: 12px; color: var(--n-text-color-3);' }, row.package_name)
-          ]
-        )
+        return h('div', {}, [
+          h('div', {}, row.name),
+          h('div', { style: 'font-size: 12px; color: var(--n-text-color-3);' }, row.package_name)
+        ])
       }
     },
     {
@@ -57,7 +66,7 @@ const createColumns = (): DataTableColumns<PluginInfo> => {
           {
             type: row.is_internal ? 'info' : 'success'
           },
-          { default: () => row.is_internal ? '内部插件' : '第三方插件' }
+          { default: () => (row.is_internal ? '内部插件' : '第三方插件') }
         )
       }
     },
@@ -65,14 +74,11 @@ const createColumns = (): DataTableColumns<PluginInfo> => {
       title: '状态',
       key: 'is_enabled',
       render(row) {
-        return h(
-          NSwitch,
-          {
-            value: row.is_enabled,
-            disabled: row.is_internal,
-            onUpdateValue: () => togglePluginStatus(row)
-          }
-        )
+        return h(NSwitch, {
+          value: row.is_enabled,
+          disabled: row.is_internal,
+          onUpdateValue: () => togglePluginStatus(row)
+        })
       }
     },
     {
@@ -138,10 +144,13 @@ onMounted(() => {
 
     <!-- 安装插件表单 -->
     <n-modal v-model:show="showInstallModal">
-      <n-card style="width: 400px;" title="安装插件">
+      <n-card style="width: 400px" title="安装插件">
         <n-form :model="installForm" label-placement="left" label-width="100">
           <n-form-item label="Pypi 包名" path="package_name">
-            <n-input v-model:value="installForm.package_name" placeholder="请输入插件的 Pypi 包名" />
+            <n-input
+              v-model:value="installForm.package_name"
+              placeholder="请输入插件的 Pypi 包名"
+            />
           </n-form-item>
           <n-form-item label="版本" path="version">
             <n-input v-model:value="installForm.version" placeholder="请输入版本号（可选）" />

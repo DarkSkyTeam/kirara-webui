@@ -2,17 +2,12 @@
 import { NCard, NSpace, NButton, NForm, NFormItem, NInput, NSpin, NText } from 'naive-ui'
 import { usePasswordViewModel } from '../viewmodels/password.vm'
 
-const {
-  loading,
-  formData,
-  rules,
-  handleSubmit
-} = usePasswordViewModel()
+const { loading, formData, rules, handleSubmit } = usePasswordViewModel()
 </script>
 
 <template>
   <n-card title="修改密码" class="settings-card">
-    <div style="margin-bottom: 16px;">
+    <div style="margin-bottom: 16px">
       <n-text>
         配置 WebUI 的登录密码，如果你的 WebUI 可被外部访问，请务必设置一个复杂的密码，以免被破解。
       </n-text>
@@ -59,15 +54,9 @@ const {
           </template>
         </n-form-item>
       </n-form>
-      <div style="margin-top: 24px;">
+      <div style="margin-top: 24px">
         <n-space justify="end">
-          <n-button
-            type="primary"
-            :loading="loading"
-            @click="handleSubmit"
-          >
-            修改密码
-          </n-button>
+          <n-button type="primary" :loading="loading" @click="handleSubmit"> 修改密码 </n-button>
         </n-space>
       </div>
     </n-spin>
@@ -79,4 +68,4 @@ const {
   max-width: 800px;
   margin: 0 auto;
 }
-</style> 
+</style>

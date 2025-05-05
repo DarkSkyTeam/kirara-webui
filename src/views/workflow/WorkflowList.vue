@@ -21,7 +21,13 @@ import {
 } from 'naive-ui'
 import type { DataTableColumns } from 'naive-ui'
 import { listWorkflows, deleteWorkflow, getWorkflow, createWorkflow } from '@/api/workflow'
-import { CreateOutline, TrashOutline, AddOutline, CopyOutline, DownloadOutline } from '@vicons/ionicons5'
+import {
+  CreateOutline,
+  TrashOutline,
+  AddOutline,
+  CopyOutline,
+  DownloadOutline
+} from '@vicons/ionicons5'
 import WorkflowForm from '@/components/workflow/WorkflowForm.vue'
 import type { ComponentPublicInstance } from 'vue'
 import type { FormValidate } from 'naive-ui/es/form/src/interface'
@@ -47,7 +53,7 @@ const currentWorkflow = ref<Workflow | null>(null)
 const copyFormRef = ref<WorkflowFormInstance | null>(null)
 
 interface WorkflowFormInstance extends ComponentPublicInstance {
-  validate: FormValidate,
+  validate: FormValidate
   getFormData: () => {
     workflowId: string
     name: string
@@ -87,13 +93,17 @@ const columns: DataTableColumns<Workflow> = [
     key: 'block_count',
     width: 100,
     render(row) {
-      return h(NTag, {
-        type: 'info',
-        round: true,
-        size: 'small'
-      }, {
-        default: () => row.block_count
-      })
+      return h(
+        NTag,
+        {
+          type: 'info',
+          round: true,
+          size: 'small'
+        },
+        {
+          default: () => row.block_count
+        }
+      )
     }
   },
   {
@@ -104,39 +114,56 @@ const columns: DataTableColumns<Workflow> = [
       const id = `${row.group_id}:${row.workflow_id}`
       return h(NSpace, null, {
         default: () => [
-          h(NButton, {
-            quaternary: true,
-            size: 'small',
-            onClick: () => handleEdit(row),
-            class: 'action-button'
-          }, {
-            icon: () => h(NIcon, null, { default: () => h(CreateOutline) }),
-            default: () => '编辑'
-          }),
-          h(NButton, {
-            quaternary: true,
-            size: 'small',
-            onClick: () => handleCopy(row),
-            class: 'action-button'
-          }, {
-            icon: () => h(NIcon, null, { default: () => h(CopyOutline) }),
-            default: () => '复制'
-          }),
-          h(NPopconfirm, {
-            onPositiveClick: () => handleDelete(row),
-            class: deleting.value === id ? 'deleting' : ''
-          }, {
-            trigger: () => h(NButton, {
+          h(
+            NButton,
+            {
               quaternary: true,
               size: 'small',
-              type: 'error',
+              onClick: () => handleEdit(row),
               class: 'action-button'
-            }, {
-              icon: () => h(NIcon, null, { default: () => h(TrashOutline) }),
-              default: () => '删除'
-            }),
-            default: () => '确认删除该工作流？'
-          })
+            },
+            {
+              icon: () => h(NIcon, null, { default: () => h(CreateOutline) }),
+              default: () => '编辑'
+            }
+          ),
+          h(
+            NButton,
+            {
+              quaternary: true,
+              size: 'small',
+              onClick: () => handleCopy(row),
+              class: 'action-button'
+            },
+            {
+              icon: () => h(NIcon, null, { default: () => h(CopyOutline) }),
+              default: () => '复制'
+            }
+          ),
+          h(
+            NPopconfirm,
+            {
+              onPositiveClick: () => handleDelete(row),
+              class: deleting.value === id ? 'deleting' : ''
+            },
+            {
+              trigger: () =>
+                h(
+                  NButton,
+                  {
+                    quaternary: true,
+                    size: 'small',
+                    type: 'error',
+                    class: 'action-button'
+                  },
+                  {
+                    icon: () => h(NIcon, null, { default: () => h(TrashOutline) }),
+                    default: () => '删除'
+                  }
+                ),
+              default: () => '确认删除该工作流？'
+            }
+          )
         ]
       })
     }
@@ -226,14 +253,13 @@ const cancelCopy = () => {
 }
 
 const displayWorkflows = computed(() => {
-  return workflows.value.map(workflow => {
+  return workflows.value.map((workflow) => {
     return {
       ...workflow,
       id: workflow.group_id + ':' + workflow.workflow_id
     }
   })
 })
-
 
 onMounted(() => {
   fetchWorkflows()
@@ -266,25 +292,35 @@ onMounted(() => {
         </template>
       </n-empty>
 
-      <n-data-table v-else :columns="columns" :data="displayWorkflows" :loading="loading" class="workflow-table"
-        :row-class-name="() => 'workflow-row'" :pagination="{
+      <n-data-table
+        v-else
+        :columns="columns"
+        :data="displayWorkflows"
+        :loading="loading"
+        class="workflow-table"
+        :row-class-name="() => 'workflow-row'"
+        :pagination="{
           pageSize: 10
-        }" />
+        }"
+      />
     </n-card>
 
     <!-- 复制工作流对话框 -->
     <n-modal v-model:show="showCopyModal" preset="dialog" title="复制工作流">
-      <WorkflowForm ref="copyFormRef" :initial-data="{
-        workflowId: currentWorkflow ? `${currentWorkflow.group_id}:${currentWorkflow.workflow_id}_copy` : '',
-        name: currentWorkflow ? `${currentWorkflow.name} (复制)` : '',
-        description: currentWorkflow?.description || ''
-      }" />
+      <WorkflowForm
+        ref="copyFormRef"
+        :initial-data="{
+          workflowId: currentWorkflow
+            ? `${currentWorkflow.group_id}:${currentWorkflow.workflow_id}_copy`
+            : '',
+          name: currentWorkflow ? `${currentWorkflow.name} (复制)` : '',
+          description: currentWorkflow?.description || ''
+        }"
+      />
 
       <template #action>
         <n-button @click="cancelCopy">取消</n-button>
-        <n-button type="primary" :loading="copyLoading" @click="confirmCopy">
-          确认复制
-        </n-button>
+        <n-button type="primary" :loading="copyLoading" @click="confirmCopy"> 确认复制 </n-button>
       </template>
     </n-modal>
   </div>
@@ -349,7 +385,7 @@ onMounted(() => {
   .workflow-list {
     padding: 0;
   }
-  
+
   .workflow-card {
     margin-bottom: 16px;
   }

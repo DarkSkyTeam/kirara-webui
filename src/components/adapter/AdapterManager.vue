@@ -1,6 +1,21 @@
 <script setup lang="ts">
 import { ref, onMounted, h, watch } from 'vue'
-import { NCard, NSpace, NButton, NDataTable, NModal, NForm, NFormItem, NInput, NSelect, NSwitch, NSpin, useMessage, NTooltip, NIcon } from 'naive-ui'
+import {
+  NCard,
+  NSpace,
+  NButton,
+  NDataTable,
+  NModal,
+  NForm,
+  NFormItem,
+  NInput,
+  NSelect,
+  NSwitch,
+  NSpin,
+  useMessage,
+  NTooltip,
+  NIcon
+} from 'naive-ui'
 import type { DataTableColumns, FormInst } from 'naive-ui'
 import DynamicConfigForm from '@/components/form/DynamicConfigForm.vue'
 import { AddOutline } from '@vicons/ionicons5'
@@ -8,21 +23,21 @@ interface AdapterBase {
   name: string
   adapter: string
   config: Record<string, any>
-  [key: string]: any  // 允许添加额外的字段
+  [key: string]: any // 允许添加额外的字段
 }
 
 interface Props {
   title: string
   api: {
     getAdapterTypes: () => Promise<{ types: string[] }>
-    getAdapters: () => Promise<{ adapters?: any[], data?: { backends: any[] } }>
+    getAdapters: () => Promise<{ adapters?: any[]; data?: { backends: any[] } }>
     getAdapterConfigSchema: (type: string) => Promise<{ configSchema: any }>
     createAdapter: (data: any) => Promise<any>
     updateAdapter: (name: string, data: any) => Promise<any>
     deleteAdapter: (name: string) => Promise<any>
     toggleAdapter?: (name: string, running: boolean) => Promise<any>
   }
-  transformFormModel?: (model: any) => any,
+  transformFormModel?: (model: any) => any
   modelValue: AdapterBase
 }
 
@@ -44,7 +59,9 @@ const formRules = ref<any>({
     { required: true, message: '请输入适配器名称', trigger: 'blur' },
     {
       validator: (rule: any, value: any) => {
-        if (adapters.value.some(adapter => adapter.name === value && modalType.value === 'create')) {
+        if (
+          adapters.value.some((adapter) => adapter.name === value && modalType.value === 'create')
+        ) {
           return Promise.reject(new Error('适配器名称已存在'))
         } else {
           return Promise.resolve()
@@ -60,12 +77,16 @@ const emit = defineEmits(['update:modelValue'])
 const formModel = ref<AdapterBase>({ ...props.modelValue })
 
 // 监听 props.modelValue 的变化
-watch(() => props.modelValue, (newValue) => {
-  // Do not update if all values are same
-  if (JSON.stringify(formModel.value) !== JSON.stringify(newValue)) {
-    formModel.value = { ...newValue }
-  }
-}, { deep: true })
+watch(
+  () => props.modelValue,
+  (newValue) => {
+    // Do not update if all values are same
+    if (JSON.stringify(formModel.value) !== JSON.stringify(newValue)) {
+      formModel.value = { ...newValue }
+    }
+  },
+  { deep: true }
+)
 
 // 重置表单
 const resetForm = () => {
@@ -94,7 +115,6 @@ const handleEdit = (row: any) => {
 
 // 获取适配器类型
 const fetchAdapterTypes = async () => {
-
   try {
     const { types } = await props.api.getAdapterTypes()
     adapterTypes.value = types
@@ -121,7 +141,6 @@ const fetchAdapterConfigSchema = async (adapterType: string) => {
     loading.value = true
     const { configSchema: configSchemaData } = await props.api.getAdapterConfigSchema(adapterType)
     configSchema.value = configSchemaData
-
   } catch (error) {
     $message.error('获取适配器配置模式失败: ' + error)
     console.error('获取适配器配置模式失败:', error)
@@ -131,28 +150,35 @@ const fetchAdapterConfigSchema = async (adapterType: string) => {
 }
 
 // 监听适配器类型变化
-watch(() => formModel.value.adapter, async (newAdapter) => {
-  if (newAdapter) {
-    if (modalType.value != 'edit') {
-      const oldConfig = formModel.value.config
-      const oldValues = { ...formModel.value }
-      formModel.value = { 
-        ...defaultFormModel,
-        ...oldValues,
-        adapter: newAdapter,
-        config: oldConfig
+watch(
+  () => formModel.value.adapter,
+  async (newAdapter) => {
+    if (newAdapter) {
+      if (modalType.value != 'edit') {
+        const oldConfig = formModel.value.config
+        const oldValues = { ...formModel.value }
+        formModel.value = {
+          ...defaultFormModel,
+          ...oldValues,
+          adapter: newAdapter,
+          config: oldConfig
+        }
       }
+      await fetchAdapterConfigSchema(newAdapter)
     }
-    await fetchAdapterConfigSchema(newAdapter)
   }
-})
+)
 
-watch(() => formModel.value, (newValue) => {
-  // Do not update if all values are same
-  if (JSON.stringify(props.modelValue) !== JSON.stringify(newValue)) { 
-    emit('update:modelValue', newValue)
-  }
-}, { deep: true })
+watch(
+  () => formModel.value,
+  (newValue) => {
+    // Do not update if all values are same
+    if (JSON.stringify(props.modelValue) !== JSON.stringify(newValue)) {
+      emit('update:modelValue', newValue)
+    }
+  },
+  { deep: true }
+)
 
 // 监听模态框显示状态
 watch(showModal, async (show) => {
@@ -164,7 +190,6 @@ watch(showModal, async (show) => {
     }
   }
 })
-
 
 // 创建或更新适配器
 const handleSubmit = async () => {
@@ -181,9 +206,9 @@ const handleSubmitActual = async () => {
     }
 
     processing.value = true
-    const submitData = props.transformFormModel ? 
-      props.transformFormModel(formModel.value) : 
-      formModel.value
+    const submitData = props.transformFormModel
+      ? props.transformFormModel(formModel.value)
+      : formModel.value
 
     try {
       if (modalType.value === 'create') {
@@ -257,13 +282,10 @@ const createColumns = (): DataTableColumns<any> => {
       title: '状态',
       key: 'is_running',
       render(row) {
-        return h(
-          NSwitch,
-          {
-            value: row.is_running,
-            onUpdateValue: () => handleToggleAdapter(row)
-          }
-        )
+        return h(NSwitch, {
+          value: row.is_running,
+          onUpdateValue: () => handleToggleAdapter(row)
+        })
       }
     })
   }
@@ -313,51 +335,69 @@ onMounted(() => {
   <div class="adapter-manager">
     <n-space vertical :size="16">
       <n-spin :show="processing">
-      <n-card :title="title">
-        <template #header-extra>
-          <NButton
-            type="primary"
-            @click="handleAddClick"
-            class="create-button"
-        >
-          <template #icon>
-            <NIcon><AddOutline /></NIcon>
+        <n-card :title="title">
+          <template #header-extra>
+            <NButton type="primary" @click="handleAddClick" class="create-button">
+              <template #icon>
+                <NIcon><AddOutline /></NIcon>
+              </template>
+              添加适配器
+            </NButton>
           </template>
-            添加适配器
-          </NButton>
-        </template>
-        <slot name="desc"></slot>
-        <n-data-table :columns="createColumns()" :data="adapters" />
-      </n-card>
-    </n-spin>
+          <slot name="desc"></slot>
+          <n-data-table :columns="createColumns()" :data="adapters" />
+        </n-card>
+      </n-spin>
     </n-space>
 
     <!-- 创建/编辑适配器表单 -->
     <n-modal v-model:show="showModal">
-      <n-card style="width: 900px;" :title="modalType === 'create' ? '添加适配器' : '编辑适配器'" :bordered="false" size="huge"
-        role="dialog" aria-modal="true">
+      <n-card
+        style="width: 900px"
+        :title="modalType === 'create' ? '添加适配器' : '编辑适配器'"
+        :bordered="false"
+        size="huge"
+        role="dialog"
+        aria-modal="true"
+      >
         <div class="adapter-edit-container">
           <div class="adapter-basic-form">
-            <n-form ref="formRef" :model="formModel" label-placement="left" label-width="100" :rules="formRules">
+            <n-form
+              ref="formRef"
+              :model="formModel"
+              label-placement="left"
+              label-width="100"
+              :rules="formRules"
+            >
               <n-form-item label="适配器" path="adapter">
                 <n-tooltip>
                   <template #trigger>
-                    <n-select v-model:value="formModel.adapter" :options="adapterTypes.map(type => ({ label: type, value: type }))" />
+                    <n-select
+                      v-model:value="formModel.adapter"
+                      :options="adapterTypes.map((type) => ({ label: type, value: type }))"
+                    />
                   </template>
                   <div>
-                    如果没有找到合适的适配器，可以去 <router-link to="/plugins/market">插件市场</router-link> 逛逛。
+                    如果没有找到合适的适配器，可以去
+                    <router-link to="/plugins/market">插件市场</router-link> 逛逛。
                   </div>
                 </n-tooltip>
               </n-form-item>
               <n-form-item label="名称" path="name">
-                <n-input v-model:value="formModel.name" placeholder="适配器名称用来区分不同的适配器" />
+                <n-input
+                  v-model:value="formModel.name"
+                  placeholder="适配器名称用来区分不同的适配器"
+                />
               </n-form-item>
-
             </n-form>
           </div>
           <div class="adapter-extra-form">
             <n-spin :show="loading">
-              <dynamic-config-form :schema="configSchema" v-model="formModel.config" v-if="configSchema"/>
+              <dynamic-config-form
+                :schema="configSchema"
+                v-model="formModel.config"
+                v-if="configSchema"
+              />
             </n-spin>
             <slot name="extra-form-items" :model="formModel"></slot>
           </div>
@@ -379,21 +419,21 @@ onMounted(() => {
 }
 
 .adapter-edit-container {
-    display: flex;
-    min-height: 400px;
-    max-height: 80vh;
-    overflow-y: auto;
+  display: flex;
+  min-height: 400px;
+  max-height: 80vh;
+  overflow-y: auto;
 }
 
 .adapter-basic-form {
-    flex: 0 0 400px;
-    padding-right: 16px;
+  flex: 0 0 400px;
+  padding-right: 16px;
 }
 
 .adapter-extra-form {
-    flex: 1;
-    padding-left: 16px;
-    padding-right: 16px;
-    border-left: 1px solid var(--n-border-color);
+  flex: 1;
+  padding-left: 16px;
+  padding-right: 16px;
+  border-left: 1px solid var(--n-border-color);
 }
 </style>

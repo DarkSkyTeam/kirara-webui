@@ -14,10 +14,7 @@ import {
   NIcon,
   NTooltip
 } from 'naive-ui'
-import {
-  AddOutline as AddIcon,
-  RefreshOutline as RefreshIcon
-} from '@vicons/ionicons5'
+import { AddOutline as AddIcon, RefreshOutline as RefreshIcon } from '@vicons/ionicons5'
 import type { FormItemRule, FormInst } from 'naive-ui'
 import type { LLMBackend, ConfigSchema } from '@/api/llm'
 import ModelListForm from '@/components/form/ModelListForm.vue'
@@ -25,20 +22,20 @@ import DynamicConfigForm from '@/components/form/DynamicConfigForm.vue'
 import type { ModelInfo } from '@/components/form/types'
 
 const props = defineProps<{
-  adapter: LLMBackend | null,
-  adapterTypes: string[],
-  configSchema: ConfigSchema | null,
-  loading: boolean,
-  isCreating: boolean,
-  isAutoDetectModelsSupported: boolean,
+  adapter: LLMBackend | null
+  adapterTypes: string[]
+  configSchema: ConfigSchema | null
+  loading: boolean
+  isCreating: boolean
+  isAutoDetectModelsSupported: boolean
   modelAbilities: Record<string, { label: string; value: number }[]>
 }>()
 
 const emit = defineEmits<{
-  (e: 'save'): void,
-  (e: 'delete'): void,
-  (e: 'add-model'): void,
-  (e: 'edit-model', index: number, model: ModelInfo): void,
+  (e: 'save'): void
+  (e: 'delete'): void
+  (e: 'add-model'): void
+  (e: 'edit-model', index: number, model: ModelInfo): void
   (e: 'auto-detect-models'): void
 }>()
 
@@ -64,7 +61,7 @@ const adapterRules = {
     required: true,
     message: '请选择接口类型',
     trigger: 'blur'
-  },
+  }
 }
 
 const validateForm = async (): Promise<boolean> => {
@@ -105,27 +102,42 @@ const handleAutoDetectModels = () => {
     <div class="content-header">
       <h2>模型管理</h2>
       <n-space>
-        <n-button @click="handleDelete" type="error" v-if="!isCreating">
-          删除配置
-        </n-button>
-        <n-button @click="handleSave" type="primary">
-          保存配置
-        </n-button>
+        <n-button @click="handleDelete" type="error" v-if="!isCreating"> 删除配置 </n-button>
+        <n-button @click="handleSave" type="primary"> 保存配置 </n-button>
       </n-space>
     </div>
 
-    <n-scrollbar style="height: var(--n-window-height);">
+    <n-scrollbar style="height: var(--n-window-height)">
       <div class="content-body">
         <n-card class="config-section" title="基本信息">
-          <n-form :model="adapter" label-placement="left" label-width="120" class="form" :rules="adapterRules"
-            ref="formRef">
-            <n-form-item label="配置名称" path="name" feedback="用于区分不同的配置，必须保持唯一" required>
+          <n-form
+            :model="adapter"
+            label-placement="left"
+            label-width="120"
+            class="form"
+            :rules="adapterRules"
+            ref="formRef"
+          >
+            <n-form-item
+              label="配置名称"
+              path="name"
+              feedback="用于区分不同的配置，必须保持唯一"
+              required
+            >
               <n-input v-model:value="adapter.name" placeholder="请输入配置名称" />
             </n-form-item>
 
-            <n-form-item label="接口类型" path="adapter" feedback="指定模型供应商，使用与模型供应商一致的 API 接口请求模型" required>
-              <n-select v-model:value="adapter.adapter"
-                :options="adapterTypes.map(type => ({ label: type, value: type }))" placeholder="请选择接口类型" />
+            <n-form-item
+              label="接口类型"
+              path="adapter"
+              feedback="指定模型供应商，使用与模型供应商一致的 API 接口请求模型"
+              required
+            >
+              <n-select
+                v-model:value="adapter.adapter"
+                :options="adapterTypes.map((type) => ({ label: type, value: type }))"
+                placeholder="请选择接口类型"
+              />
             </n-form-item>
 
             <n-form-item label="启用" path="enable">
@@ -133,8 +145,12 @@ const handleAutoDetectModels = () => {
             </n-form-item>
 
             <n-spin :show="loading">
-              <dynamic-config-form :schema="configSchema" v-model="adapter.config"
-                v-if="configSchema && adapter?.adapter" ref="dynamicConfigForm" />
+              <dynamic-config-form
+                :schema="configSchema"
+                v-model="adapter.config"
+                v-if="configSchema && adapter?.adapter"
+                ref="dynamicConfigForm"
+              />
             </n-spin>
           </n-form>
         </n-card>
@@ -144,8 +160,13 @@ const handleAutoDetectModels = () => {
             <n-space>
               <n-tooltip trigger="hover">
                 <template #trigger>
-                  <n-button type="primary" @click="handleAutoDetectModels" :disabled="!isAutoDetectModelsSupported"
-                    size="small" class="action-button">
+                  <n-button
+                    type="primary"
+                    @click="handleAutoDetectModels"
+                    :disabled="!isAutoDetectModelsSupported"
+                    size="small"
+                    class="action-button"
+                  >
                     <template #icon>
                       <n-icon><refresh-icon /></n-icon>
                     </template>
@@ -168,7 +189,11 @@ const handleAutoDetectModels = () => {
             </n-space>
           </template>
 
-          <ModelListForm v-model:value="adapter.models" @edit="handleEditModel" :model-abilities="modelAbilities" />
+          <ModelListForm
+            v-model:value="adapter.models"
+            @edit="handleEditModel"
+            :model-abilities="modelAbilities"
+          />
         </n-card>
       </div>
     </n-scrollbar>

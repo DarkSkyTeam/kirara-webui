@@ -34,14 +34,16 @@ interface UpdateInfo {
 }
 
 interface SkipVersions {
-  backend: string;
-  webui: string;
+  backend: string
+  webui: string
 }
 
 export const useAppStore = defineStore('app', () => {
   // 状态
   const siderCollapsed = ref(localStorage.getItem('siderCollapsed') === 'true' || false)
-  const secondarySiderCollapsed = ref(localStorage.getItem('secondarySiderCollapsed') === 'true' || false)
+  const secondarySiderCollapsed = ref(
+    localStorage.getItem('secondarySiderCollapsed') === 'true' || false
+  )
   const currentModule = ref('home')
   const currentSubModule = ref('')
   const systemStatus = ref<SystemStatus>({
@@ -65,10 +67,12 @@ export const useAppStore = defineStore('app', () => {
     pythonVersion: 'unknown',
     hasProxy: false
   })
-  
+
   const updateInfo = ref<UpdateInfo | null>(null)
   // 持久化
-  const skipVersions = ref<SkipVersions>(JSON.parse(localStorage.getItem('skipVersions') || '{}') as SkipVersions)
+  const skipVersions = ref<SkipVersions>(
+    JSON.parse(localStorage.getItem('skipVersions') || '{}') as SkipVersions
+  )
   const lastRemindTime = ref<number>(0)
 
   const showDrawer = ref(false)
@@ -103,34 +107,37 @@ export const useAppStore = defineStore('app', () => {
 
   const setUpdateInfo = (info: UpdateInfo) => {
     // 如果版本已被跳过，不显示更新
-    if (skipVersions.value.backend === info.latest_backend_version || 
-        skipVersions.value.webui === info.latest_webui_version) {
+    if (
+      skipVersions.value.backend === info.latest_backend_version ||
+      skipVersions.value.webui === info.latest_webui_version
+    ) {
       return false
     }
-    
+
     // 如果在提醒冷却时间内，不显示更新
     const now = Date.now()
-    if (now - lastRemindTime.value < 24 * 60 * 60 * 1000) { // 24小时
+    if (now - lastRemindTime.value < 24 * 60 * 60 * 1000) {
+      // 24小时
       return false
     }
-    
+
     updateInfo.value = info
     return true
   }
-  
+
   const setUpdateRemindLater = () => {
     lastRemindTime.value = Date.now()
   }
-  
+
   const setSkipVersion = () => {
     if (updateInfo.value) {
       if (updateInfo.value.latest_backend_version) {
-        skipVersions.value.backend = updateInfo.value.latest_backend_version;
+        skipVersions.value.backend = updateInfo.value.latest_backend_version
       }
       if (updateInfo.value.latest_webui_version) {
-        skipVersions.value.webui = updateInfo.value.latest_webui_version;
+        skipVersions.value.webui = updateInfo.value.latest_webui_version
       }
-      localStorage.setItem('skipVersions', JSON.stringify(skipVersions.value));
+      localStorage.setItem('skipVersions', JSON.stringify(skipVersions.value))
     }
   }
 
@@ -160,4 +167,4 @@ export const useAppStore = defineStore('app', () => {
     setSkipVersion,
     setShowDrawer
   }
-}) 
+})

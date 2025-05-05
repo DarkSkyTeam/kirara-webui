@@ -7,7 +7,13 @@
     <ul class="sidebar-nav">
       <li v-for="(nav, index) in navList" :key="index" @click="toggleIndex(nav.key)">
         <router-link :to="nav.path" v-if="nav.path">
-          <div :class='{"sidebar-nav-item": true, "sidebar-nav-sub-item": true, "sidebar-nav-icon": props.iconOnly}'>
+          <div
+            :class="{
+              'sidebar-nav-item': true,
+              'sidebar-nav-sub-item': true,
+              'sidebar-nav-icon': props.iconOnly
+            }"
+          >
             <component :is="nav.icon" v-if="nav.icon"></component>
             <div class="sidebar-nav-text" v-if="nav.text && !props.iconOnly">{{ nav.text }}</div>
           </div>
@@ -29,23 +35,23 @@
   </div>
 </template>
 <script setup lang="ts">
-import { reactive, toRefs, computed, onMounted, type Component } from 'vue';
+import { reactive, toRefs, computed, onMounted, type Component } from 'vue'
 export interface Nav {
-  key?: string,
-  text: string,
-  icon?: Component,
-  path: string,
+  key?: string
+  text: string
+  icon?: Component
+  path: string
   children?: Nav[]
 }
 const state = reactive({
   currentPath: '/',
   collapse: false,
-  height: 0,
-});
+  height: 0
+})
 const props = defineProps<{
-  navList: Nav[],
-  iconOnly: Boolean,
-  title?: string,
+  navList: Nav[]
+  iconOnly: Boolean
+  title?: string
 }>()
 
 const emit = defineEmits<{
@@ -54,19 +60,17 @@ const emit = defineEmits<{
 
 const toggleIndex = (key?: string) => {
   emit('onSelect', key)
-
-};
+}
 const onSelect = (path: string) => {
-  state.currentPath = path;
-};
+  state.currentPath = path
+}
 const setHeight = () => {
-  state.height = document.getElementsByClassName('sidebar-nav-child')[0].clientHeight;
-};
+  state.height = document.getElementsByClassName('sidebar-nav-child')[0].clientHeight
+}
 onMounted(() => {
   // setHeight();
   // window.addEventListener('resize', setHeight);
-});
-
+})
 </script>
 
 <style scoped>
@@ -89,5 +93,4 @@ onMounted(() => {
   font-size: 20px;
   min-height: 50px;
 }
-
 </style>

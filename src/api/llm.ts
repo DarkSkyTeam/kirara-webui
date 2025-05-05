@@ -12,16 +12,19 @@ export interface LLMBackend {
 export interface ConfigSchema {
   title: string
   type: string
-  properties: Record<string, {
-    title: string
-    type: string
-    description?: string
-    default?: any
-    minimum?: number
-    maximum?: number
-    enum?: any[]
-    enumNames?: string[]
-  }>
+  properties: Record<
+    string,
+    {
+      title: string
+      type: string
+      description?: string
+      default?: any
+      minimum?: number
+      maximum?: number
+      enum?: any[]
+      enumNames?: string[]
+    }
+  >
   required?: string[]
 }
 
@@ -79,7 +82,9 @@ export const llmApi = {
    * 获取适配器支持自动检测模型
    */
   getAdapterSupportsAutoDetectModels(adapterType: string) {
-    return http.get<{ supportsAutoDetectModels: boolean }>(`/llm/types/${adapterType}/supports-auto-detect-models`)
+    return http.get<{ supportsAutoDetectModels: boolean }>(
+      `/llm/types/${adapterType}/supports-auto-detect-models`
+    )
   },
 
   /**
@@ -88,4 +93,4 @@ export const llmApi = {
   getBackendModels(backendName: string) {
     return http.get<{ models: ModelInfo[] }>(`/llm/backends/${backendName}/auto-detect-models`)
   }
-} 
+}
