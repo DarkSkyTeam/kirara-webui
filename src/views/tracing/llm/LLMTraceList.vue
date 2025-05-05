@@ -23,7 +23,7 @@
                     <n-grid-item v-for="stat in formattedStatistics" :key="stat.label">
                         <n-card :class="['stat-card', stat.type]">
                             <div class="stat-content">
-                                <div class="stat-value">{{ stat.value }}</div>
+                                <div class="stat-value">{{ formatLargeNumber(stat.value) }}</div>
                                 <div class="stat-label">{{ stat.label }}</div>
                             </div>
                         </n-card>
@@ -100,6 +100,7 @@ import {
 } from 'naive-ui'
 import { RefreshOutline, SearchOutline } from '@vicons/ionicons5'
 import { useLLMTracingViewModel } from './llm-tracing.vm'
+import { formatLargeNumber } from '@/utils/formatters'
 
 const {
     traces,

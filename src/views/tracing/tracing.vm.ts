@@ -202,7 +202,6 @@ export function useTracingViewModel<S extends TraceStatistics>(traceType: string
                 }))
 
                 isConnected.value = true
-                message.success('已连接到追踪系统')
                 reconnectAttempts = 0
                 if (reconnectTimer !== null) {
                     clearTimeout(reconnectTimer)

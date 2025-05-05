@@ -130,7 +130,8 @@ const router = createRouter({
           children: [
             {
               path: '',
-              redirect: '/tracing/llm'
+              redirect: '/tracing/llm',
+              name: 'tracing-index'
             },
             {
               path: 'llm',
@@ -158,6 +159,11 @@ const router = createRouter({
       path: '/login',
       name: 'login',
       component: () => import('@/views/login/LoginView.vue')
+    },
+    {
+      path: '/editor',
+      name: 'editor',
+      component: () => import('@/editor/Editor.vue')
     }
   ]
 })

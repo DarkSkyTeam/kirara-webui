@@ -13,7 +13,6 @@ app.use(router)
 
 app.mount('#app')
 
-
 const oldFetch = window.fetch
 window.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {    
     let response = await oldFetch(input, init)

@@ -226,11 +226,6 @@ a {
   padding: 2rem;
 }
 
-.empty-icon {
-  margin-bottom: 20px;
-  animation: float 3s ease-in-out infinite;
-}
-
 .primary-button {
   margin-top: 1rem;
   height: 40px;

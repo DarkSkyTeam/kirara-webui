@@ -323,6 +323,7 @@ watch(() => appStore.systemStatus.uptime, (newUptime) => {
                       :rail-color="getRailColor()"
                       :height="8"
                       :border-radius="4"
+                      :show-indicator="false"
                       class="resource-progress" />
                   </div>
                 </div>
@@ -335,7 +336,7 @@ watch(() => appStore.systemStatus.uptime, (newUptime) => {
                 <div class="load-info">
                   <div class="load-title">
                     <n-icon size="18"><ServerOutline /></n-icon>
-                    <span>内存使用率</span>
+                    <span>内存可用率</span>
                   </div>
                   <div class="load-value">{{ Math.round(appStore.systemStatus.memoryUsage.percent * 100) }}%</div>
                   <div class="load-progress">
@@ -345,9 +346,17 @@ watch(() => appStore.systemStatus.uptime, (newUptime) => {
                       :rail-color="getRailColor()"
                       :height="8"
                       :border-radius="4"
+                      :show-indicator="false"
                       class="resource-progress" />
                   </div>
-                  <div class="load-detail">可用: {{ appStore.systemStatus?.memoryUsage?.free?.toFixed(2) }}MB</div>
+                  <div class="load-detail">
+                    <div>
+                      Kirara 占用: {{ appStore.systemStatus?.memoryUsage?.used?.toFixed(2) }}MB
+                    </div>
+                    <div>
+                      系统可用: {{ appStore.systemStatus?.memoryUsage?.free?.toFixed(2) }}MB
+                    </div>
+                  </div>
 
                 </div>
               </div>
@@ -400,7 +409,6 @@ watch(() => appStore.systemStatus.uptime, (newUptime) => {
 <style scoped>
 .guide-container {
   padding: 24px;
-  width: 100%;
   min-height: 100vh;
   background: linear-gradient(135deg, var(--body-bg-color) 0%, rgba(var(--primary-color-rgb), 0.05) 100%);
 }
@@ -587,6 +595,8 @@ watch(() => appStore.systemStatus.uptime, (newUptime) => {
   font-size: 0.85rem;
   color: var(--text-color-secondary);
   margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
 }
 
 /* 系统信息卡片样式 */

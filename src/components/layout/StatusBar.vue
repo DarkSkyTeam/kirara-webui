@@ -134,7 +134,7 @@ onUnmounted(() => {
       </n-space>
 
       <n-space v-if="appStore.systemStatus.status === 'normal'">
-        <n-text>内存使用: {{ (appStore.systemStatus.memoryUsage.used / 1024).toFixed(2) }} MB</n-text>
+        <n-text>内存使用: {{ (appStore.systemStatus.memoryUsage.used).toFixed(2) }} MB</n-text>
         <n-text>CPU: {{ appStore.systemStatus.cpuUsage }}%</n-text>
         <n-text>IM: {{ appStore.systemStatus.activeAdapters }}</n-text>
         <n-text>LLM: {{ appStore.systemStatus.activeBackends }}</n-text>
@@ -144,22 +144,24 @@ onUnmounted(() => {
     </n-space>
 
     <!-- 移动版布局 - 只显示关键信息 -->
-    <n-space align="center" :size="8" class="mobile-view">
-      <n-space align="center" :size="4">
-        <n-badge dot :type="appStore.systemStatus.apiConnected ? 'success' : 'error'" />
-        <n-text>API: {{ appStore.systemStatus.apiConnected ? '已连接' : '未连接' }}</n-text>
+    <div class="mobile-view">
+      <n-space align="center" :size="8">
+        <n-space align="center" :size="4">
+            <n-badge dot :type="appStore.systemStatus.apiConnected ? 'success' : 'error'" />
+          <n-text>API: {{ appStore.systemStatus.apiConnected ? '已连接' : '未连接' }}</n-text>
+        </n-space>
+        <n-space align="center">
+          <n-text>
+            版本: {{ webUIVersion }}
+          </n-text>
+          <n-text @click="updateCheckerRef!!.showUpdateModal = true"
+            v-if="appStore.updateInfo?.backend_update_available || appStore.updateInfo?.webui_update_available"
+            type="success" class="version-text" style="margin-left: 4px;">
+            有更新
+          </n-text>
+        </n-space>
       </n-space>
-      <n-space align="center">
-        <n-text>
-          版本: {{ webUIVersion }}
-        </n-text>
-        <n-text @click="updateCheckerRef!!.showUpdateModal = true"
-          v-if="appStore.updateInfo?.backend_update_available || appStore.updateInfo?.webui_update_available"
-          type="success" class="version-text" style="margin-left: 4px;">
-          有更新
-        </n-text>
-      </n-space>
-    </n-space>
+    </div>
   </div>
 </template>
 

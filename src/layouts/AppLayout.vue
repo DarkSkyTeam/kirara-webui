@@ -153,7 +153,6 @@ const handleHasSecondarySiderContentUpdate = (hasContent: boolean) => {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 16px 0;
   border-bottom: 1px solid var(--border-color);
   transition: all 0.2s ease;
   height: var(--sidebar-title-height);

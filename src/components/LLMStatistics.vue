@@ -639,7 +639,7 @@ onMounted(() => {
     display: flex;
     align-items: flex-start;
     gap: 16px;
-    padding: 16px;
+    padding: 4px;
     border-radius: 12px;
     background: rgba(var(--card-bg-color-rgb), 0.8);
     transition: all 0.3s ease;

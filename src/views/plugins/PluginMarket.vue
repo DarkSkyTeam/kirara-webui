@@ -357,7 +357,7 @@ onMounted(() => {
 
 .market-card {
   animation: fade-in 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  height: calc(100vh - 28px);
+  min-height: calc(100vh - 28px);
 }
 
 .market-description {
