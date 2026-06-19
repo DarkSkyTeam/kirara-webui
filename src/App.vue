@@ -6,18 +6,19 @@ import {
   NMessageProvider,
   NConfigProvider,
   lightTheme,
-  NModalProvider,
-  useLoadingBar
+  darkTheme,
+  NModalProvider
 } from 'naive-ui'
-import HelloWorld from './components/HelloWorld.vue'
-import AppLayout from './layouts/AppLayout.vue'
-import { createTheme } from 'naive-ui'
+import { computed } from 'vue'
+import { useThemeStore } from './stores/theme'
 import hljs from 'highlight.js/lib/core'
 import json from 'highlight.js/lib/languages/json'
 
 hljs.registerLanguage('json', json)
 
-const theme = {
+const themeStore = useThemeStore()
+
+const themeOverrides = {
   common: {
     primaryColor: '#007AFF',
     primaryColorHover: '#0063CC',
@@ -41,10 +42,12 @@ const theme = {
     borderRadius: '8px'
   }
 }
+
+const currentTheme = computed(() => (themeStore.isDark ? darkTheme : lightTheme))
 </script>
 
 <template>
-  <n-config-provider :theme-overrides="theme" abstract :hljs="hljs">
+  <n-config-provider :theme="currentTheme" :theme-overrides="themeOverrides" abstract :hljs="hljs">
     <n-modal-provider>
       <n-message-provider>
         <n-loading-bar-provider>
@@ -71,6 +74,12 @@ const theme = {
   --text-secondary: #8e8e93;
 }
 
+:root.dark {
+  --background-color: #121212;
+  --text-primary: #e5e7eb;
+  --text-secondary: #8b949e;
+}
+
 html,
 body {
   margin: 0;
@@ -82,6 +91,7 @@ body {
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 #app {

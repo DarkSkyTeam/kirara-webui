@@ -261,6 +261,13 @@ a {
   background-size: 10px 10px;
 }
 
+.dark .bg {
+  background-image: radial-gradient(
+    color-mix(in oklab, oklch(0.9 0.028 261.692) 5%, transparent) 1px,
+    transparent 0
+  );
+}
+
 /* 渐变文本 */
 .gradient-text {
   background: linear-gradient(to right, var(--primary-color), var(--primary-color-hover));

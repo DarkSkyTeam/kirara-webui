@@ -148,6 +148,7 @@ onMounted(() => {
   background-position: center;
   filter: brightness(0.7);
   z-index: -2;
+  background-color: var(--bg-color);
 }
 
 .login-bg-layer::after {
@@ -168,10 +169,10 @@ onMounted(() => {
   min-height: 600px;
   border-radius: 24px;
   overflow: hidden;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-  background-color: rgba(255, 255, 255, 0.1);
+  box-shadow: var(--box-shadow);
+  background-color: var(--card-bg-color);
   backdrop-filter: blur(15px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid var(--border-color);
   animation: container-appear 0.8s ease forwards;
 }
 
@@ -264,7 +265,7 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   padding: 2rem;
-  background-color: rgba(255, 255, 255, 0.9);
+  background-color: var(--card-bg-color);
   position: relative;
   overflow: hidden;
 }
@@ -276,7 +277,7 @@ onMounted(() => {
   left: -50%;
   width: 200%;
   height: 200%;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 70%);
+  background: radial-gradient(circle, var(--card-bg-color) 0%, transparent 70%);
   animation: rotate 20s linear infinite;
 }
 
@@ -307,13 +308,13 @@ onMounted(() => {
   margin: 0;
   font-size: 1.8rem;
   font-weight: 600;
-  color: #333;
+  color: var(--text-color);
   margin-bottom: 0.5rem;
   animation: fade-in 0.8s ease forwards;
 }
 
 .login-subtitle {
-  color: #666;
+  color: var(--text-color-secondary);
   font-size: 1rem;
   animation: fade-in 0.8s ease forwards 0.2s;
   opacity: 0;
@@ -404,13 +405,13 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  color: rgba(var(--n-text-color-rgb), 0.4);
+  color: var(--text-color-tertiary);
   text-decoration: none;
   transition: all 0.3s ease;
 }
 
 .footer-link:hover {
-  color: rgba(var(--n-text-color-rgb), 1);
+  color: var(--text-color);
   text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
 }
 
@@ -493,7 +494,7 @@ onMounted(() => {
   }
 
   .login-form-section {
-    background-color: rgba(255, 255, 255, 0.85);
+    background-color: var(--card-bg-color);
     backdrop-filter: blur(15px);
     min-height: 100vh;
     padding: 2rem 1.5rem;
@@ -506,8 +507,8 @@ onMounted(() => {
   .login-form-wrapper {
     padding: 2rem;
     border-radius: 20px;
-    background-color: rgba(255, 255, 255, 0.9);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    background-color: var(--card-bg-color);
+    box-shadow: var(--box-shadow);
   }
 }
 

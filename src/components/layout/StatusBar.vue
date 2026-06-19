@@ -4,6 +4,7 @@ import { NSpace, NText, NBadge, NTooltip } from 'naive-ui'
 import { useAppStore } from '@/stores/app'
 import { useUpdateViewModel } from '@/views/system/update.vm'
 import UpdateChecker from '@/components/UpdateChecker.vue'
+import ThemeToggle from '@/components/ThemeToggle.vue'
 import { http } from '@/utils/http'
 import type { SystemStatus } from '@/stores/app'
 const updateCheckerRef = ref<InstanceType<typeof UpdateChecker> | null>(null)
@@ -97,56 +98,60 @@ onUnmounted(() => {
     <update-checker ref="updateCheckerRef" />
 
     <!-- 桌面版布局 -->
-    <n-space align="center" :size="20" class="desktop-view">
-      <n-space align="center" :size="4">
-        <n-badge
-          dot
-          :type="
-            connecting ? 'warning' : appStore.systemStatus.status === 'normal' ? 'success' : 'error'
-          "
-        />
-        <n-text>
-          系统状态:
-          <span v-if="connecting">连接中...</span>
-          <span v-else>
-            {{ appStore.systemStatus.status === 'normal' ? '正常' : '异常' }}
-          </span>
-        </n-text>
+    <div class="desktop-view">
+      <n-space align="center" :size="20">
+        <n-space align="center" :size="4">
+          <n-badge
+            dot
+            :type="
+              connecting ? 'warning' : appStore.systemStatus.status === 'normal' ? 'success' : 'error'
+            "
+          />
+          <n-text>
+            系统状态:
+            <span v-if="connecting">连接中...</span>
+            <span v-else>
+              {{ appStore.systemStatus.status === 'normal' ? '正常' : '异常' }}
+            </span>
+          </n-text>
+        </n-space>
+
+        <n-space align="center" :size="4">
+          <n-badge dot :type="appStore.systemStatus.apiConnected ? 'success' : 'error'" />
+          <n-text>API: {{ appStore.systemStatus.apiConnected ? '已连接' : '未连接' }}</n-text>
+        </n-space>
+
+        <n-space align="center">
+          <n-text> WebUI 版本: {{ webUIVersion }} </n-text>
+          <n-text v-if="appStore.systemStatus.status === 'normal'">
+            后端版本: {{ appStore.systemStatus.version }}
+          </n-text>
+          <n-text
+            @click="updateCheckerRef!!.showUpdateModal = true"
+            v-if="
+              appStore.updateInfo?.backend_update_available ||
+              appStore.updateInfo?.webui_update_available
+            "
+            type="success"
+            class="version-text"
+            style="margin-left: 4px"
+          >
+            有更新
+          </n-text>
+        </n-space>
+
+        <n-space v-if="appStore.systemStatus.status === 'normal'">
+          <n-text>内存使用: {{ appStore.systemStatus.memoryUsage.used.toFixed(2) }} MB</n-text>
+          <n-text>CPU: {{ appStore.systemStatus.cpuUsage }}%</n-text>
+          <n-text>IM: {{ appStore.systemStatus.activeAdapters }}</n-text>
+          <n-text>LLM: {{ appStore.systemStatus.activeBackends }}</n-text>
+          <n-text>插件: {{ appStore.systemStatus.loadedPlugins }}</n-text>
+          <n-text>工作流: {{ appStore.systemStatus.workflowCount }}</n-text>
+        </n-space>
       </n-space>
 
-      <n-space align="center" :size="4">
-        <n-badge dot :type="appStore.systemStatus.apiConnected ? 'success' : 'error'" />
-        <n-text>API: {{ appStore.systemStatus.apiConnected ? '已连接' : '未连接' }}</n-text>
-      </n-space>
-
-      <n-space align="center">
-        <n-text> WebUI 版本: {{ webUIVersion }} </n-text>
-        <n-text v-if="appStore.systemStatus.status === 'normal'">
-          后端版本: {{ appStore.systemStatus.version }}
-        </n-text>
-        <n-text
-          @click="updateCheckerRef!!.showUpdateModal = true"
-          v-if="
-            appStore.updateInfo?.backend_update_available ||
-            appStore.updateInfo?.webui_update_available
-          "
-          type="success"
-          class="version-text"
-          style="margin-left: 4px"
-        >
-          有更新
-        </n-text>
-      </n-space>
-
-      <n-space v-if="appStore.systemStatus.status === 'normal'">
-        <n-text>内存使用: {{ appStore.systemStatus.memoryUsage.used.toFixed(2) }} MB</n-text>
-        <n-text>CPU: {{ appStore.systemStatus.cpuUsage }}%</n-text>
-        <n-text>IM: {{ appStore.systemStatus.activeAdapters }}</n-text>
-        <n-text>LLM: {{ appStore.systemStatus.activeBackends }}</n-text>
-        <n-text>插件: {{ appStore.systemStatus.loadedPlugins }}</n-text>
-        <n-text>工作流: {{ appStore.systemStatus.workflowCount }}</n-text>
-      </n-space>
-    </n-space>
+      <theme-toggle />
+    </div>
 
     <!-- 移动版布局 - 只显示关键信息 -->
     <div class="mobile-view">
@@ -171,6 +176,8 @@ onUnmounted(() => {
           </n-text>
         </n-space>
       </n-space>
+
+      <theme-toggle />
     </div>
   </div>
 </template>
@@ -180,6 +187,13 @@ onUnmounted(() => {
   height: 100%;
   display: flex;
   align-items: center;
+}
+
+.desktop-view {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
 }
 
 .version-text {
@@ -214,6 +228,9 @@ onUnmounted(() => {
 
   .mobile-view {
     display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
   }
 }
 </style>
