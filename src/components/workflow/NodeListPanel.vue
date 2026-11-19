@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { t } from '@/i18n'
 import { ref, computed } from 'vue'
 import {
   NCard,
@@ -47,7 +48,7 @@ const groupedBlockTypes = computed(() => {
   // 按 groupId 分组
   filteredTypes.forEach((blockType) => {
     // 从 type_name 中提取 groupId (通常是第一部分)
-    const groupId = blockType.type_name.split(':')[0] || '其他'
+    const groupId = blockType.type_name.split(':')[0] || t('其他')
     if (!groups[groupId]) {
       groups[groupId] = []
     }
@@ -78,10 +79,10 @@ const sortedGroupKeys = computed(() => {
 // 获取分组的显示名称
 const getGroupDisplayName = (groupId: string) => {
   const groupNameMap: Record<string, string> = {
-    internal: '内部组件',
-    system: '系统组件',
-    mcp: 'MCP组件',
-    game: '娱乐组件'
+    internal: t('内部组件'),
+    system: t('系统组件'),
+    mcp: t('MCP组件'),
+    game: t('娱乐组件')
   }
 
   return groupNameMap[groupId] || groupId
@@ -135,7 +136,7 @@ const onDrop = (event: DragEvent) => {
 
     addNodes([newNode])
   } catch (error) {
-    console.error('添加节点失败:', error)
+    console.error(t('添加节点失败:'), error)
   }
 }
 
@@ -166,11 +167,11 @@ const getShortId = (typeName: string) => {
       <NIcon size="18" class="header-icon">
         <AppsOutline />
       </NIcon>
-      <span class="header-title">节点列表</span>
+      <span class="header-title">{{$t("节点列表")}}</span>
     </div>
 
     <div class="search-container">
-      <NInput v-model:value="searchQuery" placeholder="搜索节点..." clearable class="search-input">
+      <NInput v-model:value="searchQuery" :placeholder="$t('搜索节点...')" clearable class="search-input">
         <template #prefix>
           <NIcon>
             <SearchOutline />
@@ -181,7 +182,7 @@ const getShortId = (typeName: string) => {
 
     <NScrollbar>
       <div v-if="Object.keys(groupedBlockTypes).length === 0" class="empty-state">
-        <NEmpty description="没有找到匹配的节点" />
+        <NEmpty :description="$t('没有找到匹配的节点')" />
       </div>
 
       <NCollapse
@@ -251,7 +252,7 @@ const getShortId = (typeName: string) => {
           <path d="M8 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0z"></path>
         </svg>
       </NIcon>
-      <span>拖拽节点到画布中</span>
+      <span>{{$t("拖拽节点到画布中")}}</span>
     </div>
   </div>
 </template>

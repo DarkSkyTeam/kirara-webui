@@ -1,3 +1,4 @@
+import { t } from '@/i18n'
 import { ref } from 'vue'
 import { http } from '@/utils/http'
 import { useMessage, useDialog } from 'naive-ui'
@@ -40,14 +41,14 @@ export function useSettingsViewModel() {
 
   // 预设的镜像源选项
   const pypiRegistryOptions: SelectOption[] = [
-    { label: 'PyPI 官方', value: 'https://pypi.org/simple' },
-    { label: '阿里云镜像', value: 'https://mirrors.aliyun.com/pypi/simple' },
-    { label: '清华镜像', value: 'https://pypi.tuna.tsinghua.edu.cn/simple' }
+    { label: t('PyPI 官方'), value: 'https://pypi.org/simple' },
+    { label: t('阿里云镜像'), value: 'https://mirrors.aliyun.com/pypi/simple' },
+    { label: t('清华镜像'), value: 'https://pypi.tuna.tsinghua.edu.cn/simple' }
   ]
 
   const npmRegistryOptions: SelectOption[] = [
-    { label: 'NPM 官方', value: 'https://registry.npmjs.org' },
-    { label: '淘宝镜像', value: 'https://registry.npmmirror.com' }
+    { label: t('NPM 官方'), value: 'https://registry.npmjs.org' },
+    { label: t('淘宝镜像'), value: 'https://registry.npmmirror.com' }
   ]
 
   // 处理错误信息
@@ -69,7 +70,7 @@ export function useSettingsViewModel() {
       const response = await http.get<SystemConfig>('/system/config')
       config.value = response
     } catch (error: any) {
-      handleError(error, '获取系统配置失败')
+      handleError(error, t('获取系统配置失败'))
     } finally {
       loading.value = false
     }
@@ -85,19 +86,19 @@ export function useSettingsViewModel() {
       )
       if (response.restart_required) {
         dialog.warning({
-          title: '需要重启',
-          content: '修改Web配置需要重启服务才能生效，是否继续？',
-          positiveText: '确定',
-          negativeText: '取消',
+          title: t('需要重启'),
+          content: t('修改Web配置需要重启服务才能生效，是否继续？'),
+          positiveText: t('确定'),
+          negativeText: t('取消'),
           onPositiveClick: async () => {
-            message.success('保存配置成功')
+            message.success(t('保存配置成功'))
             // 调用重启接口
             await http.post('/system/restart')
           }
         })
       }
     } catch (error: any) {
-      handleError(error, '保存Web配置失败')
+      handleError(error, t('保存Web配置失败'))
     } finally {
       loading.value = false
     }
@@ -108,9 +109,9 @@ export function useSettingsViewModel() {
     loading.value = true
     try {
       await http.post('/system/config/plugins', config.value.plugins)
-      message.success('保存插件配置成功')
+      message.success(t('保存插件配置成功'))
     } catch (error: any) {
-      handleError(error, '保存插件配置失败')
+      handleError(error, t('保存插件配置失败'))
     } finally {
       loading.value = false
     }
@@ -121,9 +122,9 @@ export function useSettingsViewModel() {
     loading.value = true
     try {
       await http.post('/system/config/update', config.value.update)
-      message.success('保存更新源配置成功')
+      message.success(t('保存更新源配置成功'))
     } catch (error: any) {
-      handleError(error, '保存更新源配置失败')
+      handleError(error, t('保存更新源配置失败'))
     } finally {
       loading.value = false
     }

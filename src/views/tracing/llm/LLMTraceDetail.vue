@@ -1,7 +1,7 @@
 <!-- LLM 追踪详情组件 -->
 <template>
   <div class="trace-detail">
-    <n-card title="LLM 请求详情" class="detail-card">
+    <n-card :title="$t('LLM 请求详情')" class="detail-card">
       <!-- 顶部操作栏 -->
       <template #header-extra>
         <n-space align="center" :size="12">
@@ -9,13 +9,13 @@
             <template #icon>
               <n-icon><arrow-back-outline /></n-icon>
             </template>
-            返回列表
+            {{$t("返回列表")}}
           </n-button>
           <n-button type="primary" @click="refreshData" :loading="isLoading" class="action-button">
             <template #icon>
               <n-icon><refresh-outline /></n-icon>
             </template>
-            刷新
+            {{$t("刷新")}}
           </n-button>
         </n-space>
       </template>
@@ -25,8 +25,8 @@
         <n-result
           v-if="!traceDetail && !isLoading"
           status="404"
-          title="未找到记录"
-          description="请求的记录不存在或已被删除"
+          :title="$t('未找到记录')"
+          :description="$t('请求的记录不存在或已被删除')"
           class="not-found"
         >
         </n-result>
@@ -34,26 +34,26 @@
         <template v-else>
           <!-- 基本信息 -->
           <div class="section">
-            <n-card title="基本信息" class="info-card">
+            <n-card :title="$t('基本信息')" class="info-card">
               <n-descriptions :column="3" bordered>
-                <n-descriptions-item label="追踪ID">
+                <n-descriptions-item :label="$t('追踪ID')">
                   <n-text code class="trace-id">{{ traceDetail?.trace_id }}</n-text>
                 </n-descriptions-item>
-                <n-descriptions-item label="请求时间">
+                <n-descriptions-item :label="$t('请求时间')">
                   {{ formatDate(traceDetail?.request_time) }}
                 </n-descriptions-item>
-                <n-descriptions-item label="响应时间">
+                <n-descriptions-item :label="$t('响应时间')">
                   {{ formatDate(traceDetail?.response_time) }}
                 </n-descriptions-item>
-                <n-descriptions-item label="耗时">
+                <n-descriptions-item :label="$t('耗时')">
                   {{ formatDuration(traceDetail?.duration) }}
                 </n-descriptions-item>
-                <n-descriptions-item label="状态">
+                <n-descriptions-item :label="$t('状态')">
                   <n-tag :type="getStatusType(traceDetail?.status)" size="small" class="status-tag">
                     {{ getStatusText(traceDetail?.status) }}
                   </n-tag>
                 </n-descriptions-item>
-                <n-descriptions-item v-if="traceDetail?.error" label="错误信息">
+                <n-descriptions-item v-if="traceDetail?.error" :label="$t('错误信息')">
                   <n-text type="error" class="error-text">{{ traceDetail.error }}</n-text>
                 </n-descriptions-item>
               </n-descriptions>
@@ -62,28 +62,28 @@
 
           <!-- LLM信息 -->
           <div class="section">
-            <n-card title="LLM信息" class="info-card">
+            <n-card :title="$t('LLM信息')" class="info-card">
               <n-descriptions :column="3" bordered>
-                <n-descriptions-item label="模型">
+                <n-descriptions-item :label="$t('模型')">
                   <n-tag type="primary" size="small" class="model-tag">
                     {{ (traceDetail as any)?.model_id }}
                   </n-tag>
                 </n-descriptions-item>
-                <n-descriptions-item label="后端">
+                <n-descriptions-item :label="$t('后端')">
                   <n-tag type="info" size="small" class="backend-tag">
                     {{ (traceDetail as any)?.backend_name }}
                   </n-tag>
                 </n-descriptions-item>
-                <n-descriptions-item label="总Token">
+                <n-descriptions-item :label="$t('总Token')">
                   {{ formatTokens((traceDetail as any)?.total_tokens) }}
                 </n-descriptions-item>
-                <n-descriptions-item label="提示Token">
+                <n-descriptions-item :label="$t('提示Token')">
                   {{ formatTokens((traceDetail as any)?.prompt_tokens) }}
                 </n-descriptions-item>
-                <n-descriptions-item label="补全Token">
+                <n-descriptions-item :label="$t('补全Token')">
                   {{ formatTokens((traceDetail as any)?.completion_tokens) }}
                 </n-descriptions-item>
-                <n-descriptions-item label="缓存Token">
+                <n-descriptions-item :label="$t('缓存Token')">
                   {{ formatTokens((traceDetail as any)?.cached_tokens) }}
                 </n-descriptions-item>
               </n-descriptions>
@@ -92,7 +92,7 @@
 
           <!-- 请求内容 -->
           <div class="section">
-            <n-card title="请求内容" class="content-card">
+            <n-card :title="$t('请求内容')" class="content-card">
               <div class="content-actions">
                 <n-space>
                   <n-button
@@ -103,7 +103,7 @@
                     <template #icon>
                       <n-icon><copy-outline /></n-icon>
                     </template>
-                    复制
+                    {{$t("复制")}}
                   </n-button>
                   <n-button size="small" @click="toggleRequestExpand" class="expand-button">
                     <template #icon>
@@ -112,7 +112,7 @@
                         <expand-outline v-else />
                       </n-icon>
                     </template>
-                    {{ isRequestExpanded ? '收起' : '展开' }}
+                    {{ isRequestExpanded ? $t('收起') : $t('展开') }}
                   </n-button>
                 </n-space>
               </div>
@@ -131,7 +131,7 @@
 
           <!-- 响应内容 -->
           <div class="section">
-            <n-card title="响应内容" class="content-card">
+            <n-card :title="$t('响应内容')" class="content-card">
               <div class="content-actions">
                 <n-space>
                   <n-button
@@ -142,7 +142,7 @@
                     <template #icon>
                       <n-icon><copy-outline /></n-icon>
                     </template>
-                    复制
+                    {{$t("复制")}}
                   </n-button>
                   <n-button size="small" @click="toggleResponseExpand" class="expand-button">
                     <template #icon>
@@ -151,7 +151,7 @@
                         <expand-outline v-else />
                       </n-icon>
                     </template>
-                    {{ isResponseExpanded ? '收起' : '展开' }}
+                    {{ isResponseExpanded ? $t('收起') : $t('展开') }}
                   </n-button>
                 </n-space>
               </div>
@@ -174,6 +174,7 @@
 </template>
 
 <script setup lang="ts">
+import { t } from '@/i18n'
 import { onMounted, onUnmounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import {
@@ -233,10 +234,10 @@ const copyToClipboard = (text: string) => {
     .writeText(text)
     .then(() => {
       // 可以添加一个成功提示
-      console.log('内容已复制到剪贴板')
+      console.log(t('内容已复制到剪贴板'))
     })
     .catch((err) => {
-      console.error('复制失败:', err)
+      console.error(t('复制失败:'), err)
     })
 }
 
@@ -262,11 +263,11 @@ const getStatusType = (status: string | undefined) => {
 // 获取状态文本
 const getStatusText = (status: string | undefined) => {
   const statusMap = {
-    pending: '请求中',
-    success: '成功',
-    failed: '失败'
+    pending: t('请求中'),
+    success: t('成功'),
+    failed: t('失败')
   }
-  return statusMap[status || 'pending'] || '请求中'
+  return statusMap[status || 'pending'] || t('请求中')
 }
 
 // 刷新数据

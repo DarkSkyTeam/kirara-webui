@@ -1,3 +1,4 @@
+import { t } from '@/i18n'
 /**
  * 格式化大数字为紧凑表示形式 (例如 1.2k, 3.4M).
  * 使用 Intl.NumberFormat 以获得更好的本地化和准确性。
@@ -30,7 +31,7 @@ export const formatLargeNumber = (
   try {
     return new Intl.NumberFormat('en-US', defaultOptions).format(numericValue)
   } catch (error) {
-    console.error('格式化数字时出错:', error)
+    console.error(t('格式化数字时出错:'), error)
     // 发生错误时回退到简单的字符串转换
     return numericValue.toString()
   }

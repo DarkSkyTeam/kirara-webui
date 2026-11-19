@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { t } from '@/i18n'
 import { computed, h } from 'vue'
 import { NMenu } from 'naive-ui'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
@@ -29,32 +30,32 @@ function renderIcon(icon: any) {
 
 const menuOptions: MenuOption[] = [
   {
-    label: () => '快速开始',
+    label: () => t('快速开始'),
     key: 'guide',
     icon: renderIcon(HomeOutline)
   },
   {
-    label: () => '控制台',
+    label: () => t('控制台'),
     key: 'console',
     icon: renderIcon(TerminalOutline)
   },
   {
-    label: () => '系统记录',
+    label: () => t('系统记录'),
     key: 'tracing',
     icon: renderIcon(AnalyticsOutline)
   },
   {
-    label: () => '聊天平台管理',
+    label: () => t('聊天平台管理'),
     key: 'im',
     icon: renderIcon(ChatboxOutline)
   },
   {
-    label: () => '模型管理',
+    label: () => t('模型管理'),
     key: 'llm',
     icon: renderIcon(ServerOutline)
   },
   {
-    label: () => '工作流',
+    label: () => t('工作流'),
     key: 'workflow',
     icon: renderIcon(GitNetworkOutline)
   },
@@ -64,17 +65,17 @@ const menuOptions: MenuOption[] = [
     icon: renderIcon(IconMCP)
   },
   {
-    label: () => '媒体管理',
+    label: () => t('媒体管理'),
     key: 'media',
     icon: renderIcon(ImageOutline)
   },
   {
-    label: () => '插件管理',
+    label: () => t('插件管理'),
     key: 'plugins',
     icon: renderIcon(ExtensionPuzzleOutline)
   },
   {
-    label: () => '系统设置',
+    label: () => t('系统设置'),
     key: 'settings',
     icon: renderIcon(SettingsOutline)
   }

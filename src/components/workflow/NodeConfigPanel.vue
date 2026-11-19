@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { t } from '@/i18n'
 import { ref, computed, watch } from 'vue'
 import {
   NCard,
@@ -371,7 +372,7 @@ const getSelectOptions = (config: any) => {
   })
 
   if (!isListType(config.type) && !config.required) {
-    options.unshift({ label: '不指定', value: null })
+    options.unshift({ label: t('不指定'), value: null })
   }
   return options
 }
@@ -389,11 +390,11 @@ const getTypeOptions = () => {
   const typeCompatibility = props.typeCompatibility || {}
   const typeOptions: { label: string; value: string }[] = []
   const predefinedTypes = [
-    { label: '字符串(str)', value: 'str' },
-    { label: '整数(int)', value: 'int' },
-    { label: '浮点数(float)', value: 'float' },
-    { label: '布尔值(bool)', value: 'bool' },
-    { label: '任意类型(Any)', value: 'Any' }
+    { label: t('字符串(str)'), value: 'str' },
+    { label: t('整数(int)'), value: 'int' },
+    { label: t('浮点数(float)'), value: 'float' },
+    { label: t('布尔值(bool)'), value: 'bool' },
+    { label: t('任意类型(Any)'), value: 'Any' }
   ]
   predefinedTypes.forEach((type) => typeOptions.push(type))
 
@@ -409,7 +410,7 @@ const getTypeOptions = () => {
 
 <template>
   <NCard
-    title="节点配置"
+    :title="$t('节点配置')"
     size="small"
     class="node-config-panel"
     :bordered="false"
@@ -420,7 +421,7 @@ const getTypeOptions = () => {
         <NIcon size="18" class="header-icon">
           <SettingsOutline />
         </NIcon>
-        <span class="header-title">节点配置</span>
+        <span class="header-title">{{$t("节点配置")}}</span>
       </div>
     </template>
 
@@ -445,13 +446,13 @@ const getTypeOptions = () => {
         </div>
 
         <div class="node-id-section">
-          <div class="node-id-label">节点 ID:</div>
+          <div class="node-id-label">{{$t("节点 ID:")}}</div>
           <NText code class="node-id-value">{{ formValue.id }}</NText>
         </div>
 
         <NCollapse arrow-placement="right" :default-expanded-names="[1, 2, 4]">
           <!-- 输入连接折叠面板 -->
-          <NCollapseItem title="输入连接" name="1">
+          <NCollapseItem :title="$t('输入连接')" name="1">
             <!-- 统一的输入端口列表 -->
             <div v-if="selectedNode">
               <div
@@ -467,8 +468,8 @@ const getTypeOptions = () => {
                     input.name
                   }}</span>
                   <span class="connection-type-badge">{{ input.type }}</span>
-                  <span v-if="input.required" class="required-badge">必需</span>
-                  <span v-else class="optional-badge">可选</span>
+                  <span v-if="input.required" class="required-badge">{{$t("必需")}}</span>
+                  <span v-else class="optional-badge">{{$t("可选")}}</span>
 
                   <!-- 代码节点显示删除按钮 -->
                   <NButton
@@ -526,7 +527,7 @@ const getTypeOptions = () => {
                   <NIcon class="empty-icon" size="16">
                     <RemoveOutline />
                   </NIcon>
-                  <span>未连接</span>
+                  <span>{{$t("未连接")}}</span>
                 </div>
               </div>
               <div class="port-management">
@@ -542,7 +543,7 @@ const getTypeOptions = () => {
                         <AddOutline />
                       </NIcon>
                     </template>
-                    {{ '添加输入' }}
+                    {{ $t('添加输入') }}
                   </NButton>
                 </div>
 
@@ -551,13 +552,13 @@ const getTypeOptions = () => {
                   <div class="inline-form-row">
                     <NInput
                       v-model:value="newInputData.name"
-                      placeholder="输入参数名（英文）"
+                      :placeholder="$t('输入参数名（英文）')"
                       size="small"
                       class="inline-form-input"
                     />
                     <NInput
                       v-model:value="newInputData.label"
-                      placeholder="显示名称（可选）"
+                      :placeholder="$t('显示名称（可选）')"
                       size="small"
                       class="inline-form-input"
                     />
@@ -570,7 +571,7 @@ const getTypeOptions = () => {
                       :options="getTypeOptions()"
                     />
                     <div class="required-switch-container">
-                      <span class="switch-label">必需</span>
+                      <span class="switch-label">{{$t("必需")}}</span>
                       <NSwitch v-model:value="newInputData.required" size="small" />
                     </div>
                   </div>
@@ -582,10 +583,10 @@ const getTypeOptions = () => {
                       :disabled="!newInputData.name"
                       class="inline-form-button"
                     >
-                      添加
+                      {{$t("添加")}}
                     </NButton>
                     <NButton size="small" @click="inputEditMode = false" class="inline-form-button">
-                      取消
+                      {{$t("取消")}}
                     </NButton>
                   </NSpace>
                 </div>
@@ -596,7 +597,7 @@ const getTypeOptions = () => {
                   (!selectedNode.data.blockType.inputs ||
                     selectedNode.data.blockType.inputs.length === 0)
                 "
-                description="无输入端口"
+                :description="$t('无输入端口')"
                 class="empty-ports"
               >
                 <template #icon>
@@ -609,7 +610,7 @@ const getTypeOptions = () => {
           </NCollapseItem>
 
           <!-- 输出连接折叠面板 -->
-          <NCollapseItem title="输出连接" name="2">
+          <NCollapseItem :title="$t('输出连接')" name="2">
             <div v-if="selectedNode">
               <div
                 v-for="output in selectedNode.type === 'code'
@@ -681,7 +682,7 @@ const getTypeOptions = () => {
                   <NIcon class="empty-icon" size="16">
                     <RemoveOutline />
                   </NIcon>
-                  <span>未连接</span>
+                  <span>{{$t("未连接")}}</span>
                 </div>
               </div>
 
@@ -698,7 +699,7 @@ const getTypeOptions = () => {
                         <AddOutline />
                       </NIcon>
                     </template>
-                    {{ '添加输出' }}
+                    {{ $t('添加输出') }}
                   </NButton>
                 </div>
 
@@ -707,13 +708,13 @@ const getTypeOptions = () => {
                   <div class="inline-form-row">
                     <NInput
                       v-model:value="newOutputData.name"
-                      placeholder="输出参数名（英文）"
+                      :placeholder="$t('输出参数名（英文）')"
                       size="small"
                       class="inline-form-input"
                     />
                     <NInput
                       v-model:value="newOutputData.label"
-                      placeholder="显示名称（可选）"
+                      :placeholder="$t('显示名称（可选）')"
                       size="small"
                       class="inline-form-input"
                     />
@@ -734,14 +735,14 @@ const getTypeOptions = () => {
                       :disabled="!newOutputData.name"
                       class="inline-form-button"
                     >
-                      添加
+                      {{$t("添加")}}
                     </NButton>
                     <NButton
                       size="small"
                       @click="outputEditMode = false"
                       class="inline-form-button"
                     >
-                      取消
+                      {{$t("取消")}}
                     </NButton>
                   </NSpace>
                 </div>
@@ -753,7 +754,7 @@ const getTypeOptions = () => {
                   (!selectedNode.data.blockType.outputs ||
                     selectedNode.data.blockType.outputs.length === 0)
                 "
-                description="无输出端口"
+                :description="$t('无输出端口')"
                 class="empty-ports"
               >
                 <template #icon>
@@ -772,7 +773,7 @@ const getTypeOptions = () => {
               selectedNode.data.blockType.configs.length > 0 &&
               !isCodeNode
             "
-            title="参数配置"
+            :title="$t('参数配置')"
             name="3"
           >
             <div
@@ -789,7 +790,7 @@ const getTypeOptions = () => {
               <NInput
                 v-if="config.type === 'str' && !config.has_options"
                 v-model:value="formValue[config.name]"
-                :placeholder="`请输入${config.label || config.name}`"
+                :placeholder="$t('请输入{0}', [config.label || config.name])"
                 type="textarea"
                 class="custom-input"
                 @update:value="applyNodeConfig"
@@ -800,7 +801,7 @@ const getTypeOptions = () => {
                 v-else-if="config.has_options && !isListType(config.type)"
                 v-model:value="formValue[config.name]"
                 :options="getSelectOptions(config)"
-                :placeholder="`请选择${config.label || config.name}`"
+                :placeholder="$t('请选择{0}', [config.label || config.name])"
                 class="custom-select"
                 @update:value="applyNodeConfig"
               />
@@ -810,7 +811,7 @@ const getTypeOptions = () => {
                 v-else-if="config.has_options && isListType(config.type)"
                 v-model:value="formValue[config.name]"
                 :options="getSelectOptions(config)"
-                :placeholder="`请选择${config.label || config.name}`"
+                :placeholder="$t('请选择{0}', [config.label || config.name])"
                 multiple
                 class="custom-select"
                 @update:value="applyNodeConfig"
@@ -829,7 +830,7 @@ const getTypeOptions = () => {
                 v-else-if="config.type === 'int' || config.type === 'float'"
                 v-model:value="formValue[config.name]"
                 :precision="config.type === 'float' ? 2 : 0"
-                :placeholder="`请输入${config.label || config.name}`"
+                :placeholder="$t('请输入{0}', [config.label || config.name])"
                 class="custom-input-number"
                 @update:value="applyNodeConfig"
               />
@@ -837,7 +838,7 @@ const getTypeOptions = () => {
           </NCollapseItem>
 
           <!-- 正常模式下的代码编辑器 -->
-          <NCollapseItem v-if="isCodeNode && !isEditorFullscreen" title="代码编辑器" name="4">
+          <NCollapseItem v-if="isCodeNode && !isEditorFullscreen" :title="$t('代码编辑器')" name="4">
             <div class="code-editor-section">
               <div class="code-editor-container">
                 <div class="code-editor-header">
@@ -852,7 +853,7 @@ const getTypeOptions = () => {
                           <ExpandOutline />
                         </NIcon>
                       </template>
-                      全屏编辑
+                      {{$t("全屏编辑")}}
                     </NButton>
                   </NSpace>
                 </div>
@@ -880,7 +881,7 @@ const getTypeOptions = () => {
                   <NIcon size="18">
                     <CodeOutline />
                   </NIcon>
-                  <span>代码编辑器</span>
+                  <span>{{$t("代码编辑器")}}</span>
                 </div>
                 <NSpace>
                   <NButton
@@ -893,7 +894,7 @@ const getTypeOptions = () => {
                         <CloseOutline />
                       </NIcon>
                     </template>
-                    退出全屏
+                    {{$t("退出全屏")}}
                   </NButton>
                 </NSpace>
               </div>
@@ -917,7 +918,7 @@ const getTypeOptions = () => {
         </NCollapse>
       </div>
 
-      <NEmpty v-else description="请选择一个节点进行配置" class="empty-config">
+      <NEmpty v-else :description="$t('请选择一个节点进行配置')" class="empty-config">
         <template #icon>
           <NIcon size="48" class="empty-icon">
             <svg

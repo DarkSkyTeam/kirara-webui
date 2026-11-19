@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { t } from '@/i18n'
 import { imApi } from '@/api/im'
 import type { IMAdapter, IMAdapterInfo } from '@/api/im'
 import { ref, onMounted, h } from 'vue'
@@ -34,8 +35,8 @@ const fetchAdapterTypes = async () => {
     adapterTypes.value = types
     adapterInfos.value = adapters ?? {}
   } catch (error) {
-    message.error('获取适配器类型失败: ' + error)
-    console.error('获取适配器类型失败:', error)
+    message.error(t('获取适配器类型失败: ') + error)
+    console.error(t('获取适配器类型失败:'), error)
   }
 }
 
@@ -45,8 +46,8 @@ const fetchAdapters = async () => {
     const response = await imApi.getAdapters()
     adapters.value = response.adapters || []
   } catch (error) {
-    message.error('获取适配器列表失败: ' + error)
-    console.error('获取适配器列表失败:', error)
+    message.error(t('获取适配器列表失败: ') + error)
+    console.error(t('获取适配器列表失败:'), error)
   }
 }
 
@@ -69,16 +70,16 @@ onMounted(() => {
 
 <template>
   <div class="im-view">
-    <n-card title="聊天平台管理" class="im-card">
+    <n-card :title="$t('聊天平台管理')" class="im-card">
       <template #header-extra>
-        <n-button type="primary" @click="fetchAdapterTypes" class="refresh-button"> 刷新 </n-button>
+        <n-button type="primary" @click="fetchAdapterTypes" class="refresh-button"> {{$t("刷新")}} </n-button>
       </template>
 
       <div class="im-view-description">
-        在这里配置 Kirara AI 与聊天平台的连接方式，更多介绍请阅读<a
+        {{$t("在这里配置 Kirara AI 与聊天平台的连接方式，更多介绍请阅读")}}<a
           href="https://kirara-docs.app.lss233.com/guide/configuration/im.html"
           target="_blank"
-          >官方文档</a
+          >{{$t("官方文档")}}</a
         >。
       </div>
 
@@ -105,7 +106,7 @@ onMounted(() => {
                     size="small"
                     round
                   >
-                    {{ isAdapterConfigured(type) ? '已配置' : '未配置' }}
+                    {{ isAdapterConfigured(type) ? $t('已配置') : $t('未配置') }}
                   </n-tag>
                 </div>
               </template>

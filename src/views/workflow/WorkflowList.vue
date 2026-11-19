@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { t } from '@/i18n'
 import { ref, onMounted, h, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import {
@@ -71,7 +72,7 @@ const columns: DataTableColumns<Workflow> = [
     }
   },
   {
-    title: '名称',
+    title: t('名称'),
     key: 'name',
     width: 200,
     render(row) {
@@ -82,14 +83,14 @@ const columns: DataTableColumns<Workflow> = [
     }
   },
   {
-    title: '描述',
+    title: t('描述'),
     key: 'description',
     ellipsis: {
       tooltip: true
     }
   },
   {
-    title: '区块数量',
+    title: t('区块数量'),
     key: 'block_count',
     width: 100,
     render(row) {
@@ -107,7 +108,7 @@ const columns: DataTableColumns<Workflow> = [
     }
   },
   {
-    title: '操作',
+    title: t('操作'),
     key: 'actions',
     width: 220,
     render(row) {
@@ -124,7 +125,7 @@ const columns: DataTableColumns<Workflow> = [
             },
             {
               icon: () => h(NIcon, null, { default: () => h(CreateOutline) }),
-              default: () => '编辑'
+              default: () => t('编辑')
             }
           ),
           h(
@@ -137,7 +138,7 @@ const columns: DataTableColumns<Workflow> = [
             },
             {
               icon: () => h(NIcon, null, { default: () => h(CopyOutline) }),
-              default: () => '复制'
+              default: () => t('复制')
             }
           ),
           h(
@@ -158,10 +159,10 @@ const columns: DataTableColumns<Workflow> = [
                   },
                   {
                     icon: () => h(NIcon, null, { default: () => h(TrashOutline) }),
-                    default: () => '删除'
+                    default: () => t('删除')
                   }
                 ),
-              default: () => '确认删除该工作流？'
+              default: () => t('确认删除该工作流？')
             }
           )
         ]
@@ -176,7 +177,7 @@ const fetchWorkflows = async () => {
     const { workflows: data } = await listWorkflows()
     workflows.value = data
   } catch (error) {
-    message.error('获取工作流列表失败')
+    message.error(t('获取工作流列表失败'))
   } finally {
     loading.value = false
   }
@@ -197,10 +198,10 @@ const handleDelete = async (row: Workflow) => {
   deleting.value = id
   try {
     await deleteWorkflow(row.group_id, row.workflow_id)
-    message.success('删除成功')
+    message.success(t('删除成功'))
     await fetchWorkflows()
   } catch (error) {
-    message.error('删除失败')
+    message.error(t('删除失败'))
   } finally {
     deleting.value = ''
   }
@@ -238,11 +239,11 @@ const confirmCopy = async () => {
       wires: originalWorkflow.wires
     })
 
-    message.success('复制成功')
+    message.success(t('复制成功'))
     showCopyModal.value = false
     fetchWorkflows()
   } catch (error: any) {
-    message.error(`复制失败: ${error.message || '未知错误'}`)
+    message.error(t("复制失败: {0}", [error.message || t('未知错误')]))
   } finally {
     copyLoading.value = false
   }
@@ -268,7 +269,7 @@ onMounted(() => {
 
 <template>
   <div class="workflow-list">
-    <n-card title="工作流管理" class="workflow-card">
+    <n-card :title="$t('工作流管理')" class="workflow-card">
       <template #header-extra>
         <n-button type="primary" @click="handleCreate" class="create-button">
           <template #icon>
@@ -276,7 +277,7 @@ onMounted(() => {
               <AddOutline />
             </n-icon>
           </template>
-          创建工作流
+          {{$t("创建工作流")}}
         </n-button>
       </template>
 
@@ -284,10 +285,10 @@ onMounted(() => {
         <n-skeleton text :repeat="3" />
       </div>
 
-      <n-empty v-else-if="displayWorkflows.length === 0" description="暂无工作流">
+      <n-empty v-else-if="displayWorkflows.length === 0" :description="$t('暂无工作流')">
         <template #extra>
           <n-button type="primary" @click="handleCreate" class="create-button">
-            创建工作流
+            {{$t("创建工作流")}}
           </n-button>
         </template>
       </n-empty>
@@ -306,21 +307,21 @@ onMounted(() => {
     </n-card>
 
     <!-- 复制工作流对话框 -->
-    <n-modal v-model:show="showCopyModal" preset="dialog" title="复制工作流">
+    <n-modal v-model:show="showCopyModal" preset="dialog" :title="$t('复制工作流')">
       <WorkflowForm
         ref="copyFormRef"
         :initial-data="{
           workflowId: currentWorkflow
             ? `${currentWorkflow.group_id}:${currentWorkflow.workflow_id}_copy`
             : '',
-          name: currentWorkflow ? `${currentWorkflow.name} (复制)` : '',
+          name: currentWorkflow ? $t('{0} (复制)', [currentWorkflow.name]) : '',
           description: currentWorkflow?.description || ''
         }"
       />
 
       <template #action>
-        <n-button @click="cancelCopy">取消</n-button>
-        <n-button type="primary" :loading="copyLoading" @click="confirmCopy"> 确认复制 </n-button>
+        <n-button @click="cancelCopy">{{$t("取消")}}</n-button>
+        <n-button type="primary" :loading="copyLoading" @click="confirmCopy"> {{$t("确认复制")}} </n-button>
       </template>
     </n-modal>
   </div>

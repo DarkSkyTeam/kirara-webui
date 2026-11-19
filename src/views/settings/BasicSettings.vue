@@ -8,11 +8,12 @@ import PasswordCard from './components/PasswordCard.vue'
 import FrpServiceCard from './components/FrpServiceCard.vue'
 import TimezoneCard from './components/TimezoneCard.vue'
 import TracingCard from './components/TracingCard.vue'
+import LanguageCard from './components/LanguageCard.vue'
 </script>
 
 <template>
   <div class="settings-page">
-    <n-card title="系统设置" class="settings-card">
+    <n-card :title="$t('系统设置')" class="settings-card">
       <n-tabs
         type="line"
         animated
@@ -20,7 +21,7 @@ import TracingCard from './components/TracingCard.vue'
         pane-wrapper-style="margin: 0 -4px"
         pane-style="padding-left: 4px; padding-right: 4px; box-sizing: border-box;"
       >
-        <n-tab-pane name="webservice" tab="Web服务">
+        <n-tab-pane name="webservice" :tab="$t('Web服务')">
           <n-space vertical :gap="32">
             <WebServiceCard />
             <PasswordCard />
@@ -28,14 +29,15 @@ import TracingCard from './components/TracingCard.vue'
           </n-space>
         </n-tab-pane>
 
-        <n-tab-pane name="system" tab="系统设置">
+        <n-tab-pane name="system" :tab="$t('系统设置')">
           <n-space vertical :gap="32">
+            <LanguageCard />
             <TimezoneCard />
             <TracingCard />
           </n-space>
         </n-tab-pane>
 
-        <n-tab-pane name="update" tab="下载源">
+        <n-tab-pane name="update" :tab="$t('下载源')">
           <n-space vertical :gap="32">
             <UpdateRegistryCard />
             <PluginMarketCard />

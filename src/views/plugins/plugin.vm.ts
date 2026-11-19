@@ -1,3 +1,4 @@
+import { t } from '@/i18n'
 import { ref } from 'vue'
 import { http } from '@/utils/http'
 import { useMessage } from 'naive-ui'
@@ -52,7 +53,7 @@ export function usePluginViewModel() {
       const { plugins: pluginList } = await http.get<{ plugins: PluginInfo[] }>('/plugin/plugins')
       plugins.value = pluginList
     } catch (error: any) {
-      handleError(error, '获取插件列表失败')
+      handleError(error, t('获取插件列表失败'))
     } finally {
       loading.value = false
     }
@@ -61,7 +62,7 @@ export function usePluginViewModel() {
   // 安装插件
   const installPlugin = async () => {
     if (!installForm.value.package_name.trim()) {
-      message.warning('请输入插件包名')
+      message.warning(t('请输入插件包名'))
       return
     }
 
@@ -70,9 +71,9 @@ export function usePluginViewModel() {
       await http.post('/plugin/plugins', installForm.value)
       showInstallModal.value = false
       await fetchPlugins()
-      message.success('插件安装成功')
+      message.success(t('插件安装成功'))
     } catch (error: any) {
-      handleError(error, '安装插件失败')
+      handleError(error, t('安装插件失败'))
     } finally {
       loading.value = false
     }
@@ -81,7 +82,7 @@ export function usePluginViewModel() {
   // 卸载插件
   const uninstallPlugin = async (plugin: PluginInfo) => {
     if (plugin.is_internal) {
-      message.warning('内部插件不能卸载')
+      message.warning(t('内部插件不能卸载'))
       return
     }
 
@@ -89,9 +90,9 @@ export function usePluginViewModel() {
     try {
       await http.delete(`/plugin/plugins/${plugin.name}`)
       await fetchPlugins()
-      message.success('插件卸载成功')
+      message.success(t('插件卸载成功'))
     } catch (error: any) {
-      handleError(error, '卸载插件失败')
+      handleError(error, t('卸载插件失败'))
     } finally {
       loading.value = false
     }
@@ -100,7 +101,7 @@ export function usePluginViewModel() {
   // 启用/禁用插件
   const togglePluginStatus = async (plugin: PluginInfo) => {
     if (plugin.is_internal) {
-      message.warning('内部插件不能被禁用')
+      message.warning(t('内部插件不能被禁用'))
       return
     }
 
@@ -109,9 +110,9 @@ export function usePluginViewModel() {
       const action = plugin.is_enabled ? 'disable' : 'enable'
       await http.post(`/plugin/plugins/${plugin.name}/${action}`)
       await fetchPlugins()
-      message.success(`插件${plugin.is_enabled ? '禁用' : '启用'}成功`)
+      message.success(plugin.is_enabled ? t('插件禁用成功') : t('插件启用成功'))
     } catch (error: any) {
-      handleError(error, '切换插件状态失败')
+      handleError(error, t('切换插件状态失败'))
     } finally {
       loading.value = false
     }
@@ -120,7 +121,7 @@ export function usePluginViewModel() {
   // 更新插件
   const updatePlugin = async (plugin: PluginInfo) => {
     if (plugin.is_internal) {
-      message.warning('内部插件不支持更新')
+      message.warning(t('内部插件不支持更新'))
       return
     }
 
@@ -128,9 +129,9 @@ export function usePluginViewModel() {
     try {
       await http.put(`/plugin/plugins/${plugin.name}`)
       await fetchPlugins()
-      message.success('插件更新成功')
+      message.success(t('插件更新成功'))
     } catch (error: any) {
-      handleError(error, '更新插件失败')
+      handleError(error, t('更新插件失败'))
     } finally {
       loading.value = false
     }

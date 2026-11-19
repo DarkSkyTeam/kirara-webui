@@ -91,11 +91,11 @@ onMounted(() => {
 <template>
   <div class="model-form-container">
     <n-form :model="currentModel" label-placement="left" label-width="120">
-      <n-form-item label="模型ID" path="id" required>
-        <n-input v-model:value="currentModel.id" placeholder="请输入模型ID" />
+      <n-form-item :label="$t('模型ID')" path="id" required>
+        <n-input v-model:value="currentModel.id" :placeholder="$t('请输入模型ID')" />
       </n-form-item>
 
-      <n-form-item label="模型类型" path="type" required>
+      <n-form-item :label="$t('模型类型')" path="type" required>
         <n-space>
           <n-tooltip trigger="hover" placement="top">
             <template #trigger>
@@ -103,10 +103,10 @@ onMounted(() => {
                 :type="currentModel.type === 'llm' ? 'primary' : 'default'"
                 @click="currentModel.type = 'llm'"
               >
-                语言模型(LLM)
+                {{$t("语言模型(LLM)")}}
               </n-button>
             </template>
-            语言模型用于生成文本和对话
+            {{$t("语言模型用于生成文本和对话")}}
           </n-tooltip>
           <n-tooltip trigger="hover" placement="top">
             <template #trigger>
@@ -114,10 +114,10 @@ onMounted(() => {
                 :type="currentModel.type === 'embedding' ? 'primary' : 'default'"
                 @click="currentModel.type = 'embedding'"
               >
-                嵌入模型(Embedding)
+                {{$t("嵌入模型(Embedding)")}}
               </n-button>
             </template>
-            嵌入模型用于文本向量化，通常用于向量数据库的构建和召回
+            {{$t("嵌入模型用于文本向量化，通常用于向量数据库的构建和召回")}}
           </n-tooltip>
           <n-tooltip trigger="hover" placement="top">
             <template #trigger>
@@ -126,15 +126,15 @@ onMounted(() => {
                 @click="currentModel.type = 'imagegeneration'"
                 disabled
               >
-                画图模型
+                {{$t("画图模型")}}
               </n-button>
             </template>
-            用于生成和编辑图像的模型，暂不支持
+            {{$t("用于生成和编辑图像的模型，暂不支持")}}
           </n-tooltip>
         </n-space>
       </n-form-item>
 
-      <n-form-item label="模型能力" path="ability">
+      <n-form-item :label="$t('模型能力')" path="ability">
         <n-space vertical>
           <n-checkbox-group v-model:value="selectedAbilities" @update:value="updateModelAbility">
             <n-grid
@@ -155,15 +155,15 @@ onMounted(() => {
               </n-grid-item>
             </n-grid>
           </n-checkbox-group>
-          <p>能力标记仅用于参考，不影响实际使用</p>
+          <p>{{$t("能力标记仅用于参考，不影响实际使用")}}</p>
         </n-space>
       </n-form-item>
     </n-form>
 
     <div class="form-footer">
       <n-space justify="end">
-        <n-button @click="handleCancel" class="cancel-button">取消</n-button>
-        <n-button type="primary" @click="handleSave" class="confirm-button">保存</n-button>
+        <n-button @click="handleCancel" class="cancel-button">{{$t("取消")}}</n-button>
+        <n-button type="primary" @click="handleSave" class="confirm-button">{{$t("保存")}}</n-button>
       </n-space>
     </div>
   </div>

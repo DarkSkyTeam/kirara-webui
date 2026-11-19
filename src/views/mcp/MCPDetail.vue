@@ -8,7 +8,7 @@
             <template #icon>
               <n-icon><arrow-back-outline /></n-icon>
             </template>
-            返回服务器列表
+            {{$t("返回服务器列表")}}
           </n-button>
         </div>
         <div class="server-title">
@@ -39,13 +39,13 @@
                   />
                 </n-icon>
               </template>
-              {{ serverInfo?.connection_state === 'connected' ? '断开连接' : '连接服务器' }}
+              {{ serverInfo?.connection_state === 'connected' ? $t('断开连接') : $t('连接服务器') }}
             </n-button>
             <n-button @click="refreshDetails" :loading="isLoading">
               <template #icon>
                 <n-icon><refresh-outline /></n-icon>
               </template>
-              刷新
+              {{$t("刷新")}}
             </n-button>
           </n-space>
         </div>
@@ -62,17 +62,17 @@
       >
         <!-- 基本信息卡片 -->
         <n-grid-item span="24 m:12">
-          <n-card title="基本信息" class="detail-card" :bordered="false">
+          <n-card :title="$t('基本信息')" class="detail-card" :bordered="false">
             <n-descriptions bordered :column="1" label-placement="left">
-              <n-descriptions-item label="服务器ID">
+              <n-descriptions-item :label="$t('服务器ID')">
                 {{ serverInfo?.id }}
               </n-descriptions-item>
-              <n-descriptions-item label="连接类型">
+              <n-descriptions-item :label="$t('连接类型')">
                 <n-tag :type="serverInfo?.connection_type === 'stdio' ? 'success' : 'info'">
                   {{ serverInfo?.connection_type }}
                 </n-tag>
               </n-descriptions-item>
-              <n-descriptions-item v-if="serverInfo?.connection_type === 'stdio'" label="命令">
+              <n-descriptions-item v-if="serverInfo?.connection_type === 'stdio'" :label="$t('命令')">
                 <div class="code-container">
                   <code>{{ serverInfo?.command }} {{ serverInfo?.args }}</code>
                   <n-button text size="tiny" @click="copyCommand" class="copy-button">
@@ -92,7 +92,7 @@
                   </n-button>
                 </div>
               </n-descriptions-item>
-              <n-descriptions-item v-if="serverInfo?.description" label="描述">
+              <n-descriptions-item v-if="serverInfo?.description" :label="$t('描述')">
                 {{ serverInfo?.description }}
               </n-descriptions-item>
             </n-descriptions>
@@ -102,15 +102,15 @@
         <!-- 环境变量或Headers卡片 -->
         <n-grid-item span="24 m:12">
           <n-card
-            :title="serverInfo?.connection_type === 'stdio' ? '环境变量' : 'Headers'"
+            :title="serverInfo?.connection_type === 'stdio' ? $t('环境变量') : 'Headers'"
             class="detail-card"
             :bordered="false"
           >
             <div v-if="!hasEnvOrHeaders" class="empty-box">
               <n-empty
-                :description="`未设置${
-                  serverInfo?.connection_type === 'stdio' ? '环境变量' : 'Headers'
-                }`"
+                :description="$t('未设置{0}', [
+                  serverInfo?.connection_type === 'stdio' ? $t('环境变量') : 'Headers'
+                ])"
                 size="small"
               />
             </div>
@@ -127,7 +127,7 @@
       <n-card class="tabs-card" :bordered="false">
         <n-tabs type="line" animated>
           <!-- 工具标签页 -->
-          <n-tab-pane name="tools" tab="工具">
+          <n-tab-pane name="tools" :tab="$t('工具')">
             <div class="section-header">
               <n-button
                 size="small"
@@ -138,20 +138,20 @@
                 <template #icon>
                   <n-icon><refresh-outline /></n-icon>
                 </template>
-                刷新工具
+                {{$t("刷新工具")}}
               </n-button>
             </div>
 
             <n-alert v-if="!isConnected" type="warning" :show-icon="true" class="section-alert">
-              请先连接到 MCP 服务器以查看可用的工具
+              {{$t("请先连接到 MCP 服务器以查看可用的工具")}}
             </n-alert>
 
             <div v-else-if="loadingTools" class="loading-container">
               <n-spin size="medium" />
-              <p>加载工具中...</p>
+              <p>{{$t("加载工具中...")}}</p>
             </div>
 
-            <n-empty v-else-if="tools.length === 0" description="没有可用的工具" />
+            <n-empty v-else-if="tools.length === 0" :description="$t('没有可用的工具')" />
 
             <div v-else class="tools-list">
               <n-card v-for="tool in tools" :key="tool.name" class="tool-card" :bordered="false">
@@ -164,18 +164,18 @@
                     <template #icon>
                       <n-icon><play-outline /></n-icon>
                     </template>
-                    执行工具
+                    {{$t("执行工具")}}
                   </n-button>
                 </div>
                 <div class="tool-description">
-                  {{ tool.description || '没有描述' }}
+                  {{ tool.description || $t('没有描述') }}
                 </div>
               </n-card>
             </div>
           </n-tab-pane>
 
           <!-- 资源标签页 -->
-          <n-tab-pane name="resources" tab="资源">
+          <n-tab-pane name="resources" :tab="$t('资源')">
             <div class="section-header">
               <n-button
                 size="small"
@@ -186,20 +186,20 @@
                 <template #icon>
                   <n-icon><refresh-outline /></n-icon>
                 </template>
-                刷新资源
+                {{$t("刷新资源")}}
               </n-button>
             </div>
 
             <n-alert v-if="!isConnected" type="warning" :show-icon="true" class="section-alert">
-              请先连接到 MCP 服务器以查看可用的资源
+              {{$t("请先连接到 MCP 服务器以查看可用的资源")}}
             </n-alert>
 
             <div v-else-if="loadingResources" class="loading-container">
               <n-spin size="medium" />
-              <p>加载资源中...</p>
+              <p>{{$t("加载资源中...")}}</p>
             </div>
 
-            <n-empty v-else-if="resources.length === 0" description="没有可用的资源" />
+            <n-empty v-else-if="resources.length === 0" :description="$t('没有可用的资源')" />
 
             <div v-else class="resources-list">
               <n-card
@@ -217,18 +217,18 @@
                     <template #icon>
                       <n-icon><eye-outline /></n-icon>
                     </template>
-                    查看资源
+                    {{$t("查看资源")}}
                   </n-button>
                 </div>
                 <div class="resource-description">
-                  {{ resource.description || '没有描述' }}
+                  {{ resource.description || $t('没有描述') }}
                 </div>
               </n-card>
             </div>
           </n-tab-pane>
 
           <!-- 提示标签页 -->
-          <n-tab-pane name="prompts" tab="提示">
+          <n-tab-pane name="prompts" :tab="$t('提示')">
             <div class="section-header">
               <n-button
                 size="small"
@@ -239,20 +239,20 @@
                 <template #icon>
                   <n-icon><refresh-outline /></n-icon>
                 </template>
-                刷新提示
+                {{$t("刷新提示")}}
               </n-button>
             </div>
 
             <n-alert v-if="!isConnected" type="warning" :show-icon="true" class="section-alert">
-              请先连接到 MCP 服务器以查看可用的提示
+              {{$t("请先连接到 MCP 服务器以查看可用的提示")}}
             </n-alert>
 
             <div v-else-if="loadingPrompts" class="loading-container">
               <n-spin size="medium" />
-              <p>加载提示中...</p>
+              <p>{{$t("加载提示中...")}}</p>
             </div>
 
-            <n-empty v-else-if="prompts.length === 0" description="没有可用的提示" />
+            <n-empty v-else-if="prompts.length === 0" :description="$t('没有可用的提示')" />
 
             <div v-else class="prompts-list">
               <n-card
@@ -270,11 +270,11 @@
                     <template #icon>
                       <n-icon><play-outline /></n-icon>
                     </template>
-                    采样提示
+                    {{$t("采样提示")}}
                   </n-button>
                 </div>
                 <div class="prompt-description">
-                  {{ prompt.description || '没有描述' }}
+                  {{ prompt.description || $t('没有描述') }}
                 </div>
               </n-card>
             </div>
@@ -288,12 +288,12 @@
       v-model:show="showToolModal"
       class="tool-modal"
       preset="card"
-      title="执行工具"
+      :title="$t('执行工具')"
       :style="{ width: '650px' }"
     >
       <div v-if="selectedTool">
         <div class="modal-description">
-          {{ selectedTool.description || '没有描述' }}
+          {{ selectedTool.description || $t('没有描述') }}
         </div>
 
         <n-form
@@ -313,14 +313,14 @@
         </n-form>
 
         <div class="tool-response" v-if="toolResponse">
-          <n-divider>工具响应</n-divider>
+          <n-divider>{{$t("工具响应")}}</n-divider>
           <pre>{{ JSON.stringify(toolResponse, null, 2) }}</pre>
         </div>
       </div>
       <template #footer>
         <n-space justify="end">
-          <n-button @click="showToolModal = false">关闭</n-button>
-          <n-button type="primary" :loading="callingTool" @click="executeToolCall"> 执行 </n-button>
+          <n-button @click="showToolModal = false">{{$t("关闭")}}</n-button>
+          <n-button type="primary" :loading="callingTool" @click="executeToolCall"> {{$t("执行")}} </n-button>
         </n-space>
       </template>
     </n-modal>
@@ -330,7 +330,7 @@
       v-model:show="showResourceModal"
       class="resource-modal"
       preset="card"
-      title="资源内容"
+      :title="$t('资源内容')"
       :style="{ width: '800px' }"
     >
       <div v-if="resourceContent">
@@ -346,7 +346,7 @@
       </div>
       <template #footer>
         <n-space justify="end">
-          <n-button @click="showResourceModal = false">关闭</n-button>
+          <n-button @click="showResourceModal = false">{{$t("关闭")}}</n-button>
         </n-space>
       </template>
     </n-modal>
@@ -356,7 +356,7 @@
       v-model:show="showPromptModal"
       class="prompt-modal"
       preset="card"
-      title="采样提示"
+      :title="$t('采样提示')"
       :style="{ width: '800px' }"
     >
       <div v-if="selectedPrompt">
@@ -367,22 +367,22 @@
           label-width="100px"
           class="prompt-form"
         >
-          <n-form-item label="提示文本">
+          <n-form-item :label="$t('提示文本')">
             <n-input
               v-model:value="promptForm.text"
               type="textarea"
               :rows="6"
-              placeholder="输入提示文本..."
+              :placeholder="$t('输入提示文本...')"
             />
           </n-form-item>
-          <n-form-item label="温度">
+          <n-form-item :label="$t('温度')">
             <n-slider v-model:value="promptForm.temperature" :min="0" :max="1" :step="0.05" />
             <div class="slider-value">{{ promptForm.temperature }}</div>
           </n-form-item>
         </n-form>
 
         <div class="prompt-response" v-if="promptResponse">
-          <n-divider>响应</n-divider>
+          <n-divider>{{$t("响应")}}</n-divider>
           <n-card :bordered="false" class="response-card">
             {{ promptResponse }}
           </n-card>
@@ -390,9 +390,9 @@
       </div>
       <template #footer>
         <n-space justify="end">
-          <n-button @click="showPromptModal = false">关闭</n-button>
+          <n-button @click="showPromptModal = false">{{$t("关闭")}}</n-button>
           <n-button type="primary" :loading="samplingPrompt" @click="executeSampling">
-            开始采样
+            {{$t("开始采样")}}
           </n-button>
         </n-space>
       </template>
@@ -401,6 +401,7 @@
 </template>
 
 <script setup lang="ts">
+import { t } from '@/i18n'
 import { ref, computed, onMounted, reactive } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
@@ -570,8 +571,8 @@ const loadServerDetails = async () => {
       await loadPrompts()
     }
   } catch (error) {
-    console.error('加载服务器详情失败:', error)
-    message.error('加载服务器详情失败')
+    console.error(t('加载服务器详情失败:'), error)
+    message.error(t('加载服务器详情失败'))
   } finally {
     isLoading.value = false
   }
@@ -596,17 +597,17 @@ const startServer = async () => {
     await startMCPServer(serverId.value)
     // 刷新服务器状态
     serverInfo.value = await getServerById(serverId.value)
-    message.success('服务器连接成功')
-    addConnectionLog('connected', '服务器连接成功')
+    message.success(t('服务器连接成功'))
+    addConnectionLog('connected', t('服务器连接成功'))
 
     // 加载工具和资源
     await loadTools()
     await loadResources()
     await loadPrompts()
   } catch (error: any) {
-    console.error('连接服务器失败:', error)
-    message.error('连接服务器失败: ' + (error.message || '未知错误'))
-    addConnectionLog('error', '连接服务器失败: ' + (error.message || '未知错误'))
+    console.error(t('连接服务器失败:'), error)
+    message.error(t('连接服务器失败: ') + (error.message || t('未知错误')))
+    addConnectionLog('error', t('连接服务器失败: ') + (error.message || t('未知错误')))
   } finally {
     isConnecting.value = false
   }
@@ -621,12 +622,12 @@ const stopServer = async () => {
     await stopMCPServer(serverId.value)
     // 刷新服务器状态
     serverInfo.value = await getServerById(serverId.value)
-    message.success('服务器已断开连接')
-    addConnectionLog('disconnected', '服务器已断开连接')
+    message.success(t('服务器已断开连接'))
+    addConnectionLog('disconnected', t('服务器已断开连接'))
   } catch (error: any) {
-    console.error('断开服务器失败:', error)
-    message.error('断开服务器失败: ' + (error.message || '未知错误'))
-    addConnectionLog('error', '断开服务器失败: ' + (error.message || '未知错误'))
+    console.error(t('断开服务器失败:'), error)
+    message.error(t('断开服务器失败: ') + (error.message || t('未知错误')))
+    addConnectionLog('error', t('断开服务器失败: ') + (error.message || t('未知错误')))
   } finally {
     isDisconnecting.value = false
   }
@@ -647,8 +648,8 @@ const loadTools = async () => {
   try {
     tools.value = await fetchMCPServerTools(serverId.value)
   } catch (error) {
-    console.error('加载工具列表失败:', error)
-    message.error('加载工具列表失败')
+    console.error(t('加载工具列表失败:'), error)
+    message.error(t('加载工具列表失败'))
   } finally {
     loadingTools.value = false
   }
@@ -663,8 +664,8 @@ const loadResources = async () => {
     const response = await http.get<MCPResource[]>(`/mcp/servers/${serverId.value}/resources`)
     resources.value = response || []
   } catch (error) {
-    console.error('加载资源列表失败:', error)
-    message.error('加载资源列表失败')
+    console.error(t('加载资源列表失败:'), error)
+    message.error(t('加载资源列表失败'))
     resources.value = []
   } finally {
     loadingResources.value = false
@@ -680,8 +681,8 @@ const loadPrompts = async () => {
     const response = await http.get<MCPPrompt[]>(`/mcp/servers/${serverId.value}/prompts`)
     prompts.value = response || []
   } catch (error) {
-    console.error('加载提示列表失败:', error)
-    message.error('加载提示列表失败')
+    console.error(t('加载提示列表失败:'), error)
+    message.error(t('加载提示列表失败'))
     prompts.value = []
   } finally {
     loadingPrompts.value = false
@@ -715,11 +716,11 @@ const executeToolCall = async () => {
       params: toolForm
     })
     toolResponse.value = response
-    message.success('工具执行成功')
+    message.success(t('工具执行成功'))
   } catch (error: any) {
-    console.error('工具执行失败:', error)
-    message.error('工具执行失败: ' + (error.message || '未知错误'))
-    toolResponse.value = { error: error.message || '未知错误' }
+    console.error(t('工具执行失败:'), error)
+    message.error(t('工具执行失败: ') + (error.message || t('未知错误')))
+    toolResponse.value = { error: error.message || t('未知错误') }
   } finally {
     callingTool.value = false
   }
@@ -735,9 +736,9 @@ const viewResource = async (resource: MCPResource) => {
     const response = await http.get<any>(`/mcp/servers/${serverId.value}/resources/${resource.id}`)
     resourceContent.value = response
   } catch (error) {
-    console.error('加载资源内容失败:', error)
-    message.error('加载资源内容失败')
-    resourceContent.value = { error: '加载资源失败' }
+    console.error(t('加载资源内容失败:'), error)
+    message.error(t('加载资源内容失败'))
+    resourceContent.value = { error: t('加载资源失败') }
   }
 }
 
@@ -766,9 +767,9 @@ const executeSampling = async () => {
     )
     promptResponse.value = response.text || JSON.stringify(response)
   } catch (error: any) {
-    console.error('提示采样失败:', error)
-    message.error('提示采样失败: ' + (error.message || '未知错误'))
-    promptResponse.value = '错误: ' + (error.message || '未知错误')
+    console.error(t('提示采样失败:'), error)
+    message.error(t('提示采样失败: ') + (error.message || t('未知错误')))
+    promptResponse.value = t('错误: ') + (error.message || t('未知错误'))
   } finally {
     samplingPrompt.value = false
   }
@@ -789,7 +790,7 @@ const copyCommand = () => {
 
   const command = `${serverInfo.value.command || ''} ${serverInfo.value.args || ''}`
   navigator.clipboard.writeText(command)
-  message.success('命令已复制到剪贴板')
+  message.success(t('命令已复制到剪贴板'))
 }
 
 // 复制URL到剪贴板
@@ -797,17 +798,17 @@ const copyUrl = () => {
   if (!serverInfo.value || !serverInfo.value.url) return
 
   navigator.clipboard.writeText(serverInfo.value.url)
-  message.success('URL已复制到剪贴板')
+  message.success(t('URL已复制到剪贴板'))
 }
 
 // 格式化连接状态
 const formatConnectionState = (state: string) => {
   const stateMap: Record<string, string> = {
-    connected: '已连接',
-    connecting: '连接中',
-    disconnected: '已断开',
-    disconnecting: '断开中',
-    error: '错误'
+    connected: t('已连接'),
+    connecting: t('连接中'),
+    disconnected: t('已断开'),
+    disconnecting: t('断开中'),
+    error: t('错误')
   }
   return stateMap[state] || state
 }

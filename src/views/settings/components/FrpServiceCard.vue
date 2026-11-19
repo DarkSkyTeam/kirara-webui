@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { t } from '@/i18n'
 import { onMounted, computed, ref, onUnmounted } from 'vue'
 import {
   NCard,
@@ -57,31 +58,29 @@ const saveConfig = () => {
       if (!errors) {
         handleSubmit()
       } else {
-        console.error('表单验证失败', errors)
+        console.error(t('表单验证失败'), errors)
       }
     })
     .catch((error) => {
-      console.error('表单验证失败', error)
+      console.error(t('表单验证失败'), error)
     })
 }
 </script>
 
 <template>
-  <n-card title="FRP 内网穿透" class="settings-card">
+  <n-card :title="$t('FRP 内网穿透')" class="settings-card">
     <div style="margin-bottom: 16px">
       <n-text>
-        FRP
-        是一个可用于内网穿透的高性能的反向代理应用，可以帮助您将本地服务暴露到公网，方便远程访问和管理，或者接收
-        IM 平台的 Webhook。
+        {{$t("FRP 是一个可用于内网穿透的高性能的反向代理应用，可以帮助您将本地服务暴露到公网，方便远程访问和管理，或者接收 IM 平台的 Webhook。")}}
         <a href="https://gofrp.org/zh-cn/docs/setup/" target="_blank"
-          >查看 FRP 官方文档了解如何搭建服务端。</a
+          >{{$t("查看 FRP 官方文档了解如何搭建服务端。")}}</a
         >
       </n-text>
     </div>
 
     <n-spin :show="loading && !isDownloading">
       <div v-if="!isInstalled" class="frp-not-installed">
-        <n-alert type="warning" title="FRP 客户端未安装">
+        <n-alert type="warning" :title="$t('FRP 客户端未安装')">
           <template #icon>
             <n-icon>
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
@@ -93,7 +92,7 @@ const saveConfig = () => {
             </n-icon>
           </template>
           <div>
-            <p>您需要先下载 FRP 客户端才能使用内网穿透功能。</p>
+            <p>{{$t("您需要先下载 FRP 客户端才能使用内网穿透功能。")}}</p>
             <n-button
               type="primary"
               :loading="downloading && !isDownloading"
@@ -101,7 +100,7 @@ const saveConfig = () => {
               @click="downloadFrpc"
               style="margin-top: 8px"
             >
-              {{ isDownloading ? '下载中...' : '下载 FRP 客户端' }}
+              {{ isDownloading ? $t('下载中...') : $t('下载 FRP 客户端') }}
             </n-button>
 
             <div
@@ -111,7 +110,7 @@ const saveConfig = () => {
               <n-alert
                 v-if="hasDownloadError"
                 type="error"
-                title="下载失败"
+                :title="$t('下载失败')"
                 style="margin-bottom: 16px"
               >
                 {{ downloadErrorMessage }}
@@ -132,15 +131,15 @@ const saveConfig = () => {
                 <n-text depth="3">
                   {{
                     hasDownloadError
-                      ? '下载失败'
+                      ? $t('下载失败')
                       : downloadStatus === 'completed'
-                      ? '下载完成'
-                      : `正在下载 FRP 客户端 (${downloadProgress.toFixed(1)}%)`
+                      ? $t('下载完成')
+                      : $t("正在下载 FRP 客户端 ({0}%)", [downloadProgress.toFixed(1)])
                   }}
                 </n-text>
 
                 <n-button v-if="hasDownloadError" size="small" @click="downloadFrpc">
-                  重试
+                  {{$t("重试")}}
                 </n-button>
               </div>
             </div>
@@ -151,13 +150,13 @@ const saveConfig = () => {
       <div v-else>
         <div class="frp-status">
           <n-space align="center">
-            <n-text>状态:</n-text>
+            <n-text>{{$t("状态:")}}</n-text>
             <n-tag :type="isRunning ? 'success' : 'error'">
-              {{ isRunning ? '运行中' : '已停止' }}
+              {{ isRunning ? $t('运行中') : $t('已停止') }}
             </n-tag>
-            <n-text v-if="version">版本: {{ version }}</n-text>
+            <n-text v-if="version">{{$t("版本:")}} {{ version }}</n-text>
             <template v-if="isRunning && status?.remote_url">
-              <n-text>远程地址:</n-text>
+              <n-text>{{$t("远程地址:")}}</n-text>
               <n-tag type="info">
                 <a :href="status?.remote_url" target="_blank">{{ status?.remote_url }}</a>
               </n-tag>
@@ -165,7 +164,7 @@ const saveConfig = () => {
           </n-space>
         </div>
 
-        <n-alert v-if="hasError" type="error" title="错误信息" style="margin: 16px 0">
+        <n-alert v-if="hasError" type="error" :title="$t('错误信息')" style="margin: 16px 0">
           {{ status?.error_message }}
         </n-alert>
 
@@ -179,53 +178,53 @@ const saveConfig = () => {
           label-width="120"
           require-mark-placement="right-hanging"
         >
-          <n-form-item label="启用服务" path="enable">
+          <n-form-item :label="$t('启用服务')" path="enable">
             <n-switch v-model:value="formData.enable" />
             <template #feedback>
-              <n-text depth="3">启用后，系统将在启动时自动启动 FRP 服务</n-text>
+              <n-text depth="3">{{$t("启用后，系统将在启动时自动启动 FRP 服务")}}</n-text>
             </template>
           </n-form-item>
 
-          <n-form-item label="服务器地址" path="server_addr">
-            <n-input v-model:value="formData.server_addr" placeholder="请输入 FRP 服务器地址" />
+          <n-form-item :label="$t('服务器地址')" path="server_addr">
+            <n-input v-model:value="formData.server_addr" :placeholder="$t('请输入 FRP 服务器地址')" />
             <template #feedback>
-              <n-text depth="3">FRP 服务器的 IP 地址或域名</n-text>
+              <n-text depth="3">{{$t("FRP 服务器的 IP 地址或域名")}}</n-text>
             </template>
           </n-form-item>
 
-          <n-form-item label="服务器端口" path="server_port">
+          <n-form-item :label="$t('服务器端口')" path="server_port">
             <n-input-number
               v-model:value="formData.server_port"
-              placeholder="请输入 FRP 服务器端口"
+              :placeholder="$t('请输入 FRP 服务器端口')"
             />
             <template #feedback>
-              <n-text depth="3">FRP 服务器的端口号，默认为 7000</n-text>
+              <n-text depth="3">{{$t("FRP 服务器的端口号，默认为 7000")}}</n-text>
             </template>
           </n-form-item>
 
-          <n-form-item label="连接令牌" path="token">
+          <n-form-item :label="$t('连接令牌')" path="token">
             <n-input
               v-model:value="formData.token"
-              placeholder="请输入连接令牌"
+              :placeholder="$t('请输入连接令牌')"
               type="password"
               show-password-on="click"
             />
             <template #feedback>
-              <n-text depth="3">FRP 服务器的连接令牌，如果服务器未设置则留空</n-text>
+              <n-text depth="3">{{$t("FRP 服务器的连接令牌，如果服务器未设置则留空")}}</n-text>
             </template>
           </n-form-item>
 
-          <n-form-item label="远程端口" path="remote_port">
-            <n-input-number v-model:value="formData.remote_port" placeholder="请输入远程端口" />
+          <n-form-item :label="$t('远程端口')" path="remote_port">
+            <n-input-number v-model:value="formData.remote_port" :placeholder="$t('请输入远程端口')" />
             <template #feedback>
-              <n-text depth="3">映射到公网的端口号，设置为 0 表示由服务器随机分配</n-text>
+              <n-text depth="3">{{$t("映射到公网的端口号，设置为 0 表示由服务器随机分配")}}</n-text>
             </template>
           </n-form-item>
         </n-form>
 
         <div style="margin-top: 24px">
           <n-space justify="end">
-            <n-button type="primary" :loading="loading" @click="saveConfig"> 保存配置 </n-button>
+            <n-button type="primary" :loading="loading" @click="saveConfig"> {{$t("保存配置")}} </n-button>
           </n-space>
         </div>
       </div>

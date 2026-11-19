@@ -8,7 +8,7 @@
       <div class="login-image-section">
         <div class="login-image-content">
           <h1 class="brand-title">Kirara AI</h1>
-          <p class="brand-slogan">探索人工智能的无限可能</p>
+          <p class="brand-slogan">{{$t("探索人工智能的无限可能")}}</p>
         </div>
       </div>
 
@@ -19,9 +19,9 @@
             <div class="login-logo">
               <div class="i-carbon-bot text-36px animate-float" />
             </div>
-            <h2 class="login-title">欢迎使用 Kirara AI</h2>
+            <h2 class="login-title">{{$t("欢迎使用 Kirara AI")}}</h2>
             <p class="login-subtitle">
-              {{ isFirstTime ? '首次使用，请设置管理员密码' : '请输入管理员密码继续' }}
+              {{ isFirstTime ? $t('首次使用，请设置管理员密码') : $t('请输入管理员密码继续') }}
             </p>
           </div>
 
@@ -39,7 +39,7 @@
               <n-input
                 v-model:value="formModel.password"
                 type="password"
-                placeholder="请输入密码"
+                :placeholder="$t('请输入密码')"
                 show-password-on="click"
                 :status="passwordFeedback"
                 class="password-input"
@@ -54,7 +54,7 @@
               <n-input
                 v-model:value="formModel.confirmPassword"
                 type="password"
-                placeholder="请确认密码"
+                :placeholder="$t('请确认密码')"
                 :maxlength="32"
                 show-password-on="click"
                 class="password-input"
@@ -74,16 +74,16 @@
                 @click="handleLogin"
                 class="login-button"
               >
-                {{ isFirstTime ? '设置密码' : '登录' }}
+                {{ isFirstTime ? $t('设置密码') : $t('登录') }}
                 <div class="button-effect"></div>
               </n-button>
 
               <div class="forgot-password" v-if="!isFirstTime">
                 <n-tooltip trigger="hover" placement="bottom">
                   <template #trigger>
-                    <span class="forgot-password-text"> 忘记密码？ </span>
+                    <span class="forgot-password-text"> {{$t("忘记密码？")}} </span>
                   </template>
-                  <span>删除项目下的 data\web\password.hash 文件即可重置密码</span>
+                  <span>{{$t("删除项目下的 data\\web\\password.hash 文件即可重置密码")}}</span>
                 </n-tooltip>
               </div>
             </div>
@@ -101,6 +101,7 @@
 </template>
 
 <script setup lang="ts">
+import { t } from '@/i18n'
 import { onMounted, ref } from 'vue'
 import { NForm, NFormItem, NInput, NButton, NTooltip, useMessage } from 'naive-ui'
 import { useLoginViewModel } from './login.vm'
@@ -116,7 +117,7 @@ const handleLogin = async () => {
     await handleSubmit()
   } catch (error: any) {
     passwordFeedback.value = 'error'
-    message.error('登录失败，请重试')
+    message.error(t('登录失败，请重试'))
   }
 }
 

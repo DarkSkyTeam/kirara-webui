@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { t } from '@/i18n'
 import { watch, h } from 'vue'
 import {
   NFormItem,
@@ -70,7 +71,7 @@ const validateForm = () => {
   for (const key in props.schema.properties) {
     const property = props.schema.properties[key]
     if (requiredFields.includes(key) && !props.modelValue[key]) {
-      $message.error(`${property.title} 是必填项`)
+      $message.error(t("{0} 是必填项", [property.title]))
       return false
     }
   }
@@ -154,7 +155,7 @@ const renderInputComponent = (
     case 'boolean':
       return h(NSwitch, commonProps)
     default:
-      return h(NText, { content: `不支持的类型: ${itemType}` })
+      return h(NText, { content: t("不支持的类型: {0}", [itemType]) })
   }
 }
 
@@ -247,7 +248,7 @@ const renderArrayField = (key: string, property: SchemaProperty, formItemProps: 
                     padding: '4px 0'
                   }
                 },
-                '暂无数据'
+                t('暂无数据')
               )
             ]),
         h(
@@ -260,7 +261,7 @@ const renderArrayField = (key: string, property: SchemaProperty, formItemProps: 
             onClick: addArrayItem
           },
           {
-            default: () => [h(NIcon, null, { default: () => h(AddOutline) }), ' 添加']
+            default: () => [h(NIcon, null, { default: () => h(AddOutline) }), t(' 添加')]
           }
         )
       ])
@@ -289,7 +290,7 @@ const renderWebhookUrlText = (key: string, value: string) => {
         h(
           NText,
           { type: 'info' },
-          { default: () => '完整地址格式如下，请根据实际情况替换 WebUI 服务地址' }
+          { default: () => t('完整地址格式如下，请根据实际情况替换 WebUI 服务地址') }
         ),
         h(
           'div',
@@ -303,7 +304,7 @@ const renderWebhookUrlText = (key: string, value: string) => {
               border: '1px dashed rgba(var(--primary-color-rgb), 0.2)'
             }
           },
-          [h(NText, { strong: true }, { default: () => `${protocol}<WebUI服务地址>${value}` })]
+          [h(NText, { strong: true }, { default: () => t("{0}<WebUI服务地址>{1}", [protocol, value]) })]
         ),
         h(
           'div',
@@ -314,11 +315,11 @@ const renderWebhookUrlText = (key: string, value: string) => {
             }
           },
           [
-            h(NText, null, { default: () => '• 对外服务：请使用公网可访问的IP或域名' }),
+            h(NText, null, { default: () => t('• 对外服务：请使用公网可访问的IP或域名') }),
             h('br'),
-            h(NText, null, { default: () => '• 内部服务：请使用对应的内部可访问地址' }),
+            h(NText, null, { default: () => t('• 内部服务：请使用对应的内部可访问地址') }),
             h('br'),
-            h(NText, null, { default: () => '• 详情可查阅 Kirara AI 官方使用手册' })
+            h(NText, null, { default: () => t('• 详情可查阅 Kirara AI 官方使用手册') })
           ]
         )
       ]
@@ -380,7 +381,7 @@ defineExpose({
     <template v-for="(property, key) in schema.properties" :key="key">
       <component :is="renderField(key, property)" />
     </template>
-    <p v-if="Object.keys(schema.properties).length === 0">暂无配置，请关闭本窗口</p>
+    <p v-if="Object.keys(schema.properties).length === 0">{{$t("暂无配置，请关闭本窗口")}}</p>
   </div>
 </template>
 

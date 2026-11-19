@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { t } from '@/i18n'
 import { ref, onMounted, computed } from 'vue'
 import {
   NCard,
@@ -62,7 +63,7 @@ const fetchLLMStats = async () => {
     const data = await http.get<LLMStatistics>('/tracing/llm/statistics')
     llmStats.value = data
   } catch (error) {
-    console.error('获取 LLM 统计数据失败:', error)
+    console.error(t('获取 LLM 统计数据失败:'), error)
   }
 }
 
@@ -81,8 +82,8 @@ const themeColors = [
 // 更新图表配置
 const dailyTokensOption = computed(() => ({
   title: {
-    text: '每日 Token 使用趋势',
-    subtext: '最近30天的 Token 消耗统计',
+    text: t('每日 Token 使用趋势'),
+    subtext: t('最近30天的 Token 消耗统计'),
     left: 'center',
     top: 10,
     textStyle: {
@@ -146,7 +147,7 @@ const dailyTokensOption = computed(() => ({
   ],
   series: [
     {
-      name: 'Token 使用量',
+      name: t('Token 使用量'),
       data: llmStats.value.daily_stats.map((item: { tokens: number }) => item.tokens),
       type: 'line',
       smooth: true,
@@ -179,8 +180,8 @@ const dailyTokensOption = computed(() => ({
 
 const requestStatusOption = computed(() => ({
   title: {
-    text: '请求状态分布',
-    subtext: '各状态请求数量占比',
+    text: t('请求状态分布'),
+    subtext: t('各状态请求数量占比'),
     left: 'center',
     top: 10,
     textStyle: {
@@ -229,17 +230,17 @@ const requestStatusOption = computed(() => ({
       data: [
         {
           value: llmStats.value.overview.success_requests,
-          name: '成功',
+          name: t('成功'),
           itemStyle: { color: themeColors[1] }
         },
         {
           value: llmStats.value.overview.failed_requests,
-          name: '失败',
+          name: t('失败'),
           itemStyle: { color: themeColors[5] }
         },
         {
           value: llmStats.value.overview.pending_requests,
-          name: '处理中',
+          name: t('处理中'),
           itemStyle: { color: themeColors[4] }
         }
       ]
@@ -249,8 +250,8 @@ const requestStatusOption = computed(() => ({
 
 const modelUsageOption = computed(() => ({
   title: {
-    text: '模型使用分析',
-    subtext: '各模型请求量与平均响应时间',
+    text: t('模型使用分析'),
+    subtext: t('各模型请求量与平均响应时间'),
     left: 'center',
     top: 10,
     textStyle: {
@@ -269,7 +270,7 @@ const modelUsageOption = computed(() => ({
     }
   },
   legend: {
-    data: ['请求次数', '平均响应时间'],
+    data: [t('请求次数'), t('平均响应时间')],
     bottom: 10
   },
   grid: {
@@ -292,7 +293,7 @@ const modelUsageOption = computed(() => ({
   yAxis: [
     {
       type: 'value',
-      name: '请求次数',
+      name: t('请求次数'),
       position: 'left',
       axisLabel: {
         color: 'var(--text-color-secondary)'
@@ -303,7 +304,7 @@ const modelUsageOption = computed(() => ({
     },
     {
       type: 'value',
-      name: '响应时间(ms)',
+      name: t('响应时间(ms)'),
       position: 'right',
       axisLabel: {
         color: 'var(--text-color-secondary)'
@@ -318,7 +319,7 @@ const modelUsageOption = computed(() => ({
   ],
   series: [
     {
-      name: '请求次数',
+      name: t('请求次数'),
       type: 'bar',
       data: llmStats.value.models.map((item: { count: number }) => item.count),
       itemStyle: {
@@ -343,7 +344,7 @@ const modelUsageOption = computed(() => ({
       }
     },
     {
-      name: '平均响应时间',
+      name: t('平均响应时间'),
       type: 'line',
       yAxisIndex: 1,
       data: llmStats.value.models.map((item: { avg_duration: number }) =>
@@ -360,8 +361,8 @@ const modelUsageOption = computed(() => ({
 
 const hourlyRequestsOption = computed(() => ({
   title: {
-    text: '24小时请求趋势',
-    subtext: '最近24小时的请求量与Token消耗',
+    text: t('24小时请求趋势'),
+    subtext: t('最近24小时的请求量与Token消耗'),
     left: 'center',
     top: 10,
     textStyle: {
@@ -385,7 +386,7 @@ const hourlyRequestsOption = computed(() => ({
     }
   },
   legend: {
-    data: ['请求次数', 'Token消耗'],
+    data: [t('请求次数'), t('Token消耗')],
     bottom: 10
   },
   grid: {
@@ -407,7 +408,7 @@ const hourlyRequestsOption = computed(() => ({
   yAxis: [
     {
       type: 'value',
-      name: '请求次数',
+      name: t('请求次数'),
       position: 'left',
       axisLabel: {
         color: 'var(--text-color-secondary)'
@@ -418,7 +419,7 @@ const hourlyRequestsOption = computed(() => ({
     },
     {
       type: 'value',
-      name: 'Token数',
+      name: t('Token数'),
       position: 'right',
       axisLabel: {
         color: 'var(--text-color-secondary)'
@@ -433,7 +434,7 @@ const hourlyRequestsOption = computed(() => ({
   ],
   series: [
     {
-      name: '请求次数',
+      name: t('请求次数'),
       type: 'line',
       smooth: true,
       symbolSize: 6,
@@ -462,7 +463,7 @@ const hourlyRequestsOption = computed(() => ({
       }
     },
     {
-      name: 'Token消耗',
+      name: t('Token消耗'),
       type: 'line',
       smooth: true,
       symbolSize: 6,
@@ -521,7 +522,7 @@ onMounted(() => {
 <template>
   <n-space vertical :size="12">
     <!-- 概览统计卡片 -->
-    <n-card title="LLM 使用分析" :bordered="false" class="overview-card">
+    <n-card :title="$t('LLM 使用分析')" :bordered="false" class="overview-card">
       <template #header-extra>
         <n-tooltip trigger="hover">
           <template #trigger>
@@ -529,7 +530,7 @@ onMounted(() => {
               <time-outline />
             </n-icon>
           </template>
-          每5分钟刷新一次
+          {{$t("每5分钟刷新一次")}}
         </n-tooltip>
       </template>
       <n-grid :cols="24" :x-gap="12" :y-gap="12" responsive="screen" :item-responsive="true">
@@ -541,7 +542,7 @@ onMounted(() => {
               </n-icon>
             </div>
             <div class="statistic-content">
-              <div class="statistic-label">30天请求数</div>
+              <div class="statistic-label">{{$t("30天请求数")}}</div>
               <div class="statistic-value">
                 <n-number-animation
                   :from="0"
@@ -560,7 +561,7 @@ onMounted(() => {
               </n-icon>
             </div>
             <div class="statistic-content">
-              <div class="statistic-label">成功率</div>
+              <div class="statistic-label">{{$t("成功率")}}</div>
               <div class="statistic-value">
                 {{
                   llmStats.overview.total_requests
@@ -582,7 +583,7 @@ onMounted(() => {
               </n-icon>
             </div>
             <div class="statistic-content">
-              <div class="statistic-label">Token 消耗</div>
+              <div class="statistic-label">{{$t("Token 消耗")}}</div>
               <div class="statistic-value">
                 <n-number-animation
                   :from="0"
@@ -602,7 +603,7 @@ onMounted(() => {
               </n-icon>
             </div>
             <div class="statistic-content">
-              <div class="statistic-label">平均响应时间</div>
+              <div class="statistic-label">{{$t("平均响应时间")}}</div>
               <div class="statistic-value">
                 {{
                   formatDuration(

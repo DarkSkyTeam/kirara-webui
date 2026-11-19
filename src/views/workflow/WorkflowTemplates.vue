@@ -13,8 +13,8 @@ onMounted(() => {
   <div class="container">
     <NResult
       status="404"
-      :title="building ? '努力 строительстве 中... 喵~' : '迷路了吗？'"
-      description="这个功能还在小猫咪的秘密工坊里，加班加点 строительстве 呢... 🚀"
+      :title="building ? $t('努力 строительстве 中... 喵~') : $t('迷路了吗？')"
+      :description="$t('这个功能还在小猫咪的秘密工坊里，加班加点 строительстве 呢... 🚀')"
     >
       <template #icon>
         <div class="text-8xl animated-icon">🚧</div>
@@ -27,7 +27,7 @@ onMounted(() => {
             target="_blank"
             type="primary"
           >
-            去 GitHub 看看
+            {{$t("去 GitHub 看看")}}
           </NButton>
 
           <NButton
@@ -36,7 +36,7 @@ onMounted(() => {
             target="_blank"
             type="primary"
           >
-            去文档看看
+            {{$t("去文档看看")}}
           </NButton>
         </NSpace>
       </template>

@@ -1,3 +1,4 @@
+import { t } from '@/i18n'
 import { createRouter, createWebHistory } from 'vue-router'
 import AppLayout from '@/layouts/AppLayout.vue'
 
@@ -117,14 +118,14 @@ const router = createRouter({
           name: 'mcp-detail',
           component: () => import('@/views/mcp/MCPDetail.vue'),
           meta: {
-            title: 'MCP服务器详情'
+            title: t('MCP服务器详情')
           }
         },
         {
           path: '/tracing',
           name: 'tracing',
           meta: {
-            title: '系统追踪',
+            title: t('系统追踪'),
             requiresAuth: true
           },
           children: [
@@ -138,7 +139,7 @@ const router = createRouter({
               name: 'llm-tracing',
               component: () => import('@/views/tracing/llm/LLMTraceList.vue'),
               meta: {
-                title: 'LLM请求追踪',
+                title: t('LLM请求追踪'),
                 requiresAuth: true
               }
             },
@@ -147,7 +148,7 @@ const router = createRouter({
               name: 'llm-trace-detail',
               component: () => import('@/views/tracing/llm/LLMTraceDetail.vue'),
               meta: {
-                title: 'LLM请求详情',
+                title: t('LLM请求详情'),
                 requiresAuth: true
               }
             }

@@ -1,3 +1,4 @@
+import { t } from '@/i18n'
 import { ref, h } from 'vue'
 import { http } from '@/utils/http'
 import { useMessage } from 'naive-ui'
@@ -24,12 +25,12 @@ export function useUpdateViewModel() {
   const rules: FormRules = {
     pypi_registry: {
       required: true,
-      message: '请选择或输入PyPI镜像源',
+      message: t('请选择或输入PyPI镜像源'),
       trigger: 'blur'
     },
     npm_registry: {
       required: true,
-      message: '请选择或输入NPM镜像源',
+      message: t('请选择或输入NPM镜像源'),
       trigger: 'blur'
     }
   }
@@ -37,17 +38,17 @@ export function useUpdateViewModel() {
   // 预设的镜像源选项
   const pypiRegistryOptions: SelectOption[] = [
     {
-      label: 'PyPI 官方',
+      label: t('PyPI 官方'),
       value: 'https://pypi.org/simple',
       description: 'https://pypi.org/simple'
     },
     {
-      label: '阿里云镜像',
+      label: t('阿里云镜像'),
       value: 'https://mirrors.aliyun.com/pypi/simple',
       description: 'https://mirrors.aliyun.com/pypi/simple'
     },
     {
-      label: '清华镜像',
+      label: t('清华镜像'),
       value: 'https://pypi.tuna.tsinghua.edu.cn/simple',
       description: 'https://pypi.tuna.tsinghua.edu.cn/simple'
     }
@@ -55,12 +56,12 @@ export function useUpdateViewModel() {
 
   const npmRegistryOptions: SelectOption[] = [
     {
-      label: 'NPM 官方',
+      label: t('NPM 官方'),
       value: 'https://registry.npmjs.org',
       description: 'https://registry.npmjs.org'
     },
     {
-      label: '淘宝镜像',
+      label: t('淘宝镜像'),
       value: 'https://registry.npmmirror.com',
       description: 'https://registry.npmmirror.com'
     }
@@ -75,7 +76,7 @@ export function useUpdateViewModel() {
       if (error.response?.data?.message) {
         message.error(error.response.data.message)
       } else {
-        message.error('获取配置失败')
+        message.error(t('获取配置失败'))
       }
     } finally {
       loading.value = false
@@ -86,12 +87,12 @@ export function useUpdateViewModel() {
     loading.value = true
     try {
       await http.post('/system/config/update', formData.value)
-      message.success('保存配置成功')
+      message.success(t('保存配置成功'))
     } catch (error: any) {
       if (error.response?.data?.message) {
         message.error(error.response.data.message)
       } else {
-        message.error('保存配置失败')
+        message.error(t('保存配置失败'))
       }
     } finally {
       loading.value = false
@@ -99,7 +100,7 @@ export function useUpdateViewModel() {
   }
 
   const renderLabel = (option: SelectOption) => {
-    return h('div', {}, `${option.label} (${option.description || '自定义'})`)
+    return h('div', {}, `${option.label} (${option.description || t('自定义')})`)
   }
 
   return {

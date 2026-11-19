@@ -1,3 +1,4 @@
+import { t } from '@/i18n'
 import { ref } from 'vue'
 import { useMessage } from 'naive-ui'
 import { useAppStore } from '@/stores/app'
@@ -72,16 +73,16 @@ export function useUpdateViewModel() {
       const data = await http.get<UpdateResponse>('/system/check-update')
 
       if (data.latest_backend_version == '0.0.0') {
-        console.log('无法获取后端最新版本号，尝试本地获取')
+        console.log(t('无法获取后端最新版本号，尝试本地获取'))
         // 已知最新后端版本
         try {
           const pypiData = await getLatestBackendVersion()
           data.latest_backend_version = pypiData.info.version
           data.backend_download_url =
             pypiData.urls.find((url) => url.packagetype === 'bdist_wheel')?.url ?? null
-          console.log('已知最新后端版本', data.latest_backend_version)
+          console.log(t('已知最新后端版本'), data.latest_backend_version)
         } catch (error) {
-          message.error('无法获取后端最新版本号，请检查网络连接')
+          message.error(t('无法获取后端最新版本号，请检查网络连接'))
           console.error(error)
         }
         try {
@@ -110,18 +111,18 @@ export function useUpdateViewModel() {
         console.log('showUpdateModal', showUpdateModal.value)
       }
     } catch (error: any) {
-      handleError(error, '检查更新失败')
+      handleError(error, t('检查更新失败'))
     }
   }
 
   // 开始更新
   const startUpdate = async () => {
     updateInProgress.value = true
-    updateProgress.value = { step: '准备更新...', percentage: 0 }
+    updateProgress.value = { step: t('准备更新...'), percentage: 0 }
 
     try {
       // 开始更新
-      updateProgress.value = { step: '下载更新包...', percentage: 30 }
+      updateProgress.value = { step: t('下载更新包...'), percentage: 30 }
 
       await http.post('/system/update', {
         update_backend: appStore.updateInfo?.backend_update_available ?? false,
@@ -130,18 +131,18 @@ export function useUpdateViewModel() {
         webui_download_url: appStore.updateInfo?.webui_download_url
       })
 
-      updateProgress.value = { step: '安装更新...', percentage: 70 }
+      updateProgress.value = { step: t('安装更新...'), percentage: 70 }
 
       // 重启系统
-      updateProgress.value = { step: '重启系统...', percentage: 90 }
+      updateProgress.value = { step: t('重启系统...'), percentage: 90 }
 
       try {
         await http.post('/system/restart')
-        throw new Error('重启系统失败')
+        throw new Error(t('重启系统失败'))
       } catch (error: any) {
         // 这个请求不可能成功
         updateProgress.value = {
-          step: '更新完成，等待系统启动...（若无响应，请手动刷新页面）',
+          step: t('更新完成，等待系统启动...（若无响应，请手动刷新页面）'),
           percentage: 100
         }
 
@@ -152,7 +153,7 @@ export function useUpdateViewModel() {
         }, 10000)
       }
     } catch (error: any) {
-      handleError(error, '更新失败')
+      handleError(error, t('更新失败'))
       updateInProgress.value = false
     }
   }

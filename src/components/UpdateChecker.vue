@@ -26,7 +26,7 @@ defineExpose({
   <n-modal v-model:show="showUpdateModal" :mask-closable="false">
     <n-card
       style="width: 600px"
-      title="发现新版本"
+      :title="$t('发现新版本')"
       :bordered="false"
       size="huge"
       role="dialog"
@@ -41,13 +41,13 @@ defineExpose({
       <n-space vertical size="large">
         <div v-if="!updateInProgress">
           <div class="version-info">
-            <div class="version-title">后端版本</div>
+            <div class="version-title">{{$t("后端版本")}}</div>
             <div class="version-row">
-              <span class="version-label">当前版本：</span>
+              <span class="version-label">{{$t("当前版本：")}}</span>
               <n-text>{{ appStore.updateInfo?.current_backend_version }}</n-text>
             </div>
             <div class="version-row">
-              <span class="version-label">最新版本：</span>
+              <span class="version-label">{{$t("最新版本：")}}</span>
               <n-text :type="appStore.updateInfo?.backend_update_available ? 'success' : ''">
                 {{ appStore.updateInfo?.latest_backend_version }}
               </n-text>
@@ -55,13 +55,13 @@ defineExpose({
           </div>
 
           <div class="version-info">
-            <div class="version-title">WebUI 版本</div>
+            <div class="version-title">{{$t("WebUI 版本")}}</div>
             <div class="version-row">
-              <span class="version-label">当前版本：</span>
+              <span class="version-label">{{$t("当前版本：")}}</span>
               <n-text>{{ appStore.updateInfo?.current_webui_version }}</n-text>
             </div>
             <div class="version-row">
-              <span class="version-label">最新版本：</span>
+              <span class="version-label">{{$t("最新版本：")}}</span>
               <n-text :type="appStore.updateInfo?.webui_update_available ? 'success' : ''">
                 {{ appStore.updateInfo?.latest_webui_version }}
               </n-text>
@@ -82,12 +82,12 @@ defineExpose({
 
       <template #footer>
         <n-space justify="end">
-          <n-button v-if="!updateInProgress" @click="skipVersion"> 跳过此版本 </n-button>
-          <n-button v-if="!updateInProgress" @click="remindLater"> 稍后提醒 </n-button>
+          <n-button v-if="!updateInProgress" @click="skipVersion"> {{$t("跳过此版本")}} </n-button>
+          <n-button v-if="!updateInProgress" @click="remindLater"> {{$t("稍后提醒")}} </n-button>
           <n-button v-if="!updateInProgress" type="primary" @click="startUpdate">
-            立即更新
+            {{$t("立即更新")}}
           </n-button>
-          <n-text v-else> 更新进行中，请勿关闭窗口... </n-text>
+          <n-text v-else> {{$t("更新进行中，请勿关闭窗口...")}} </n-text>
         </n-space>
       </template>
     </n-card>

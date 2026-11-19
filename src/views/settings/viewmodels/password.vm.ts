@@ -1,3 +1,4 @@
+import { t } from '@/i18n'
 import { ref } from 'vue'
 import { http } from '@/utils/http'
 import { useMessage } from 'naive-ui'
@@ -23,27 +24,27 @@ export function usePasswordViewModel() {
   const rules: FormRules = {
     old_password: {
       required: true,
-      message: '请输入当前密码',
+      message: t('请输入当前密码'),
       trigger: 'blur'
     },
     new_password: {
       required: true,
-      message: '请输入新密码',
+      message: t('请输入新密码'),
       trigger: 'blur'
     },
     confirm_password: {
       required: true,
-      message: '请确认新密码',
+      message: t('请确认新密码'),
       trigger: 'blur',
       validator: (rule: any, value: string) => {
-        return value === formData.value.new_password || new Error('两次输入的密码不一致')
+        return value === formData.value.new_password || new Error(t('两次输入的密码不一致'))
       }
     }
   }
 
   const handleSubmit = async () => {
     if (formData.value.new_password !== formData.value.confirm_password) {
-      message.error('两次输入的密码不一致')
+      message.error(t('两次输入的密码不一致'))
       return
     }
     loading.value = true
@@ -57,10 +58,10 @@ export function usePasswordViewModel() {
       })
       console.log(response)
       if (response.error) {
-        message.error(response.message || '密码修改失败')
+        message.error(response.message || t('密码修改失败'))
         return
       }
-      message.success('密码修改成功')
+      message.success(t('密码修改成功'))
       formData.value = {
         old_password: '',
         new_password: '',
@@ -72,7 +73,7 @@ export function usePasswordViewModel() {
       if (error.response?.data?.message) {
         message.error(error.response.data.message)
       } else {
-        message.error('密码修改失败')
+        message.error(t('密码修改失败'))
       }
     } finally {
       loading.value = false

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { t } from '@/i18n'
 import { ref, onMounted, watch, computed, onBeforeUnmount, nextTick } from 'vue'
 import {
   NScrollbar,
@@ -97,10 +98,10 @@ const formRules = {
     trigger: ['blur', 'input'],
     validator: (rule: any, value: string) => {
       if (!value) {
-        return new Error('工作流ID不能为空')
+        return new Error(t('工作流ID不能为空'))
       }
       if (!/^[^:]+:[^:]+$/.test(value)) {
-        return new Error('工作流ID必须是 group_id:workflow_id 的格式')
+        return new Error(t('工作流ID必须是 group_id:workflow_id 的格式'))
       }
       return true
     }
@@ -108,7 +109,7 @@ const formRules = {
   name: {
     required: true,
     trigger: ['blur', 'input'],
-    message: '工作流名称不能为空'
+    message: t('工作流名称不能为空')
   }
 }
 
@@ -194,7 +195,7 @@ const handleConnect = (params: Connection) => {
       updateBlocks()
     }
   } else {
-    message.error('类型不兼容，无法连接')
+    message.error(t('类型不兼容，无法连接'))
   }
 }
 
@@ -213,7 +214,7 @@ const handleEdgeUpdate = ({ edge, connection }: EdgeUpdateEvent) => {
       updateWires()
     }
   } else {
-    message.error('类型不兼容，无法连接')
+    message.error(t('类型不兼容，无法连接'))
   }
 }
 
@@ -395,7 +396,7 @@ const handleSave = async () => {
     await updateBlocks()
     const errors = await formRef.value?.validate()
     if (errors?.length > 0 || !formValue.value.name || !formValue.value.workflowId) {
-      message.error('工作流信息需要修改')
+      message.error(t('工作流信息需要修改'))
       showSettingsModal.value = true
       return
     }
@@ -405,7 +406,7 @@ const handleSave = async () => {
     await updateWires()
     emit('save', formValue.value.name, formValue.value.description, formValue.value.workflowId)
   } catch (error: any) {
-    message.error(error?.message || '保存失败')
+    message.error(error?.message || t('保存失败'))
   } finally {
     saving.value = false
     loadingBar.finish()
@@ -464,10 +465,10 @@ const handleImport = async () => {
               })
               updateBlocks()
               updateWires()
-              message.success('导入成功')
+              message.success(t('导入成功'))
             }
           } catch (error) {
-            message.error('导入失败：文件格式错误')
+            message.error(t('导入失败：文件格式错误'))
           }
         }
         reader.readAsText(file)
@@ -482,7 +483,7 @@ const handleImport = async () => {
 
 // 返回处理函数
 const handleBack = () => {
-  if (window.confirm('确定要离开此页面吗？您未保存的更改可能会丢失！')) {
+  if (window.confirm(t('确定要离开此页面吗？您未保存的更改可能会丢失！'))) {
     window.history.back()
   }
 }
@@ -560,7 +561,7 @@ watch(
 // 页面离开确认处理函数
 const beforeunloadHandler = (event: BeforeUnloadEvent) => {
   event.preventDefault()
-  event.returnValue = '您确定要离开此页面吗？未保存的更改可能会丢失。'
+  event.returnValue = t('您确定要离开此页面吗？未保存的更改可能会丢失。')
   return event.returnValue
 }
 
@@ -646,7 +647,7 @@ const onDrop = (event: DragEvent) => {
     addNodes([newNode])
     updateBlocks()
   } catch (error) {
-    console.error('添加节点失败:', error)
+    console.error(t('添加节点失败:'), error)
   }
 }
 </script>
@@ -695,7 +696,7 @@ const onDrop = (event: DragEvent) => {
                 </template>
               </NButton>
             </template>
-            <span>保存工作流</span>
+            <span>{{$t("保存工作流")}}</span>
           </NTooltip>
           <NTooltip placement="bottom" trigger="hover">
             <template #trigger>
@@ -713,7 +714,7 @@ const onDrop = (event: DragEvent) => {
                 </template>
               </NButton>
             </template>
-            <span>重置工作流</span>
+            <span>{{$t("重置工作流")}}</span>
           </NTooltip>
           <NTooltip placement="bottom" trigger="hover">
             <template #trigger>
@@ -731,7 +732,7 @@ const onDrop = (event: DragEvent) => {
                 </template>
               </NButton>
             </template>
-            <span>导入工作流</span>
+            <span>{{$t("导入工作流")}}</span>
           </NTooltip>
           <NTooltip placement="bottom" trigger="hover">
             <template #trigger>
@@ -743,7 +744,7 @@ const onDrop = (event: DragEvent) => {
                 </template>
               </NButton>
             </template>
-            <span>编辑工作流信息</span>
+            <span>{{$t("编辑工作流信息")}}</span>
           </NTooltip>
         </NSpace>
       </Panel>
@@ -765,7 +766,7 @@ const onDrop = (event: DragEvent) => {
     <NModal
       v-model:show="showSettingsModal"
       preset="card"
-      title="工作流设置"
+      :title="$t('工作流设置')"
       class="settings-modal"
       :style="{ width: '600px' }"
     >
@@ -779,31 +780,31 @@ const onDrop = (event: DragEvent) => {
         size="medium"
         class="settings-form"
       >
-        <NFormItem label="工作流ID" path="workflowId">
-          <NInput v-model:value="formValue.workflowId" placeholder="请输入 group_id:workflow_id" />
+        <NFormItem :label="$t('工作流ID')" path="workflowId">
+          <NInput v-model:value="formValue.workflowId" :placeholder="$t('请输入 group_id:workflow_id')" />
         </NFormItem>
-        <NFormItem label="名称" path="name">
-          <NInput v-model:value="formValue.name" placeholder="请输入工作流名称" />
+        <NFormItem :label="$t('名称')" path="name">
+          <NInput v-model:value="formValue.name" :placeholder="$t('请输入工作流名称')" />
         </NFormItem>
-        <NFormItem label="描述" path="description">
+        <NFormItem :label="$t('描述')" path="description">
           <NInput
             v-model:value="formValue.description"
             type="textarea"
-            placeholder="请输入工作流描述"
+            :placeholder="$t('请输入工作流描述')"
           />
         </NFormItem>
-        <NFormItem label="最大执行时间(秒)" path="config.max_execution_time">
+        <NFormItem :label="$t('最大执行时间(秒)')" path="config.max_execution_time">
           <NInputNumber
             v-model:value="formValue.config.max_execution_time"
-            placeholder="执行超过此时间后将强制停止"
+            :placeholder="$t('执行超过此时间后将强制停止')"
             :min="0"
           />
         </NFormItem>
       </NForm>
       <template #footer>
         <NSpace justify="end">
-          <NButton @click="showSettingsModal = false"> 取消 </NButton>
-          <NButton type="primary" :loading="saving" @click="handleSave"> 保存 </NButton>
+          <NButton @click="showSettingsModal = false"> {{$t("取消")}} </NButton>
+          <NButton type="primary" :loading="saving" @click="handleSave"> {{$t("保存")}} </NButton>
         </NSpace>
       </template>
     </NModal>

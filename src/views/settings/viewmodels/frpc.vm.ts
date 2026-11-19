@@ -1,3 +1,4 @@
+import { t } from '@/i18n'
 import { ref, onUnmounted } from 'vue'
 import { http } from '@/utils/http'
 import { useMessage, useDialog } from 'naive-ui'
@@ -44,7 +45,7 @@ export function useFrpcViewModel() {
   const rules: FormRules = {
     server_addr: {
       required: true,
-      message: '请输入服务器地址',
+      message: t('请输入服务器地址'),
       trigger: ['input', 'blur']
     },
     server_port: [
@@ -58,7 +59,7 @@ export function useFrpcViewModel() {
       {
         validator: (rule: FormItemRule, value: number) => {
           return (
-            (value >= 0 && value < 65536) || new Error('端口号必须在0-65535之间，0表示随机分配')
+            (value >= 0 && value < 65536) || new Error(t('端口号必须在0-65535之间，0表示随机分配'))
           )
         }
       }
@@ -75,7 +76,7 @@ export function useFrpcViewModel() {
       if (error.response?.data?.message) {
         message.error(error.response.data.message)
       } else {
-        message.error('获取FRP状态失败')
+        message.error(t('获取FRP状态失败'))
       }
     } finally {
       loading.value = false
@@ -87,12 +88,12 @@ export function useFrpcViewModel() {
     try {
       const response = await http.post<FrpcStatus>('/frpc/config', formData.value)
       status.value = response
-      message.success('配置已保存')
+      message.success(t('配置已保存'))
     } catch (error: any) {
       if (error.response?.data?.message) {
         message.error(error.response.data.message)
       } else {
-        message.error('保存配置失败')
+        message.error(t('保存配置失败'))
       }
     } finally {
       loading.value = false
@@ -104,12 +105,12 @@ export function useFrpcViewModel() {
     try {
       const response = await http.post<FrpcStatus>('/frpc/start')
       status.value = response
-      message.success('FRP服务已启动')
+      message.success(t('FRP服务已启动'))
     } catch (error: any) {
       if (error.response?.data?.message) {
         message.error(error.response.data.message)
       } else {
-        message.error('启动FRP服务失败')
+        message.error(t('启动FRP服务失败'))
       }
     } finally {
       loading.value = false
@@ -121,12 +122,12 @@ export function useFrpcViewModel() {
     try {
       const response = await http.post<FrpcStatus>('/frpc/stop')
       status.value = response
-      message.success('FRP服务已停止')
+      message.success(t('FRP服务已停止'))
     } catch (error: any) {
       if (error.response?.data?.message) {
         message.error(error.response.data.message)
       } else {
-        message.error('停止FRP服务失败')
+        message.error(t('停止FRP服务失败'))
       }
     } finally {
       loading.value = false
@@ -163,13 +164,13 @@ export function useFrpcViewModel() {
       })
 
       if (!response.ok) {
-        throw new Error(`HTTP错误: ${response.status}`)
+        throw new Error(t("HTTP错误: {0}", [response.status]))
       }
 
       // 获取响应的reader
       const reader = response.body?.getReader()
       if (!reader) {
-        throw new Error('无法获取响应流')
+        throw new Error(t('无法获取响应流'))
       }
 
       // 用于解析SSE消息的函数
@@ -181,7 +182,7 @@ export function useFrpcViewModel() {
             const { done, value } = await reader.read()
 
             if (done) {
-              console.log('SSE流已关闭')
+              console.log(t('SSE流已关闭'))
               break
             }
 
@@ -209,28 +210,28 @@ export function useFrpcViewModel() {
 
                   // 如果下载完成或出错，关闭连接
                   if (data.status === 'completed') {
-                    message.success('FRP 客户端下载成功')
+                    message.success(t('FRP 客户端下载成功'))
                     fetchStatus() // 刷新状态
                     downloading.value = false // 更新下载状态
                     reader.cancel()
                     break
                   } else if (data.status === 'error') {
-                    message.error(data.error_message || '下载 FRP 客户端失败')
+                    message.error(data.error_message || t('下载 FRP 客户端失败'))
                     downloading.value = false
                     reader.cancel()
                     break
                   }
                 } catch (error) {
-                  console.error('解析 SSE 消息失败', error)
+                  console.error(t('解析 SSE 消息失败'), error)
                 }
               }
             }
           }
         } catch (error) {
-          console.error('处理SSE流时出错', error)
+          console.error(t('处理SSE流时出错'), error)
           downloadStatus.value = 'error'
-          downloadErrorMessage.value = '处理下载进度数据失败'
-          message.error('处理下载进度数据失败')
+          downloadErrorMessage.value = t('处理下载进度数据失败')
+          message.error(t('处理下载进度数据失败'))
           downloading.value = false
         }
       }
@@ -239,8 +240,8 @@ export function useFrpcViewModel() {
       processSSE()
     } catch (error: any) {
       downloadStatus.value = 'error'
-      downloadErrorMessage.value = error.message || '下载 FRP 客户端失败'
-      message.error(error.message || '下载 FRP 客户端失败')
+      downloadErrorMessage.value = error.message || t('下载 FRP 客户端失败')
+      message.error(error.message || t('下载 FRP 客户端失败'))
       downloading.value = false
     }
   }

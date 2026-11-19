@@ -32,12 +32,12 @@ const handleCreateAdapter = (adapter: string) => {
           </svg>
         </n-icon>
       </div>
-      <n-text strong style="font-size: 24px" class="empty-title">海量模型，一网打尽</n-text>
+      <n-text strong style="font-size: 24px" class="empty-title">{{$t("海量模型，一网打尽")}}</n-text>
       <n-text style="font-size: 16px" class="empty-description"
-        >选择一个模型供应商，然后添加模型，即可开始使用，<a
+        >{{$t("选择一个模型供应商，然后添加模型，即可开始使用，")}}<a
           href="https://kirara-docs.app.lss233.com/guide/configuration/llm.html"
           target="_blank"
-          >查看文档</a
+          >{{$t("查看文档")}}</a
         >。</n-text
       >
       <div class="adapter-marquee-container">

@@ -6,9 +6,9 @@
           <n-icon size="28" class="title-icon">
             <IconMCP />
           </n-icon>
-          <span>MCP 服务器管理</span>
+          <span>{{$t("MCP 服务器管理")}}</span>
         </div>
-        <div class="mcp-description">管理和配置你的 MCP (Model Context Protocol) 服务器</div>
+        <div class="mcp-description">{{$t("管理和配置你的 MCP (Model Context Protocol) 服务器")}}</div>
       </div>
 
       <!-- 统计卡片 -->
@@ -22,7 +22,7 @@
                 </div>
                 <div class="stat-content">
                   <div class="stat-value">{{ formattedStatistics?.[0]?.value || 0 }}</div>
-                  <div class="stat-label">总服务器</div>
+                  <div class="stat-label">{{$t("总服务器")}}</div>
                 </div>
               </div>
             </n-card>
@@ -35,7 +35,7 @@
                 </div>
                 <div class="stat-content">
                   <div class="stat-value success">{{ formattedStatistics?.[3]?.value || 0 }}</div>
-                  <div class="stat-label">已连接</div>
+                  <div class="stat-label">{{$t("已连接")}}</div>
                 </div>
               </div>
             </n-card>
@@ -48,7 +48,7 @@
                 </div>
                 <div class="stat-content">
                   <div class="stat-value info">{{ formattedStatistics?.[6]?.value || 0 }}</div>
-                  <div class="stat-label">工具数</div>
+                  <div class="stat-label">{{$t("工具数")}}</div>
                 </div>
               </div>
             </n-card>
@@ -63,20 +63,20 @@
             <template #icon>
               <n-icon><add-outline /></n-icon>
             </template>
-            添加服务器
+            {{$t("添加服务器")}}
           </n-button>
           <n-button @click="refreshData" class="action-button" :loading="isLoading">
             <template #icon>
               <n-icon><refresh-outline /></n-icon>
             </template>
-            刷新
+            {{$t("刷新")}}
           </n-button>
         </n-space>
 
         <div class="filter-section">
           <n-input
             v-model:value="filterParams.query"
-            placeholder="搜索服务器名称或命令"
+            :placeholder="$t('搜索服务器名称或命令')"
             clearable
             class="search-input"
             @keydown.enter="applyFilter"
@@ -87,14 +87,14 @@
           </n-input>
           <n-select
             v-model:value="filterParams.connectionType"
-            placeholder="连接类型"
+            :placeholder="$t('连接类型')"
             clearable
             :options="filterOptions.connectionType"
             class="filter-select"
           />
           <n-select
             v-model:value="filterParams.status"
-            placeholder="状态"
+            :placeholder="$t('状态')"
             clearable
             :options="filterOptions.status"
             class="filter-select"
@@ -103,28 +103,28 @@
             <template #icon>
               <n-icon><close-outline /></n-icon>
             </template>
-            重置
+            {{$t("重置")}}
           </n-button>
           <n-button type="primary" @click="applyFilter" class="filter-button">
             <template #icon>
               <n-icon><search-outline /></n-icon>
             </template>
-            搜索
+            {{$t("搜索")}}
           </n-button>
         </div>
       </div>
 
       <!-- 服务器卡片列表 -->
-      <n-card title="服务器列表" class="server-list-card" :bordered="false">
+      <n-card :title="$t('服务器列表')" class="server-list-card" :bordered="false">
         <template #header-extra>
-          <n-text>总计: {{ totalServers }} 个服务器</n-text>
+          <n-text>{{$t("总计:")}} {{ totalServers }} {{$t("个服务器")}}</n-text>
         </template>
 
         <n-spin :show="isLoading">
           <div v-if="servers.length === 0" class="empty-state">
-            <n-empty description="暂无服务器">
+            <n-empty :description="$t('暂无服务器')">
               <template #extra>
-                <n-button type="primary" @click="openCreateModal"> 添加第一个服务器 </n-button>
+                <n-button type="primary" @click="openCreateModal"> {{$t("添加第一个服务器")}} </n-button>
               </template>
             </n-empty>
           </div>
@@ -172,7 +172,7 @@
                         </template>
                       </n-button>
                     </template>
-                    查看详情
+                    {{$t("查看详情")}}
                   </n-tooltip>
                   <n-tooltip trigger="hover">
                     <template #trigger>
@@ -188,7 +188,7 @@
                         </template>
                       </n-button>
                     </template>
-                    编辑
+                    {{$t("编辑")}}
                   </n-tooltip>
                   <n-tooltip trigger="hover">
                     <template #trigger>
@@ -218,7 +218,7 @@
                         </template>
                       </n-button>
                     </template>
-                    {{ server.connection_state === 'connected' ? '断开' : '连接' }}
+                    {{ server.connection_state === 'connected' ? $t('断开') : $t('连接') }}
                   </n-tooltip>
                   <n-popconfirm @positive-click="deleteServer(server.id)">
                     <template #trigger>
@@ -228,7 +228,7 @@
                         </template>
                       </n-button>
                     </template>
-                    确定要删除这个MCP服务器吗？
+                    {{$t("确定要删除这个MCP服务器吗？")}}
                   </n-popconfirm>
                 </div>
               </div>
@@ -238,7 +238,7 @@
                   <div class="server-info-item">
                     <div class="info-label">
                       <n-icon size="14"><cube-outline /></n-icon>
-                      连接类型:
+                      {{$t("连接类型:")}}
                     </div>
                     <div class="info-value">
                       <n-tag
@@ -252,7 +252,7 @@
                   <div class="server-info-item">
                     <div class="info-label">
                       <n-icon size="14"><code-outline /></n-icon>
-                      命令:
+                      {{$t("命令:")}}
                     </div>
                     <div class="info-value">
                       <code class="command-code">{{ server.command || '' }} {{ server.args }}</code>
@@ -266,7 +266,7 @@
                   <div class="server-info-item" v-if="server.description">
                     <div class="info-label">
                       <n-icon size="14"><information-circle-outline /></n-icon>
-                      描述:
+                      {{$t("描述:")}}
                     </div>
                     <div class="info-value">{{ server.description }}</div>
                   </div>
@@ -308,7 +308,7 @@
     <!-- 添加/编辑服务器模态框 -->
     <n-modal
       v-model:show="showServerModal"
-      :title="modalMode === 'create' ? '添加新服务器' : '编辑服务器'"
+      :title="modalMode === 'create' ? $t('添加新服务器') : $t('编辑服务器')"
       preset="card"
       :style="{ width: '600px' }"
       class="server-modal"
@@ -320,7 +320,7 @@
         :show-icon="true"
         style="margin-bottom: 16px"
       >
-        无法编辑已连接的 MCP 服务器，请先断开连接
+        {{$t("无法编辑已连接的 MCP 服务器，请先断开连接")}}
       </n-alert>
 
       <n-form
@@ -330,18 +330,18 @@
         label-width="120px"
         require-mark-placement="right-hanging"
       >
-        <n-form-item label="服务器ID" path="id" required>
+        <n-form-item :label="$t('服务器ID')" path="id" required>
           <n-input
             v-model:value="formModel.id"
-            placeholder="例如：api-mcp, local-server"
+            :placeholder="$t('例如：api-mcp, local-server')"
             :disabled="modalMode === 'edit'"
           />
           <template #feedback>
-            <n-text depth="3">服务器唯一标识符，创建后不可修改</n-text>
+            <n-text depth="3">{{$t("服务器唯一标识符，创建后不可修改")}}</n-text>
           </template>
         </n-form-item>
 
-        <n-form-item label="连接类型" path="connection_type" required>
+        <n-form-item :label="$t('连接类型')" path="connection_type" required>
           <div class="connection-type-buttons">
             <n-button
               :type="formModel.connection_type === 'stdio' ? 'primary' : 'default'"
@@ -370,38 +370,38 @@
 
         <!-- stdio 连接类型表单项 -->
         <template v-if="formModel.connection_type === 'stdio'">
-          <n-form-item label="命令" path="command" required>
+          <n-form-item :label="$t('命令')" path="command" required>
             <n-input
               v-model:value="formModel.command"
-              placeholder="例如：python, node"
+              :placeholder="$t('例如：python, node')"
               :disabled="modalMode === 'edit' && isServerRunning"
             />
             <template #feedback>
-              <n-text depth="3">要执行的命令，如 python 或 node</n-text>
+              <n-text depth="3">{{$t("要执行的命令，如 python 或 node")}}</n-text>
             </template>
           </n-form-item>
 
-          <n-form-item label="参数" path="args" required>
+          <n-form-item :label="$t('参数')" path="args" required>
             <n-input
               v-model:value="formModel.args"
-              placeholder="例如：path/to/script.py"
+              :placeholder="$t('例如：path/to/script.py')"
               :disabled="modalMode === 'edit' && isServerRunning"
             />
             <template #feedback>
-              <n-text depth="3">命令的参数，如脚本路径 path/to/script.py</n-text>
+              <n-text depth="3">{{$t("命令的参数，如脚本路径 path/to/script.py")}}</n-text>
             </template>
           </n-form-item>
 
-          <n-form-item label="环境变量" path="env">
+          <n-form-item :label="$t('环境变量')" path="env">
             <n-dynamic-input
               v-model:value="formModel.env"
               preset="pair"
-              key-placeholder="变量名"
-              value-placeholder="变量值"
+              :key-placeholder="$t('变量名')"
+              :value-placeholder="$t('变量值')"
               :disabled="modalMode === 'edit' && isServerRunning"
             />
             <template #feedback>
-              <n-text depth="3">命令执行时的环境变量</n-text>
+              <n-text depth="3">{{$t("命令执行时的环境变量")}}</n-text>
             </template>
           </n-form-item>
         </template>
@@ -411,11 +411,11 @@
           <n-form-item label="URL" path="url" required>
             <n-input
               v-model:value="formModel.url"
-              placeholder="例如：http://localhost:8000/sse"
+              :placeholder="$t('例如：http://localhost:8000/sse')"
               :disabled="modalMode === 'edit' && isServerRunning"
             />
             <template #feedback>
-              <n-text depth="3">SSE 服务器的 URL 地址</n-text>
+              <n-text depth="3">{{$t("SSE 服务器的 URL 地址")}}</n-text>
             </template>
           </n-form-item>
 
@@ -423,21 +423,21 @@
             <n-dynamic-input
               v-model:value="formModel.headers"
               preset="pair"
-              key-placeholder="Header 名"
-              value-placeholder="Header 值"
+              :key-placeholder="$t('Header 名')"
+              :value-placeholder="$t('Header 值')"
               :disabled="modalMode === 'edit' && isServerRunning"
             />
             <template #feedback>
-              <n-text depth="3">请求头信息</n-text>
+              <n-text depth="3">{{$t("请求头信息")}}</n-text>
             </template>
           </n-form-item>
         </template>
 
-        <n-form-item label="描述" path="description">
+        <n-form-item :label="$t('描述')" path="description">
           <n-input
             v-model:value="formModel.description"
             type="textarea"
-            placeholder="服务器的描述信息"
+            :placeholder="$t('服务器的描述信息')"
             :disabled="modalMode === 'edit' && isServerRunning"
           />
         </n-form-item>
@@ -445,13 +445,13 @@
 
       <template #footer>
         <n-space justify="end">
-          <n-button @click="showServerModal = false">取消</n-button>
+          <n-button @click="showServerModal = false">{{$t("取消")}}</n-button>
           <n-button
             type="primary"
             :loading="isLoading"
             @click="saveServer"
             :disabled="modalMode === 'edit' && isServerRunning"
-            >保存</n-button
+            >{{$t("保存")}}</n-button
           >
         </n-space>
       </template>
@@ -460,6 +460,7 @@
 </template>
 
 <script setup lang="ts">
+import { t } from '@/i18n'
 import { ref, h, computed, onMounted, reactive } from 'vue'
 import {
   NButton,
@@ -568,7 +569,7 @@ const saveServer = async () => {
     if (error.response?.data?.message) {
       message.error(error.response.data.message)
     } else {
-      message.error('保存服务器失败：' + (error.message || '未知错误'))
+      message.error(t('保存服务器失败：') + (error.message || t('未知错误')))
     }
   }
 }
@@ -577,14 +578,14 @@ const saveServer = async () => {
 const copyCommand = (server: MCPServer) => {
   const command = `${server.command || ''} ${server.args}`
   navigator.clipboard.writeText(command)
-  message.success('命令已复制到剪贴板')
+  message.success(t('命令已复制到剪贴板'))
 }
 
 // 复制URL到剪贴板
 const copyUrl = (server: MCPServer) => {
   if (server.url) {
     navigator.clipboard.writeText(server.url)
-    message.success('URL已复制到剪贴板')
+    message.success(t('URL已复制到剪贴板'))
   }
 }
 
@@ -599,11 +600,11 @@ const viewServerDetail = (serverId: string) => {
 // 格式化连接状态
 const formatConnectionState = (state: string) => {
   const stateMap: Record<string, string> = {
-    connected: '已连接',
-    connecting: '连接中',
-    disconnected: '已断开',
-    disconnecting: '断开中',
-    error: '错误'
+    connected: t('已连接'),
+    connecting: t('连接中'),
+    disconnected: t('已断开'),
+    disconnecting: t('断开中'),
+    error: t('错误')
   }
   return stateMap[state] || state
 }

@@ -1,3 +1,4 @@
+import { t } from '@/i18n'
 import { ref, computed, h } from 'vue'
 import { useTracingViewModel } from '../tracing.vm'
 import type { TraceBase, TracerDelegate, TraceStatistics } from '../tracing.vm'
@@ -54,9 +55,9 @@ class LLMTracerDelegate implements TracerDelegate<LLMTrace, LLMStatistics> {
     modelId: [] as { label: string; value: string }[],
     backendName: [] as { label: string; value: string }[],
     status: [
-      { label: '请求中', value: 'pending' },
-      { label: '成功', value: 'success' },
-      { label: '失败', value: 'failed' }
+      { label: t('请求中'), value: 'pending' },
+      { label: t('成功'), value: 'success' },
+      { label: t('失败'), value: 'failed' }
     ]
   })
 
@@ -89,37 +90,37 @@ class LLMTracerDelegate implements TracerDelegate<LLMTrace, LLMStatistics> {
         }
       },
       {
-        title: '模型',
+        title: t('模型'),
         key: 'model_id',
         width: 160
       },
       {
-        title: '后端',
+        title: t('后端'),
         key: 'backend_name',
         width: 120
       },
       {
-        title: '请求时间',
+        title: t('请求时间'),
         key: 'request_time',
         width: 180,
         render: (row: LLMTrace) => baseVM.formatDate(row.request_time)
       },
       {
-        title: '状态',
+        title: t('状态'),
         key: 'status',
         width: 100,
         render: (row: LLMTrace) => {
           const statusMap = {
-            pending: { type: 'warning' as const, text: '请求中' },
-            success: { type: 'success' as const, text: '成功' },
-            failed: { type: 'error' as const, text: '失败' }
+            pending: { type: 'warning' as const, text: t('请求中') },
+            success: { type: 'success' as const, text: t('成功') },
+            failed: { type: 'error' as const, text: t('失败') }
           }
           const status = statusMap[row.status] || statusMap.pending
           return h(NTag, { type: status.type, size: 'small' }, { default: () => status.text })
         }
       },
       {
-        title: '耗时',
+        title: t('耗时'),
         key: 'duration',
         width: 100,
         render: (row: LLMTrace) => baseVM.formatDuration(row.duration)
@@ -131,7 +132,7 @@ class LLMTracerDelegate implements TracerDelegate<LLMTrace, LLMStatistics> {
         render: (row: LLMTrace) => baseVM.formatTokens(row.total_tokens)
       },
       {
-        title: '操作',
+        title: t('操作'),
         key: 'actions',
         width: 100,
         render: (row: LLMTrace) => {
@@ -142,7 +143,7 @@ class LLMTracerDelegate implements TracerDelegate<LLMTrace, LLMStatistics> {
               type: 'primary',
               onClick: () => baseVM.viewTraceDetail(row.trace_id)
             },
-            { default: () => '查看详情' }
+            { default: () => t('查看详情') }
           )
         }
       }
@@ -151,22 +152,22 @@ class LLMTracerDelegate implements TracerDelegate<LLMTrace, LLMStatistics> {
 
   formatStatistics(stats: LLMStatistics) {
     return [
-      { label: '总请求数', value: stats.overview.total_requests },
-      { label: '请求中', value: stats.overview.pending_requests, type: 'warning' },
-      { label: '成功请求', value: stats.overview.success_requests, type: 'success' },
-      { label: '失败请求', value: stats.overview.failed_requests, type: 'error' },
-      { label: '总Token数', value: stats.overview.total_tokens, type: 'info' }
+      { label: t('总请求数'), value: stats.overview.total_requests },
+      { label: t('请求中'), value: stats.overview.pending_requests, type: 'warning' },
+      { label: t('成功请求'), value: stats.overview.success_requests, type: 'success' },
+      { label: t('失败请求'), value: stats.overview.failed_requests, type: 'error' },
+      { label: t('总Token数'), value: stats.overview.total_tokens, type: 'info' }
     ]
   }
 
   getDetailFields() {
     return [
-      { label: '模型', key: 'model_id' },
-      { label: '后端', key: 'backend_name' },
-      { label: '提示Token', key: 'prompt_tokens' },
-      { label: '补全Token', key: 'completion_tokens' },
-      { label: '总Token', key: 'total_tokens' },
-      { label: '缓存Token', key: 'cached_tokens' }
+      { label: t('模型'), key: 'model_id' },
+      { label: t('后端'), key: 'backend_name' },
+      { label: t('提示Token'), key: 'prompt_tokens' },
+      { label: t('补全Token'), key: 'completion_tokens' },
+      { label: t('总Token'), key: 'total_tokens' },
+      { label: t('缓存Token'), key: 'cached_tokens' }
     ]
   }
 }

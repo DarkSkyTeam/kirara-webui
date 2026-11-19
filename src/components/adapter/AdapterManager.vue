@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { t } from '@/i18n'
 import { ref, onMounted, h, watch } from 'vue'
 import {
   NCard,
@@ -56,13 +57,13 @@ const defaultFormModel = props.modelValue
 
 const formRules = ref<any>({
   name: [
-    { required: true, message: '请输入适配器名称', trigger: 'blur' },
+    { required: true, message: t('请输入适配器名称'), trigger: 'blur' },
     {
       validator: (rule: any, value: any) => {
         if (
           adapters.value.some((adapter) => adapter.name === value && modalType.value === 'create')
         ) {
-          return Promise.reject(new Error('适配器名称已存在'))
+          return Promise.reject(new Error(t('适配器名称已存在')))
         } else {
           return Promise.resolve()
         }
@@ -70,7 +71,7 @@ const formRules = ref<any>({
       trigger: 'blur'
     }
   ],
-  adapter: [{ required: true, message: '请选择适配器类型', trigger: 'change' }]
+  adapter: [{ required: true, message: t('请选择适配器类型'), trigger: 'change' }]
 })
 
 const emit = defineEmits(['update:modelValue'])
@@ -119,8 +120,8 @@ const fetchAdapterTypes = async () => {
     const { types } = await props.api.getAdapterTypes()
     adapterTypes.value = types
   } catch (error) {
-    $message.error('获取适配器类型失败: ' + error)
-    console.error('获取适配器类型失败:', error)
+    $message.error(t('获取适配器类型失败: ') + error)
+    console.error(t('获取适配器类型失败:'), error)
   }
 }
 
@@ -130,8 +131,8 @@ const fetchAdapters = async () => {
     const response = await props.api.getAdapters()
     adapters.value = response.adapters || response.data?.backends || []
   } catch (error) {
-    $message.error('获取适配器列表失败: ' + error)
-    console.error('获取适配器列表失败:', error)
+    $message.error(t('获取适配器列表失败: ') + error)
+    console.error(t('获取适配器列表失败:'), error)
   }
 }
 
@@ -142,8 +143,8 @@ const fetchAdapterConfigSchema = async (adapterType: string) => {
     const { configSchema: configSchemaData } = await props.api.getAdapterConfigSchema(adapterType)
     configSchema.value = configSchemaData
   } catch (error) {
-    $message.error('获取适配器配置模式失败: ' + error)
-    console.error('获取适配器配置模式失败:', error)
+    $message.error(t('获取适配器配置模式失败: ') + error)
+    console.error(t('获取适配器配置模式失败:'), error)
   } finally {
     loading.value = false
   }
@@ -201,7 +202,7 @@ const handleSubmitActual = async () => {
   try {
     const errors = await formRef.value?.validate()
     if (errors?.warnings?.length) {
-      $message.error('表单填写有误，请修正。')
+      $message.error(t('表单填写有误，请修正。'))
       return
     }
 
@@ -217,13 +218,13 @@ const handleSubmitActual = async () => {
       } else {
         await props.api.updateAdapter(submitData.name, submitData)
       }
-      $message.success('保存适配器成功')
+      $message.success(t('保存适配器成功'))
       await fetchAdapters()
     } catch (error) {
-      $message.error('保存适配器失败: ' + error)
+      $message.error(t('保存适配器失败: ') + error)
     }
   } catch (error) {
-    $message.error('保存适配器失败: ' + error)
+    $message.error(t('保存适配器失败: ') + error)
   } finally {
     processing.value = false
   }
@@ -235,14 +236,14 @@ defineExpose({
 
 // 删除适配器
 const handleDelete = async (adapter: any) => {
-  if (confirm(`确定要删除适配器 ${adapter.name} 吗？`)) {
+  if (confirm(t("确定要删除适配器 {0} 吗？", [adapter.name]))) {
     try {
       processing.value = true
       await props.api.deleteAdapter(adapter.name)
       await fetchAdapters()
-      $message.success('删除适配器成功')
+      $message.success(t('删除适配器成功'))
     } catch (error) {
-      $message.error('删除适配器失败: ' + error)
+      $message.error(t('删除适配器失败: ') + error)
     } finally {
       processing.value = false
     }
@@ -256,9 +257,9 @@ const handleToggleAdapter = async (adapter: any) => {
       processing.value = true
       await props.api.toggleAdapter(adapter.name, !adapter.is_running)
       await fetchAdapters()
-      $message.success('切换适配器状态成功')
+      $message.success(t('切换适配器状态成功'))
     } catch (error) {
-      $message.error('切换适配器状态失败: ' + error)
+      $message.error(t('切换适配器状态失败: ') + error)
     } finally {
       processing.value = false
     }
@@ -268,18 +269,18 @@ const handleToggleAdapter = async (adapter: any) => {
 const createColumns = (): DataTableColumns<any> => {
   const columns: DataTableColumns<any> = [
     {
-      title: '名称',
+      title: t('名称'),
       key: 'name'
     },
     {
-      title: '适配器',
+      title: t('适配器'),
       key: 'adapter'
     }
   ]
 
   if (props.api.toggleAdapter) {
     columns.push({
-      title: '状态',
+      title: t('状态'),
       key: 'is_running',
       render(row) {
         return h(NSwitch, {
@@ -291,7 +292,7 @@ const createColumns = (): DataTableColumns<any> => {
   }
 
   columns.push({
-    title: '操作',
+    title: t('操作'),
     key: 'actions',
     render(row) {
       return h(
@@ -305,7 +306,7 @@ const createColumns = (): DataTableColumns<any> => {
                 size: 'small',
                 onClick: () => handleEdit(row)
               },
-              { default: () => '编辑' }
+              { default: () => t('编辑') }
             ),
             h(
               NButton,
@@ -314,7 +315,7 @@ const createColumns = (): DataTableColumns<any> => {
                 type: 'error',
                 onClick: () => handleDelete(row)
               },
-              { default: () => '删除' }
+              { default: () => t('删除') }
             )
           ]
         }
@@ -341,7 +342,7 @@ onMounted(() => {
               <template #icon>
                 <NIcon><AddOutline /></NIcon>
               </template>
-              添加适配器
+              {{$t("添加适配器")}}
             </NButton>
           </template>
           <slot name="desc"></slot>
@@ -354,7 +355,7 @@ onMounted(() => {
     <n-modal v-model:show="showModal">
       <n-card
         style="width: 900px"
-        :title="modalType === 'create' ? '添加适配器' : '编辑适配器'"
+        :title="modalType === 'create' ? $t('添加适配器') : $t('编辑适配器')"
         :bordered="false"
         size="huge"
         role="dialog"
@@ -369,7 +370,7 @@ onMounted(() => {
               label-width="100"
               :rules="formRules"
             >
-              <n-form-item label="适配器" path="adapter">
+              <n-form-item :label="$t('适配器')" path="adapter">
                 <n-tooltip>
                   <template #trigger>
                     <n-select
@@ -378,15 +379,15 @@ onMounted(() => {
                     />
                   </template>
                   <div>
-                    如果没有找到合适的适配器，可以去
-                    <router-link to="/plugins/market">插件市场</router-link> 逛逛。
+                    {{$t("如果没有找到合适的适配器，可以去")}}
+                    <router-link to="/plugins/market">{{$t("插件市场")}}</router-link> {{$t("逛逛。")}}
                   </div>
                 </n-tooltip>
               </n-form-item>
-              <n-form-item label="名称" path="name">
+              <n-form-item :label="$t('名称')" path="name">
                 <n-input
                   v-model:value="formModel.name"
-                  placeholder="适配器名称用来区分不同的适配器"
+                  :placeholder="$t('适配器名称用来区分不同的适配器')"
                 />
               </n-form-item>
             </n-form>
@@ -404,8 +405,8 @@ onMounted(() => {
         </div>
         <template #footer>
           <n-space justify="end">
-            <n-button @click="showModal = false">取消</n-button>
-            <n-button type="primary" @click="handleSubmit">确定</n-button>
+            <n-button @click="showModal = false">{{$t("取消")}}</n-button>
+            <n-button type="primary" @click="handleSubmit">{{$t("确定")}}</n-button>
           </n-space>
         </template>
       </n-card>

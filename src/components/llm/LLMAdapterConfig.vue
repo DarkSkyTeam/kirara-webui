@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { t } from '@/i18n'
 import { ref, defineProps, defineEmits, watch } from 'vue'
 import {
   NForm,
@@ -46,7 +47,7 @@ const adapterRules = {
   name: [
     {
       required: true,
-      message: '请输入配置名称',
+      message: t('请输入配置名称'),
       trigger: 'blur'
     },
     {
@@ -59,7 +60,7 @@ const adapterRules = {
   ],
   adapter: {
     required: true,
-    message: '请选择接口类型',
+    message: t('请选择接口类型'),
     trigger: 'blur'
   }
 }
@@ -100,16 +101,16 @@ const handleAutoDetectModels = () => {
 <template>
   <div class="content-area bg" v-if="adapter">
     <div class="content-header">
-      <h2>模型管理</h2>
+      <h2>{{$t("模型管理")}}</h2>
       <n-space>
-        <n-button @click="handleDelete" type="error" v-if="!isCreating"> 删除配置 </n-button>
-        <n-button @click="handleSave" type="primary"> 保存配置 </n-button>
+        <n-button @click="handleDelete" type="error" v-if="!isCreating"> {{$t("删除配置")}} </n-button>
+        <n-button @click="handleSave" type="primary"> {{$t("保存配置")}} </n-button>
       </n-space>
     </div>
 
     <n-scrollbar style="height: var(--n-window-height)">
       <div class="content-body">
-        <n-card class="config-section" title="基本信息">
+        <n-card class="config-section" :title="$t('基本信息')">
           <n-form
             :model="adapter"
             label-placement="left"
@@ -119,28 +120,28 @@ const handleAutoDetectModels = () => {
             ref="formRef"
           >
             <n-form-item
-              label="配置名称"
+              :label="$t('配置名称')"
               path="name"
-              feedback="用于区分不同的配置，必须保持唯一"
+              :feedback="$t('用于区分不同的配置，必须保持唯一')"
               required
             >
-              <n-input v-model:value="adapter.name" placeholder="请输入配置名称" />
+              <n-input v-model:value="adapter.name" :placeholder="$t('请输入配置名称')" />
             </n-form-item>
 
             <n-form-item
-              label="接口类型"
+              :label="$t('接口类型')"
               path="adapter"
-              feedback="指定模型供应商，使用与模型供应商一致的 API 接口请求模型"
+              :feedback="$t('指定模型供应商，使用与模型供应商一致的 API 接口请求模型')"
               required
             >
               <n-select
                 v-model:value="adapter.adapter"
                 :options="adapterTypes.map((type) => ({ label: type, value: type }))"
-                placeholder="请选择接口类型"
+                :placeholder="$t('请选择接口类型')"
               />
             </n-form-item>
 
-            <n-form-item label="启用" path="enable">
+            <n-form-item :label="$t('启用')" path="enable">
               <n-switch v-model:value="adapter.enable" />
             </n-form-item>
 
@@ -155,7 +156,7 @@ const handleAutoDetectModels = () => {
           </n-form>
         </n-card>
 
-        <n-card class="config-section" title="模型列表">
+        <n-card class="config-section" :title="$t('模型列表')">
           <template #header-extra>
             <n-space>
               <n-tooltip trigger="hover">
@@ -170,21 +171,21 @@ const handleAutoDetectModels = () => {
                     <template #icon>
                       <n-icon><refresh-icon /></n-icon>
                     </template>
-                    自动检测
+                    {{$t("自动检测")}}
                   </n-button>
                 </template>
                 <div v-if="!isAutoDetectModelsSupported">
-                  <p>当前 API 不支持自动检测模型列表，请手动添加模型。</p>
+                  <p>{{$t("当前 API 不支持自动检测模型列表，请手动添加模型。")}}</p>
                 </div>
                 <div v-else>
-                  <p>当前 API 支持自动检测模型列表，请确保 API 信息正确填写，然后点击这里。</p>
+                  <p>{{$t("当前 API 支持自动检测模型列表，请确保 API 信息正确填写，然后点击这里。")}}</p>
                 </div>
               </n-tooltip>
               <n-button type="primary" @click="handleAddModel" size="small" class="action-button">
                 <template #icon>
                   <n-icon><add-icon /></n-icon>
                 </template>
-                添加模型
+                {{$t("添加模型")}}
               </n-button>
             </n-space>
           </template>

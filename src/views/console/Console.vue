@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { t } from '@/i18n'
 import { ref, onMounted, onUnmounted, computed, watch, nextTick } from 'vue'
 import {
   NCard,
@@ -100,7 +101,7 @@ const clearLogs = () => {
     {
       type: 'log',
       level: 'INFO',
-      content: '日志已清空',
+      content: t('日志已清空'),
       timestamp: new Date().toISOString(),
       tag: 'WebUI'
     }
@@ -128,7 +129,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <n-card title="服务器控制台" class="console-card">
+  <n-card :title="$t('服务器控制台')" class="console-card">
     <template #header-extra>
       <n-space justify="space-between" align="center">
         <n-button type="primary" tertiary @click="scrollToBottom" :disabled="!showScrollToBottom">
@@ -137,11 +138,11 @@ onUnmounted(() => {
               <ArrowDownOutline />
             </n-icon>
           </template>
-          回到底部
+          {{$t("回到底部")}}
         </n-button>
         <n-input
           v-model:value="filterText"
-          placeholder="输入关键词过滤日志"
+          :placeholder="$t('输入关键词过滤日志')"
           clearable
           @update:value="updateFilterText"
           style="width: 300px"
@@ -157,7 +158,7 @@ onUnmounted(() => {
                 <TrashOutline />
               </n-icon>
             </template>
-            清空日志
+            {{$t("清空日志")}}
           </n-button>
           <n-button :type="autoScroll ? 'primary' : 'default'" @click="toggleAutoScroll">
             <template #icon>
@@ -170,7 +171,7 @@ onUnmounted(() => {
                 </template>
               </n-icon>
             </template>
-            {{ autoScroll ? '自动滚动：开启' : '自动滚动：关闭' }}
+            {{ autoScroll ? $t('自动滚动：开启') : $t('自动滚动：关闭') }}
           </n-button>
           <n-button
             type="error"
@@ -181,7 +182,7 @@ onUnmounted(() => {
             <template #icon>
               <n-icon><refresh-outline /></n-icon>
             </template>
-            重启服务器
+            {{$t("重启服务器")}}
           </n-button>
         </n-space>
       </n-space>
@@ -204,7 +205,7 @@ onUnmounted(() => {
           </div>
         </div>
       </div>
-      <n-empty v-else description="暂无日志" />
+      <n-empty v-else :description="$t('暂无日志')" />
     </div>
   </n-card>
 </template>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { t } from '@/i18n'
 import { ref, onMounted, computed, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import {
@@ -55,36 +56,36 @@ const stepsStatus = computed(() => {
     {
       key: 'plugins',
       completed: completedSteps.plugins,
-      title: '浏览插件市场',
-      description: '发现并安装适合您需求的插件',
+      title: t('浏览插件市场'),
+      description: t('发现并安装适合您需求的插件'),
       path: '/plugins/market'
     },
     {
       key: 'im',
       completed: completedSteps.im,
-      title: '添加 IM',
-      description: '连接您常用的聊天平台',
+      title: t('添加 IM'),
+      description: t('连接您常用的聊天平台'),
       path: '/im'
     },
     {
       key: 'llm',
       completed: completedSteps.llm,
-      title: '添加 LLM',
-      description: '连接 AI 模型服务',
+      title: t('添加 LLM'),
+      description: t('连接 AI 模型服务'),
       path: '/llm'
     },
     {
       key: 'dispatch',
       completed: completedSteps.dispatch,
-      title: '了解调度规则',
-      description: '学习如何召唤和使用 Bot',
+      title: t('了解调度规则'),
+      description: t('学习如何召唤和使用 Bot'),
       path: '/workflow/dispatch-rules'
     },
     {
       key: 'workflow',
       completed: completedSteps.workflow,
-      title: '自定义工作流',
-      description: '打造专属于您的 AI 助手',
+      title: t('自定义工作流'),
+      description: t('打造专属于您的 AI 助手'),
       path: '/workflow'
     }
   ]
@@ -172,13 +173,13 @@ const parseUptime = computed(() => {
   const minutes = Math.floor((uptimeSeconds % 3600) / 60)
   const seconds = uptimeSeconds % 60
   if (days > 0) {
-    return `${days}天${hours}小时${minutes}分钟${seconds}秒`
+    return t("{0}天{1}小时{2}分钟{3}秒", [days, hours, minutes, seconds])
   } else if (hours > 0) {
-    return `${hours}小时${minutes}分钟${seconds}秒`
+    return t("{0}小时{1}分钟{2}秒", [hours, minutes, seconds])
   } else if (minutes > 0) {
-    return `${minutes}分钟${seconds}秒`
+    return t("{0}分钟{1}秒", [minutes, seconds])
   }
-  return `${seconds}秒`
+  return t("{0}秒", [seconds])
 })
 
 const timer = ref(0)
@@ -208,7 +209,7 @@ watch(
       <!-- 快速开始引导 -->
       <n-card
         v-if="showGuide && !isAllCompleted"
-        title="快速开始"
+        :title="$t('快速开始')"
         :bordered="false"
         class="guide-card"
       >
@@ -221,7 +222,7 @@ watch(
                 </template>
               </n-button>
             </template>
-            隐藏引导
+            {{$t("隐藏引导")}}
           </n-tooltip>
         </template>
         <n-steps :current="currentStep" class="guide-steps">
@@ -243,7 +244,7 @@ watch(
                   v-if="index === currentStep"
                   class="step-button"
                 >
-                  立刻前往
+                  {{$t("立刻前往")}}
                   <template #icon>
                     <n-icon>
                       <ArrowForwardOutline />
@@ -274,7 +275,7 @@ watch(
                 </n-icon>
               </div>
               <div class="status-info">
-                <div class="status-label">运行时长</div>
+                <div class="status-label">{{$t("运行时长")}}</div>
                 <div class="status-value">{{ parseUptime }}</div>
               </div>
             </div>
@@ -289,7 +290,7 @@ watch(
                 </n-icon>
               </div>
               <div class="status-info">
-                <div class="status-label">已接入 IM</div>
+                <div class="status-label">{{$t("已接入 IM")}}</div>
                 <div class="status-value">{{ appStore.systemStatus.activeAdapters }}</div>
               </div>
             </div>
@@ -304,7 +305,7 @@ watch(
                 </n-icon>
               </div>
               <div class="status-info">
-                <div class="status-label">已接入 LLM</div>
+                <div class="status-label">{{$t("已接入 LLM")}}</div>
                 <div class="status-value">{{ appStore.systemStatus.activeBackends }}</div>
               </div>
             </div>
@@ -319,7 +320,7 @@ watch(
                 </n-icon>
               </div>
               <div class="status-info">
-                <div class="status-label">已安装插件</div>
+                <div class="status-label">{{$t("已安装插件")}}</div>
                 <div class="status-value">{{ appStore.systemStatus.loadedPlugins }}</div>
               </div>
             </div>
@@ -337,14 +338,14 @@ watch(
       >
         <!-- 系统负载卡片 -->
         <n-gi>
-          <n-card :bordered="false" class="system-load-card" title="系统负载">
+          <n-card :bordered="false" class="system-load-card" :title="$t('系统负载')">
             <div class="load-container">
               <!-- CPU 使用率 -->
               <div class="load-item">
                 <div class="load-info">
                   <div class="load-title">
                     <n-icon size="18"><HardwareChipOutline /></n-icon>
-                    <span>CPU 使用率</span>
+                    <span>{{$t("CPU 使用率")}}</span>
                   </div>
                   <div class="load-value">{{ Math.round(appStore.systemStatus.cpuUsage) }}%</div>
                   <div class="load-progress">
@@ -369,7 +370,7 @@ watch(
                 <div class="load-info">
                   <div class="load-title">
                     <n-icon size="18"><ServerOutline /></n-icon>
-                    <span>内存可用率</span>
+                    <span>{{$t("内存可用率")}}</span>
                   </div>
                   <div class="load-value">
                     {{ Math.round(appStore.systemStatus.memoryUsage.percent * 100) }}%
@@ -388,10 +389,10 @@ watch(
                   </div>
                   <div class="load-detail">
                     <div>
-                      Kirara 占用: {{ appStore.systemStatus?.memoryUsage?.used?.toFixed(2) }}MB
+                      {{$t("Kirara 占用:")}} {{ appStore.systemStatus?.memoryUsage?.used?.toFixed(2) }}MB
                     </div>
                     <div>
-                      系统可用: {{ appStore.systemStatus?.memoryUsage?.free?.toFixed(2) }}MB
+                      {{$t("系统可用:")}} {{ appStore.systemStatus?.memoryUsage?.free?.toFixed(2) }}MB
                     </div>
                   </div>
                 </div>
@@ -402,7 +403,7 @@ watch(
 
         <!-- 系统信息卡片 -->
         <n-gi>
-          <n-card :bordered="false" class="system-info-card" title="系统信息">
+          <n-card :bordered="false" class="system-info-card" :title="$t('系统信息')">
             <n-grid
               cols="1 s:2 m:2 l:2"
               :x-gap="16"
@@ -418,13 +419,13 @@ watch(
               </n-gi>
               <n-gi>
                 <div class="info-item">
-                  <div class="info-label">操作系统</div>
+                  <div class="info-label">{{$t("操作系统")}}</div>
                   <div class="info-value">{{ appStore.systemStatus.platform || '-' }}</div>
                 </div>
               </n-gi>
               <n-gi>
                 <div class="info-item">
-                  <div class="info-label">CPU 型号</div>
+                  <div class="info-label">{{$t("CPU 型号")}}</div>
                   <div class="info-value">{{ appStore.systemStatus.cpuInfo || '-' }}</div>
                 </div>
               </n-gi>
@@ -441,7 +442,7 @@ watch(
 
       <!-- LLM 统计 -->
       <div class="llm-stats-container">
-        <div class="llm-stats-title">LLM 统计</div>
+        <div class="llm-stats-title">{{$t("LLM 统计")}}</div>
         <LLMStatistics />
       </div>
     </n-space>

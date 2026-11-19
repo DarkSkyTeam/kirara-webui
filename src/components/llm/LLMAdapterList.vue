@@ -55,7 +55,7 @@ const handleCreateAdapter = () => {
   <div class="sidebar">
     <div class="search-bar">
       <n-input-group>
-        <n-input v-model:value="searchQuery" placeholder="搜索..." clearable>
+        <n-input v-model:value="searchQuery" :placeholder="$t('搜索...')" clearable>
           <template #prefix>
             <n-icon><search-icon /></n-icon>
           </template>
@@ -64,7 +64,7 @@ const handleCreateAdapter = () => {
           <template #icon>
             <n-icon><add-icon /></n-icon>
           </template>
-          添加
+          {{$t("添加")}}
         </n-button>
       </n-input-group>
     </div>
@@ -87,7 +87,7 @@ const handleCreateAdapter = () => {
           </template>
           <template #suffix>
             <n-tag :type="adapter.enable ? 'success' : 'warning'" size="small" class="status-tag">
-              {{ adapter.enable ? '已启用' : '已禁用' }}
+              {{ adapter.enable ? $t('已启用') : $t('已禁用') }}
             </n-tag>
           </template>
           <n-thing
@@ -98,10 +98,10 @@ const handleCreateAdapter = () => {
           </n-thing>
         </n-list-item>
         <n-list-item v-if="filteredAdapters.length === 0 && adapters.length > 0">
-          <n-empty description="没有找到匹配的配置" />
+          <n-empty :description="$t('没有找到匹配的配置')" />
         </n-list-item>
         <n-list-item v-if="adapters.length === 0">
-          <n-empty description="暂无模型配置" />
+          <n-empty :description="$t('暂无模型配置')" />
         </n-list-item>
       </n-scrollbar>
     </n-list>

@@ -1,3 +1,4 @@
+import { t } from '@/i18n'
 // import { useMessage } from 'naive-ui'
 
 const BASE_URL = '/backend-api/api'
@@ -27,7 +28,7 @@ class Http {
         headers: headers
       })
     } catch (error) {
-      const message = error instanceof Error ? error.message : '请求失败'
+      const message = error instanceof Error ? error.message : t('请求失败')
       //   this.message.error(message)
       throw error
     }
@@ -58,12 +59,12 @@ class Http {
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.error || '请求失败')
+        throw new Error(data.error || t('请求失败'))
       }
 
       return data as T
     } catch (error) {
-      const message = error instanceof Error ? error.message : '请求失败'
+      const message = error instanceof Error ? error.message : t('请求失败')
       //   this.message.error(message)
       throw error
     }

@@ -1,3 +1,4 @@
+import { t } from '@/i18n'
 import { ref, computed } from 'vue'
 import { http } from '@/utils/http'
 import { useMessage, useDialog } from 'naive-ui'
@@ -88,13 +89,13 @@ export function useMCPViewModel() {
   // 过滤选项
   const filterOptions = computed(() => ({
     connectionType: [
-      { label: '标准IO', value: 'stdio' },
+      { label: t('标准IO'), value: 'stdio' },
       { label: 'SSE', value: 'sse' }
     ],
     status: [
-      { label: '已连接', value: 'connected' },
-      { label: '已断开', value: 'disconnected' },
-      { label: '错误', value: 'error' }
+      { label: t('已连接'), value: 'connected' },
+      { label: t('已断开'), value: 'disconnected' },
+      { label: t('错误'), value: 'error' }
     ]
   }))
 
@@ -103,13 +104,13 @@ export function useMCPViewModel() {
     if (!statistics.value) return []
 
     return [
-      { label: '总服务器数', value: statistics.value.total_servers },
-      { label: '标准IO服务器', value: statistics.value.stdio_servers },
-      { label: 'SSE服务器', value: statistics.value.sse_servers },
-      { label: '已连接', value: statistics.value.connected_servers, type: 'success' },
-      { label: '已断开', value: statistics.value.disconnected_servers, type: 'warning' },
-      { label: '错误', value: statistics.value.error_servers, type: 'error' },
-      { label: '工具总数', value: statistics.value.total_tools, type: 'info' }
+      { label: t('总服务器数'), value: statistics.value.total_servers },
+      { label: t('标准IO服务器'), value: statistics.value.stdio_servers },
+      { label: t('SSE服务器'), value: statistics.value.sse_servers },
+      { label: t('已连接'), value: statistics.value.connected_servers, type: 'success' },
+      { label: t('已断开'), value: statistics.value.disconnected_servers, type: 'warning' },
+      { label: t('错误'), value: statistics.value.error_servers, type: 'error' },
+      { label: t('工具总数'), value: statistics.value.total_tools, type: 'info' }
     ]
   })
 
@@ -130,8 +131,8 @@ export function useMCPViewModel() {
       totalServers.value = response.total
       totalPages.value = response.total_pages
     } catch (error) {
-      message.error('获取MCP服务器列表失败')
-      console.error('获取MCP服务器列表失败:', error)
+      message.error(t('获取MCP服务器列表失败'))
+      console.error(t('获取MCP服务器列表失败:'), error)
     } finally {
       isLoading.value = false
     }
@@ -143,7 +144,7 @@ export function useMCPViewModel() {
       const response = await http.get<MCPStatistics>('/mcp/statistics')
       statistics.value = response
     } catch (error) {
-      console.error('获取MCP统计信息失败:', error)
+      console.error(t('获取MCP统计信息失败:'), error)
     }
   }
 
@@ -155,8 +156,8 @@ export function useMCPViewModel() {
       currentServer.value = response
       return response
     } catch (error) {
-      message.error('获取MCP服务器详情失败')
-      console.error('获取MCP服务器详情失败:', error)
+      message.error(t('获取MCP服务器详情失败'))
+      console.error(t('获取MCP服务器详情失败:'), error)
       return null
     } finally {
       isLoading.value = false
@@ -171,8 +172,8 @@ export function useMCPViewModel() {
       serverTools.value = response
       return response
     } catch (error) {
-      message.error('获取MCP服务器工具列表失败')
-      console.error('获取MCP服务器工具列表失败:', error)
+      message.error(t('获取MCP服务器工具列表失败'))
+      console.error(t('获取MCP服务器工具列表失败:'), error)
       return []
     } finally {
       isLoading.value = false
@@ -189,7 +190,7 @@ export function useMCPViewModel() {
         `/mcp/servers/check/${formModel.value.id}`
       )
       if (!checkResponse.is_available) {
-        message.error('服务器ID已存在，请使用唯一的ID')
+        message.error(t('服务器ID已存在，请使用唯一的ID'))
         return
       }
 
@@ -213,14 +214,14 @@ export function useMCPViewModel() {
       }
 
       await http.post('/mcp/servers', serverData)
-      message.success('MCP服务器创建成功')
+      message.success(t('MCP服务器创建成功'))
       showServerModal.value = false
       resetForm()
       fetchServers()
       fetchStatistics()
     } catch (error) {
-      message.error('创建MCP服务器失败')
-      console.error('创建MCP服务器失败:', error)
+      message.error(t('创建MCP服务器失败'))
+      console.error(t('创建MCP服务器失败:'), error)
       throw error // 重新抛出错误以便上层处理
     } finally {
       isLoading.value = false
@@ -252,14 +253,14 @@ export function useMCPViewModel() {
       }
 
       await http.put(`/mcp/servers/${formModel.value.id}`, serverData)
-      message.success('MCP服务器更新成功')
+      message.success(t('MCP服务器更新成功'))
       showServerModal.value = false
       resetForm()
       fetchServers()
       fetchStatistics()
     } catch (error) {
-      message.error('更新MCP服务器失败')
-      console.error('更新MCP服务器失败:', error)
+      message.error(t('更新MCP服务器失败'))
+      console.error(t('更新MCP服务器失败:'), error)
       throw error // 重新抛出错误以便上层处理
     } finally {
       isLoading.value = false
@@ -271,12 +272,12 @@ export function useMCPViewModel() {
     try {
       isLoading.value = true
       await http.delete(`/mcp/servers/${serverId}`)
-      message.success('MCP服务器删除成功')
+      message.success(t('MCP服务器删除成功'))
       fetchServers()
       fetchStatistics()
     } catch (error) {
-      message.error('删除MCP服务器失败')
-      console.error('删除MCP服务器失败:', error)
+      message.error(t('删除MCP服务器失败'))
+      console.error(t('删除MCP服务器失败:'), error)
     } finally {
       isLoading.value = false
     }
@@ -287,12 +288,12 @@ export function useMCPViewModel() {
     try {
       isLoading.value = true
       await http.post(`/mcp/servers/${serverId}/start`)
-      message.success('MCP服务器连接成功')
+      message.success(t('MCP服务器连接成功'))
       fetchServers()
       fetchStatistics()
     } catch (error) {
-      message.error('连接MCP服务器失败')
-      console.error('连接MCP服务器失败:', error)
+      message.error(t('连接MCP服务器失败'))
+      console.error(t('连接MCP服务器失败:'), error)
     } finally {
       isLoading.value = false
     }
@@ -303,12 +304,12 @@ export function useMCPViewModel() {
     try {
       isLoading.value = true
       await http.post(`/mcp/servers/${serverId}/stop`)
-      message.success('MCP服务器断开成功')
+      message.success(t('MCP服务器断开成功'))
       fetchServers()
       fetchStatistics()
     } catch (error) {
-      message.error('断开MCP服务器失败')
-      console.error('断开MCP服务器失败:', error)
+      message.error(t('断开MCP服务器失败'))
+      console.error(t('断开MCP服务器失败:'), error)
     } finally {
       isLoading.value = false
     }
@@ -416,7 +417,7 @@ export function useMCPViewModel() {
       const response = await http.get<MCPTool[]>(`/mcp/servers/${serverId}/tools`)
       return response
     } catch (error) {
-      console.error('获取MCP服务器工具列表失败:', error)
+      console.error(t('获取MCP服务器工具列表失败:'), error)
       return []
     }
   }
@@ -428,8 +429,8 @@ export function useMCPViewModel() {
       const response = await http.get<MCPServer>(`/mcp/servers/${serverId}`)
       return response
     } catch (error) {
-      console.error(`获取MCP服务器 ${serverId} 详情失败:`, error)
-      message.error('获取服务器详情失败')
+      console.error(t("获取MCP服务器 {0} 详情失败:", [serverId]), error)
+      message.error(t('获取服务器详情失败'))
       throw error
     } finally {
       isLoading.value = false

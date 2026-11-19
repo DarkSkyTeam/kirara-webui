@@ -1,3 +1,4 @@
+import { t } from '@/i18n'
 import { ref, computed, type Ref } from 'vue'
 import { http } from '@/utils/http'
 import { useMessage, useDialog } from 'naive-ui'
@@ -146,8 +147,8 @@ export function useTracingViewModel<S extends TraceStatistics>(
       totalTraces.value = response.total
       totalPages.value = response.total_pages
     } catch (error) {
-      message.error('获取追踪记录失败')
-      console.error('获取追踪记录失败:', error)
+      message.error(t('获取追踪记录失败'))
+      console.error(t('获取追踪记录失败:'), error)
     } finally {
       isLoading.value = false
     }
@@ -164,7 +165,7 @@ export function useTracingViewModel<S extends TraceStatistics>(
         delegate.updateFilterOptions(response as any)
       }
     } catch (error) {
-      console.error('获取统计信息失败:', error)
+      console.error(t('获取统计信息失败:'), error)
     }
   }
 
@@ -176,8 +177,8 @@ export function useTracingViewModel<S extends TraceStatistics>(
       traceDetail.value = response
       return response
     } catch (error) {
-      message.error('获取追踪详情失败')
-      console.error('获取追踪详情失败:', error)
+      message.error(t('获取追踪详情失败'))
+      console.error(t('获取追踪详情失败:'), error)
       return null
     } finally {
       isLoading.value = false
@@ -220,16 +221,16 @@ export function useTracingViewModel<S extends TraceStatistics>(
           const data = JSON.parse(event.data)
           handleWebSocketMessage(data)
         } catch (error) {
-          console.error('处理WebSocket消息失败:', error)
+          console.error(t('处理WebSocket消息失败:'), error)
         }
       }
 
       socket.onclose = handleWebSocketClose
       socket.onerror = handleWebSocketError
     } catch (error) {
-      console.error('连接WebSocket失败:', error)
+      console.error(t('连接WebSocket失败:'), error)
       isConnected.value = false
-      message.error('连接追踪系统失败')
+      message.error(t('连接追踪系统失败'))
     }
   }
 
@@ -279,15 +280,15 @@ export function useTracingViewModel<S extends TraceStatistics>(
         connectWebSocket()
       }, reconnectInterval)
     } else if (reconnectAttempts >= maxReconnectAttempts) {
-      message.error('重连次数已达上限，请手动刷新页面重试')
+      message.error(t('重连次数已达上限，请手动刷新页面重试'))
     }
   }
 
   // WebSocket错误处理
   const handleWebSocketError = (error: Event) => {
-    console.error('WebSocket错误:', error)
+    console.error(t('WebSocket错误:'), error)
     isConnected.value = false
-    message.error('连接追踪系统失败')
+    message.error(t('连接追踪系统失败'))
   }
 
   // 断开WebSocket连接
@@ -363,14 +364,14 @@ export function useTracingViewModel<S extends TraceStatistics>(
   }
 
   const formatDuration = (durationMs: number | null) => {
-    if (durationMs === null) return '未知'
+    if (durationMs === null) return t('未知')
     return durationMs < 1000
-      ? `${durationMs.toFixed(2)} 毫秒`
-      : `${(durationMs / 1000).toFixed(2)} 秒`
+      ? t("{0} 毫秒", [durationMs.toFixed(2)])
+      : t("{0} 秒", [(durationMs / 1000).toFixed(2)])
   }
 
   const formatTokens = (tokens: number | null) => {
-    if (tokens === null || tokens === undefined) return '未知'
+    if (tokens === null || tokens === undefined) return t('未知')
     return tokens.toLocaleString()
   }
 

@@ -1,7 +1,7 @@
 <!-- LLM 追踪列表组件 -->
 <template>
   <div class="trace-list">
-    <n-card title="LLM 请求追踪" class="trace-card">
+    <n-card :title="$t('LLM 请求追踪')" class="trace-card">
       <!-- 顶部操作栏 -->
       <template #header-extra>
         <n-space align="center" :size="12">
@@ -10,13 +10,13 @@
             :color="isConnected ? 'success' : 'error'"
             class="connection-status"
           >
-            <n-text>{{ isConnected ? '实时连接' : '未连接' }}</n-text>
+            <n-text>{{ isConnected ? $t('实时连接') : $t('未连接') }}</n-text>
           </n-badge>
           <n-button type="primary" @click="refreshData" :loading="isLoading" class="refresh-button">
             <template #icon>
               <n-icon><refresh-outline /></n-icon>
             </template>
-            刷新
+            {{$t("刷新")}}
           </n-button>
         </n-space>
       </template>
@@ -42,7 +42,7 @@
             <n-grid-item>
               <n-select
                 v-model:value="filterParams.modelId"
-                placeholder="选择模型"
+                :placeholder="$t('选择模型')"
                 clearable
                 :options="filterOptions.modelId"
                 class="filter-select"
@@ -51,7 +51,7 @@
             <n-grid-item>
               <n-select
                 v-model:value="filterParams.backendName"
-                placeholder="选择后端"
+                :placeholder="$t('选择后端')"
                 clearable
                 :options="filterOptions.backendName"
                 class="filter-select"
@@ -60,7 +60,7 @@
             <n-grid-item>
               <n-select
                 v-model:value="filterParams.status"
-                placeholder="请求状态"
+                :placeholder="$t('请求状态')"
                 clearable
                 :options="statusOptions"
                 class="filter-select"
@@ -69,7 +69,7 @@
             <n-grid-item>
               <n-input
                 v-model:value="filterParams.query"
-                placeholder="搜索关键词"
+                :placeholder="$t('搜索关键词')"
                 clearable
                 class="filter-input"
               >
@@ -82,8 +82,8 @@
 
           <div class="filter-actions">
             <n-space>
-              <n-button @click="resetFilter" class="filter-button">重置</n-button>
-              <n-button @click="applyFilter" type="primary" class="filter-button">应用</n-button>
+              <n-button @click="resetFilter" class="filter-button">{{$t("重置")}}</n-button>
+              <n-button @click="applyFilter" type="primary" class="filter-button">{{$t("应用")}}</n-button>
             </n-space>
           </div>
         </n-card>
@@ -94,8 +94,8 @@
         <n-card class="trace-list-card">
           <template #header>
             <div class="list-header">
-              <div class="list-title">追踪记录</div>
-              <n-text class="list-count">共 {{ totalTraces }} 条记录</n-text>
+              <div class="list-title">{{$t("追踪记录")}}</div>
+              <n-text class="list-count">{{$t("共")}} {{ totalTraces }} {{$t("条记录")}}</n-text>
             </div>
           </template>
 
@@ -112,7 +112,7 @@
               pageSizes: [10, 20, 50, 100],
               onUpdatePage: handlePageChange,
               onUpdatePageSize: handlePageSizeChange,
-              prefix: ({ itemCount }) => `共 ${itemCount} 条记录`
+              prefix: ({ itemCount }) => $t('共 {0} 条记录', [itemCount])
             }"
             :bordered="false"
             class="trace-table"

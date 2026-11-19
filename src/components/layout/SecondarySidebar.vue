@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { t } from '@/i18n'
 import { computed, h, watch } from 'vue'
 import { NMenu, NDivider } from 'naive-ui'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
@@ -24,17 +25,17 @@ const menuOptions = computed<MenuOption[]>(() => {
     case 'workflow':
       return [
         {
-          label: () => '工作流列表',
+          label: () => t('工作流列表'),
           key: 'workflow-list',
           path: '/workflow'
         },
         {
-          label: () => '触发规则',
+          label: () => t('触发规则'),
           key: 'workflow-dispatch-rules',
           path: '/workflow/dispatch-rules'
         },
         {
-          label: () => '模板管理',
+          label: () => t('模板管理'),
           key: 'workflow-templates',
           path: '/workflow/templates'
         }
@@ -44,12 +45,12 @@ const menuOptions = computed<MenuOption[]>(() => {
     case 'memory':
       return [
         {
-          label: () => '记忆管理',
+          label: () => t('记忆管理'),
           key: 'memory-list',
           path: '/memory'
         },
         {
-          label: () => '记忆检索',
+          label: () => t('记忆检索'),
           key: 'memory-search',
           path: '/memory/search'
         }
@@ -57,7 +58,7 @@ const menuOptions = computed<MenuOption[]>(() => {
     case 'tracing':
       return [
         {
-          label: () => 'LLM 请求记录',
+          label: () => t('LLM 请求记录'),
           key: 'tracing-llm',
           path: '/tracing/llm'
         }
@@ -99,13 +100,13 @@ const getDefaultSubModule = (module: string) => {
 const getMenuTitle = (key: string) => {
   switch (key) {
     case 'workflow':
-      return '工作流'
+      return t('工作流')
     case 'plugins':
-      return '插件'
+      return t('插件')
     case 'memory':
-      return '记忆'
+      return t('记忆')
     case 'tracing':
-      return '系统记录'
+      return t('系统记录')
     default:
       return ''
   }

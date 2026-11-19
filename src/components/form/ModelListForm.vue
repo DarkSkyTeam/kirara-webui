@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { t } from '@/i18n'
 import { h, ref, computed } from 'vue'
 import { NButton, NIcon, NCard, NAvatar, NEmpty, NDivider } from 'naive-ui'
 import { CloseOutline, PencilOutline } from '@vicons/ionicons5'
@@ -32,10 +33,10 @@ const getRandomLetter = (str: string) => {
 
 // 模型类型中文映射
 const modelTypeMap: Record<string, string> = {
-  llm: '语言模型',
-  embedding: '嵌入模型',
-  image_generation: '图像生成',
-  audio: '音频生成'
+  llm: t('语言模型'),
+  embedding: t('嵌入模型'),
+  image_generation: t('图像生成'),
+  audio: t('音频生成')
 }
 
 // 按模型类型分组
@@ -111,7 +112,7 @@ const renderModelCard = (model: ModelInfo, index: number) => {
                 { default: () => getRandomLetter(model.id) || 'M' }
               ),
               h('div', { class: 'model-card-title' }, [
-                h('div', { class: 'model-name' }, model.id || '未命名模型')
+                h('div', { class: 'model-name' }, model.id || t('未命名模型'))
               ]),
               h('div', { class: 'model-card-actions' }, [
                 h(
@@ -149,7 +150,7 @@ const renderModelCard = (model: ModelInfo, index: number) => {
                     { class: 'model-abilities' },
                     enabledAbilities.map((ability) => h('div', { class: 'ability-tag' }, ability))
                   )
-                : h('div', { class: 'no-abilities' }, '无能力设置')
+                : h('div', { class: 'no-abilities' }, t('无能力设置'))
             ])
           ]
         )
@@ -207,7 +208,7 @@ const getModelIndex = (model: ModelInfo) => {
       </div>
     </div>
     <div v-else class="empty-list">
-      <n-empty description="请在这里添加要使用的模型" />
+      <n-empty :description="$t('请在这里添加要使用的模型')" />
     </div>
   </div>
 </template>

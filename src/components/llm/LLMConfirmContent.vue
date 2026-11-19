@@ -30,14 +30,14 @@ const handleCancel = () => {
     <div class="confirm-title">{{ title }}</div>
     <div class="confirm-body">{{ content }}</div>
     <n-space justify="end" style="margin-top: 24px">
-      <n-button @click="handleCancel" class="cancel-button">{{ cancelText || '取消' }}</n-button>
+      <n-button @click="handleCancel" class="cancel-button">{{ cancelText || $t('取消') }}</n-button>
       <n-button
         :type="confirmType || 'primary'"
         @click="handleConfirm"
         :loading="loading"
         class="confirm-button"
       >
-        {{ confirmText || '确认' }}
+        {{ confirmText || $t('确认') }}
       </n-button>
     </n-space>
   </div>

@@ -46,10 +46,10 @@
                     >{{ keyName }}</span
                   >
                   <n-button style="margin-left: 12px" @click="removeObjectKey(j, keyName)">
-                    删除
+                    {{$t("删除")}}
                   </n-button>
                   <n-button attr-type="button" @click="addObjectArrayItem(j, keyName)">
-                    增加
+                    {{$t("增加")}}
                   </n-button>
                 </p>
 
@@ -67,15 +67,15 @@
                     style="margin-left: 12px"
                     @click="removeObjectArrayItem(j, keyName, childIndex)"
                   >
-                    删除
+                    {{$t("删除")}}
                   </n-button>
                 </n-form-item>
               </template>
 
               <n-form-item>
                 <n-space>
-                  <n-button attr-type="button" @click="addObjectKey(j, '请输入 AI 名')">
-                    增加
+                  <n-button attr-type="button" @click="addObjectKey(j, $t('请输入 AI 名'))">
+                    {{$t("增加")}}
                   </n-button>
                 </n-space>
               </n-form-item>
@@ -86,7 +86,7 @@
               <n-form-item
                 v-for="(item, index) in props.configurationValue[j]"
                 :key="index"
-                :label="`第${index + 1}项`"
+                :label="$t('第{0}项', [index + 1])"
               >
                 <n-input
                   v-model:value="props.configurationValue[j][index]"
@@ -94,13 +94,13 @@
                   style="min-width: 25%"
                 />
                 <n-button style="margin-left: 12px" @click="removeArrayItem(j, index)">
-                  删除
+                  {{$t("删除")}}
                 </n-button>
               </n-form-item>
 
               <n-form-item>
                 <n-space>
-                  <n-button attr-type="button" @click="addArrayItem(j)"> 增加 </n-button>
+                  <n-button attr-type="button" @click="addArrayItem(j)"> {{$t("增加")}} </n-button>
                 </n-space>
               </n-form-item>
             </template>
@@ -112,7 +112,7 @@
             >
               <n-input-number
                 v-model:value="props.configurationValue[j]"
-                :placeholder="'' + (config.default || '请输入……')"
+                :placeholder="'' + (config.default || $t('请输入……'))"
                 style="min-width: 25%"
               />
             </n-form-item>
@@ -124,7 +124,7 @@
               <n-input
                 v-model:value="props.configurationValue[j]"
                 type="password"
-                :placeholder="'' + (config.default || '请输入……')"
+                :placeholder="'' + (config.default || $t('请输入……'))"
                 style="min-width: 25%"
               />
             </n-form-item>
@@ -132,7 +132,7 @@
               <n-input
                 v-model:value="props.configurationValue[j]"
                 type="text"
-                :placeholder="'' + (config.default || '请输入……')"
+                :placeholder="'' + (config.default || $t('请输入……'))"
                 style="min-width: 25%"
               />
             </n-form-item>

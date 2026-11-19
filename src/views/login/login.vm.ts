@@ -1,3 +1,4 @@
+import { t } from '@/i18n'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import type { FormRules } from 'naive-ui'
@@ -15,20 +16,20 @@ export function useLoginViewModel() {
   // 表单验证规则
   const rules: FormRules = {
     password: [
-      { required: true, message: '请输入密码' },
-      { min: 6, message: '密码长度不能小于6位' }
+      { required: true, message: t('请输入密码') },
+      { min: 6, message: t('密码长度不能小于6位') }
     ],
     confirmPassword: [
       {
         required: true,
-        message: '请确认密码',
+        message: t('请确认密码'),
         trigger: ['input', 'blur']
       },
       {
         validator: (rule, value) => {
           return value === formModel.value.password
         },
-        message: '两次输入的密码不一致',
+        message: t('两次输入的密码不一致'),
         trigger: ['input', 'blur']
       }
     ]

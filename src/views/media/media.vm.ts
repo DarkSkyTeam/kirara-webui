@@ -1,3 +1,4 @@
+import { t } from '@/i18n'
 import { ref, reactive, computed } from 'vue'
 import { http } from '@/utils/http'
 import { useMessage, useDialog } from 'naive-ui'
@@ -100,12 +101,12 @@ export function useMediaViewModel() {
     // 默认处理器 - 用于未实现的模块
     default: {
       view: (key: string, module?: string) => {
-        message.info(`查看${module || ''}引用功能暂未实现`)
-        console.log('未实现的引用查看:', module, key)
+        message.info(t("查看{0}引用功能暂未实现", [module || '']))
+        console.log(t('未实现的引用查看:'), module, key)
       },
       delete: async (key: string, module?: string) => {
-        message.info(`删除${module || ''}引用功能暂未实现`)
-        console.log('未实现的引用删除:', module, key)
+        message.info(t("删除{0}引用功能暂未实现", [module || '']))
+        console.log(t('未实现的引用删除:'), module, key)
         return false
       }
     }
@@ -133,7 +134,7 @@ export function useMediaViewModel() {
         const newReferences = [...previewItem.value.metadata.references]
         newReferences.splice(index, 1)
         previewItem.value.metadata.references = newReferences
-        message.success('引用删除成功')
+        message.success(t('引用删除成功'))
       }
     }
   }
@@ -145,7 +146,7 @@ export function useMediaViewModel() {
 
   // 错误处理
   const handleError = (error: any, defaultMessage: string) => {
-    console.error('媒体管理错误:', error)
+    console.error(t('媒体管理错误:'), error)
     if (error.response?.data?.error) {
       message.error(error.response.data.error)
     } else if (error.message) {
@@ -165,7 +166,7 @@ export function useMediaViewModel() {
       configCleanupDuration.value = response.cleanup_duration
       configAutoRemoveUnreferenced.value = response.auto_remove_unreferenced
     } catch (error) {
-      handleError(error, '获取系统信息失败')
+      handleError(error, t('获取系统信息失败'))
       systemInfo.value = null // 出错时清空
     } finally {
       systemInfoLoading.value = false
@@ -174,7 +175,7 @@ export function useMediaViewModel() {
 
   const saveConfig = async () => {
     if (configCleanupDuration.value === null || configAutoRemoveUnreferenced.value === null) {
-      message.error('配置项不能为空')
+      message.error(t('配置项不能为空'))
       return
     }
     try {
@@ -182,12 +183,12 @@ export function useMediaViewModel() {
         cleanup_duration: configCleanupDuration.value,
         auto_remove_unreferenced: configAutoRemoveUnreferenced.value
       })
-      message.success('配置保存成功')
+      message.success(t('配置保存成功'))
       showConfigModal.value = false
       // 重新获取系统信息以更新显示
       fetchSystemInfo()
     } catch (error) {
-      handleError(error, '保存配置失败')
+      handleError(error, t('保存配置失败'))
     }
   }
 
@@ -226,7 +227,7 @@ export function useMediaViewModel() {
 
       total.value = response.total
     } catch (error) {
-      handleError(error, '获取媒体列表失败')
+      handleError(error, t('获取媒体列表失败'))
     } finally {
       loading.value = false
     }
@@ -282,14 +283,14 @@ export function useMediaViewModel() {
     if (!item) return
 
     dialog.warning({
-      title: '确认删除',
-      content: `确定要删除文件 "${item.metadata.filename}" 吗？`,
-      positiveText: '确定',
-      negativeText: '取消',
+      title: t('确认删除'),
+      content: t("确定要删除文件 \"{0}\" 吗？", [item.metadata.filename]),
+      positiveText: t('确定'),
+      negativeText: t('取消'),
       onPositiveClick: async () => {
         try {
           await http.delete(`/media/delete/${item.id}`)
-          message.success('删除成功')
+          message.success(t('删除成功'))
           showPreviewModal.value = false
           fetchMediaList()
           // 如果在选中列表中，也要移除
@@ -298,7 +299,7 @@ export function useMediaViewModel() {
             selectedMediaIds.value.splice(index, 1)
           }
         } catch (error) {
-          handleError(error, '删除失败')
+          handleError(error, t('删除失败'))
         }
       }
     })
@@ -309,20 +310,20 @@ export function useMediaViewModel() {
     if (selectedMediaIds.value.length === 0) return
 
     dialog.warning({
-      title: '确认批量删除',
-      content: `确定要删除选中的 ${selectedMediaIds.value.length} 个文件吗？`,
-      positiveText: '确定',
-      negativeText: '取消',
+      title: t('确认批量删除'),
+      content: t("确定要删除选中的 {0} 个文件吗？", [selectedMediaIds.value.length]),
+      positiveText: t('确定'),
+      negativeText: t('取消'),
       onPositiveClick: async () => {
         try {
           await http.post('/media/batch-delete', {
             ids: selectedMediaIds.value
           })
-          message.success(`成功删除 ${selectedMediaIds.value.length} 个文件`)
+          message.success(t("成功删除 {0} 个文件", [selectedMediaIds.value.length]))
           selectedMediaIds.value = []
           fetchMediaList()
         } catch (error) {
-          handleError(error, '批量删除失败')
+          handleError(error, t('批量删除失败'))
         }
       }
     })
@@ -351,10 +352,10 @@ export function useMediaViewModel() {
 
   // 内容类型选项
   const contentTypeOptions = [
-    { label: '图片', value: 'image/' },
-    { label: '视频', value: 'video/' },
-    { label: '音频', value: 'audio/' },
-    { label: '文档', value: 'application/' }
+    { label: t('图片'), value: 'image/' },
+    { label: t('视频'), value: 'video/' },
+    { label: t('音频'), value: 'audio/' },
+    { label: t('文档'), value: 'application/' }
   ]
 
   // 格式化函数
@@ -385,12 +386,12 @@ export function useMediaViewModel() {
       const date = new Date(timestamp)
       // 检查日期是否有效
       if (isNaN(date.getTime())) {
-        return '无效日期'
+        return t('无效日期')
       }
       return date.toLocaleString()
     } catch (e) {
       console.error('Error formatting date:', dateInput, e)
-      return '格式化错误'
+      return t('格式化错误')
     }
   }
 
@@ -401,18 +402,18 @@ export function useMediaViewModel() {
   // 选择无引用资源
   const cleanupUnreferenced = async () => {
     dialog.warning({
-      title: '确认操作',
-      content: `这个操作将会清理所有未被引用的资源，确认继续吗？`,
-      positiveText: '确定',
-      negativeText: '取消',
+      title: t('确认操作'),
+      content: t("这个操作将会清理所有未被引用的资源，确认继续吗？"),
+      positiveText: t('确定'),
+      negativeText: t('取消'),
       onPositiveClick: async () => {
         try {
           await http.post('/media/system/cleanup-unreferenced')
-          message.success('清理成功')
+          message.success(t('清理成功'))
           await fetchMediaList()
           await fetchSystemInfo()
         } catch (error) {
-          handleError(error, '清理失败')
+          handleError(error, t('清理失败'))
         }
       }
     })

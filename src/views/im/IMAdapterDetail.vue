@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { t } from '@/i18n'
 import { imApi } from '@/api/im'
 import type { IMAdapter, IMAdapterInfo, UserProfile } from '@/api/im'
 import { ref, onMounted, computed } from 'vue'
@@ -66,8 +67,8 @@ const fetchAdapterConfigSchema = async () => {
     const { configSchema: schema } = await imApi.getAdapterConfigSchema(adapterType.value)
     configSchema.value = schema
   } catch (error) {
-    message.error('获取适配器配置模式失败: ' + error)
-    console.error('获取适配器配置模式失败:', error)
+    message.error(t('获取适配器配置模式失败: ') + error)
+    console.error(t('获取适配器配置模式失败:'), error)
   } finally {
     loading.value = false
   }
@@ -99,8 +100,8 @@ const fetchAdapters = async () => {
       adapter.bot_profile = adapterDetail.bot_profile
     })
   } catch (error) {
-    message.error('获取适配器列表失败: ' + error)
-    console.error('获取适配器列表失败:', error)
+    message.error(t('获取适配器列表失败: ') + error)
+    console.error(t('获取适配器列表失败:'), error)
   } finally {
     loading.value = false
   }
@@ -136,7 +137,7 @@ const saveAdapter = async () => {
       const errors = await formRef.value?.validate()
       if (errors?.warnings?.length) return
     } catch (error) {
-      message.error('保存适配器失败: 请检查输入内容')
+      message.error(t('保存适配器失败: 请检查输入内容'))
       return
     }
 
@@ -147,10 +148,10 @@ const saveAdapter = async () => {
       await imApi.createAdapter(currentAdapter.value)
       isEdit.value = currentAdapter.value.name
     }
-    message.success('保存适配器成功')
+    message.success(t('保存适配器成功'))
   } catch (error) {
-    message.error('保存适配器失败: ' + error)
-    console.error('保存适配器失败:', error)
+    message.error(t('保存适配器失败: ') + error)
+    console.error(t('保存适配器失败:'), error)
   } finally {
     processing.value = false
     await fetchAdapters()
@@ -166,10 +167,10 @@ const deleteAdapter = async (adapterName: string) => {
       currentAdapter.value = null
       isEdit.value = null
     }
-    message.success('删除适配器成功')
+    message.success(t('删除适配器成功'))
   } catch (error) {
-    message.error('删除适配器失败: ' + error)
-    console.error('删除适配器失败:', error)
+    message.error(t('删除适配器失败: ') + error)
+    console.error(t('删除适配器失败:'), error)
   } finally {
     processing.value = false
     await fetchAdapters()
@@ -184,7 +185,7 @@ const goBack = () => {
 // 表单规则
 const formRules = {
   name: [
-    { required: true, message: '请输入适配器名称', trigger: 'blur' },
+    { required: true, message: t('请输入适配器名称'), trigger: 'blur' },
     {
       validator: (rule: any, value: string) => {
         if (!currentAdapter.value) return true
@@ -192,7 +193,7 @@ const formRules = {
         const exists = adapters.value.some((a) => a.name === value && a.name !== isEdit.value)
 
         if (exists) {
-          return new Error('适配器名称已存在')
+          return new Error(t('适配器名称已存在'))
         }
         return true
       },
@@ -258,7 +259,7 @@ defineExpose({
           <div class="instances-panel">
             <div class="panel-header">
               <n-space justify="space-between" align="center">
-                <h3 class="panel-title">实例列表</h3>
+                <h3 class="panel-title">{{$t("实例列表")}}</h3>
                 <n-button
                   type="primary"
                   @click="addAdapter"
@@ -271,14 +272,14 @@ defineExpose({
                       <AddOutline />
                     </n-icon>
                   </template>
-                  添加配置
+                  {{$t("添加配置")}}
                 </n-button>
               </n-space>
             </div>
 
             <div class="instances-list">
               <n-scrollbar style="max-height: 600px">
-                <n-empty v-if="adapters.length === 0" description="暂无配置" class="empty-state" />
+                <n-empty v-if="adapters.length === 0" :description="$t('暂无配置')" class="empty-state" />
                 <n-card
                   v-for="adapter in adapters"
                   :key="adapter.name"
@@ -310,16 +311,16 @@ defineExpose({
                     </template>
                     <template #header-extra>
                       <n-tag v-if="!adapter.enable" type="default" class="status-tag disabled">
-                        未启用
+                        {{$t("未启用")}}
                       </n-tag>
                       <n-tag
                         v-else-if="adapter.is_running"
                         type="success"
                         class="status-tag running"
                       >
-                        运行中
+                        {{$t("运行中")}}
                       </n-tag>
-                      <n-tag v-else type="warning" class="status-tag stopped"> 已停止 </n-tag>
+                      <n-tag v-else type="warning" class="status-tag stopped"> {{$t("已停止")}} </n-tag>
                     </template>
                     <template #action>
                       <n-space class="action-buttons">
@@ -328,19 +329,19 @@ defineExpose({
                           size="small"
                           class="edit-button"
                         >
-                          编辑
+                          {{$t("编辑")}}
                         </n-button>
 
                         <n-popconfirm
                           @positive-click="deleteAdapter(adapter.name)"
-                          positive-text="确定"
-                          negative-text="取消"
+                          :positive-text="$t('确定')"
+                          :negative-text="$t('取消')"
                           class="delete-confirm"
                         >
                           <template #trigger>
-                            <n-button size="small" class="delete-button"> 删除 </n-button>
+                            <n-button size="small" class="delete-button"> {{$t("删除")}} </n-button>
                           </template>
-                          确定要删除配置吗？
+                          {{$t("确定要删除配置吗？")}}
                         </n-popconfirm>
                       </n-space>
                     </template>
@@ -354,7 +355,7 @@ defineExpose({
           <div class="config-panel">
             <div class="panel-header">
               <n-space justify="space-between" align="center">
-                <h3 class="panel-title">配置详情</h3>
+                <h3 class="panel-title">{{$t("配置详情")}}</h3>
                 <n-button
                   type="primary"
                   size="small"
@@ -368,7 +369,7 @@ defineExpose({
                       <SaveOutline />
                     </n-icon>
                   </template>
-                  保存配置
+                  {{$t("保存配置")}}
                 </n-button>
               </n-space>
             </div>
@@ -382,19 +383,19 @@ defineExpose({
                 :rules="formRules"
                 class="form"
               >
-                <n-form-item label="名称" path="name" class="form-item">
+                <n-form-item :label="$t('名称')" path="name" class="form-item">
                   <n-input
                     v-if="currentAdapter"
                     v-model:value="currentAdapter!!.name"
-                    placeholder="配置名称"
+                    :placeholder="$t('配置名称')"
                     class="input"
                   />
                   <template #feedback>
-                    <n-text depth="3" class="form-hint">用于区分不同的配置，必须唯一</n-text>
+                    <n-text depth="3" class="form-hint">{{$t("用于区分不同的配置，必须唯一")}}</n-text>
                   </template>
                 </n-form-item>
 
-                <n-form-item label="开启" class="form-item">
+                <n-form-item :label="$t('开启')" class="form-item">
                   <n-switch
                     v-if="currentAdapter"
                     v-model:value="currentAdapter!!.enable"
@@ -411,7 +412,7 @@ defineExpose({
             </div>
 
             <div v-else class="empty-config">
-              <n-empty description="请选择或添加一个配置" class="empty-state">
+              <n-empty :description="$t('请选择或添加一个配置')" class="empty-state">
                 <template #extra v-if="adapters.length == 0">
                   <n-button type="primary" @click="addAdapter" class="add-button-large">
                     <template #icon>
@@ -419,7 +420,7 @@ defineExpose({
                         <AddOutline />
                       </n-icon>
                     </template>
-                    添加配置
+                    {{$t("添加配置")}}
                   </n-button>
                 </template>
               </n-empty>

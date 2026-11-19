@@ -1,3 +1,4 @@
+import { t } from '@/i18n'
 import { ref, computed } from 'vue'
 import { http } from '@/utils/http'
 import { useMessage, useDialog } from 'naive-ui'
@@ -95,12 +96,12 @@ export function useConsoleViewModel() {
 
         isConnected.value = true
         isLoading.value = false
-        message.success('已连接到服务器日志')
+        message.success(t('已连接到服务器日志'))
         logs.value = [
           {
             type: 'log',
             level: 'INFO',
-            content: '已连接到服务器日志，正在加载历史日志...',
+            content: t('已连接到服务器日志，正在加载历史日志...'),
             timestamp: new Date().toISOString(),
             tag: 'WebUI'
           }
@@ -139,7 +140,7 @@ export function useConsoleViewModel() {
           logs.value.push({
             type: 'log',
             level: 'INFO',
-            content: `连接断开，${reconnectInterval / 1000}秒后尝试重新连接...`,
+            content: t("连接断开，{0}秒后尝试重新连接...", [reconnectInterval / 1000]),
             timestamp: new Date().toISOString(),
             tag: 'WebUI'
           })
@@ -148,7 +149,7 @@ export function useConsoleViewModel() {
             logs.value.push({
               type: 'log',
               level: 'INFO',
-              content: `正在尝试重新连接 (${reconnectAttempts}/${maxReconnectAttempts})...`,
+              content: t("正在尝试重新连接 ({0}/{1})...", [reconnectAttempts, maxReconnectAttempts]),
               timestamp: new Date().toISOString(),
               tag: 'WebUI'
             })
@@ -158,16 +159,16 @@ export function useConsoleViewModel() {
           logs.value.push({
             type: 'log',
             level: 'ERROR',
-            content: '重连次数已达上限，请手动刷新页面重试',
+            content: t('重连次数已达上限，请手动刷新页面重试'),
             timestamp: new Date().toISOString(),
             tag: 'WebUI'
           })
-          message.error('重连次数已达上限，请手动刷新页面重试')
+          message.error(t('重连次数已达上限，请手动刷新页面重试'))
         } else {
           logs.value.push({
             type: 'log',
             level: 'ERROR',
-            content: '与服务器的连接已断开',
+            content: t('与服务器的连接已断开'),
             timestamp: new Date().toISOString(),
             tag: 'WebUI'
           })
@@ -177,20 +178,20 @@ export function useConsoleViewModel() {
       socket.onerror = (error) => {
         isConnected.value = false
         isLoading.value = false
-        message.error('连接服务器日志失败')
+        message.error(t('连接服务器日志失败'))
         logs.value.push({
           type: 'log',
           level: 'ERROR',
-          content: '连接服务器日志失败',
+          content: t('连接服务器日志失败'),
           timestamp: new Date().toISOString(),
           tag: 'WebUI'
         })
-        console.error('WebSocket错误:', error)
+        console.error(t('WebSocket错误:'), error)
       }
     } catch (error) {
       isLoading.value = false
-      message.error('连接服务器日志失败')
-      console.error('WebSocket连接错误:', error)
+      message.error(t('连接服务器日志失败'))
+      console.error(t('WebSocket连接错误:'), error)
     }
   }
 
@@ -214,24 +215,24 @@ export function useConsoleViewModel() {
   // 重启服务器
   const restartServer = async () => {
     if (!isConnected.value) {
-      message.warning('未连接到服务器')
+      message.warning(t('未连接到服务器'))
       return
     }
 
     dialog.warning({
-      title: '确认重启',
-      content: '确定要重启服务器吗？重启过程中服务将暂时不可用。',
-      positiveText: '确认重启',
-      negativeText: '取消',
+      title: t('确认重启'),
+      content: t('确定要重启服务器吗？重启过程中服务将暂时不可用。'),
+      positiveText: t('确认重启'),
+      negativeText: t('取消'),
       onPositiveClick: async () => {
         try {
           isLoading.value = true
           await http.post('/system/restart')
-          message.success('重启命令已发送')
+          message.success(t('重启命令已发送'))
           logs.value.push({
             type: 'log',
             level: 'INFO',
-            content: '重启命令已发送',
+            content: t('重启命令已发送'),
             timestamp: new Date().toISOString(),
             tag: 'WebUI'
           })
@@ -243,7 +244,7 @@ export function useConsoleViewModel() {
           logs.value.push({
             type: 'log',
             level: 'INFO',
-            content: '等待服务器重启，5秒后尝试重新连接...',
+            content: t('等待服务器重启，5秒后尝试重新连接...'),
             timestamp: new Date().toISOString(),
             tag: 'WebUI'
           })
@@ -253,12 +254,12 @@ export function useConsoleViewModel() {
           }, 5000)
         } catch (error) {
           isLoading.value = false
-          message.error('重启服务器失败')
-          console.error('重启服务器错误:', error)
+          message.error(t('重启服务器失败'))
+          console.error(t('重启服务器错误:'), error)
           logs.value.push({
             type: 'log',
             level: 'ERROR',
-            content: '重启服务器失败',
+            content: t('重启服务器失败'),
             timestamp: new Date().toISOString(),
             tag: 'WebUI'
           })

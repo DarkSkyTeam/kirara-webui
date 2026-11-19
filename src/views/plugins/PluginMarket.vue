@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { t } from '@/i18n'
 import { ref, computed, onMounted } from 'vue'
 import {
   NCard,
@@ -66,9 +67,9 @@ const setOperationState = (
 }
 
 const skeletonPlugins = Array(pageSize.value).fill({
-  name: '加载中...',
-  description: '插件描述加载中，请稍候...',
-  author: '作者加载中',
+  name: t('加载中...'),
+  description: t('插件描述加载中，请稍候...'),
+  author: t('作者加载中'),
   pypiPackage: 'package-name',
   pypiInfo: {
     version: '0.0.0',
@@ -90,8 +91,8 @@ const fetchPlugins = async () => {
     plugins.value = response.plugins
     totalCount.value = response.totalCount
   } catch (error) {
-    console.error('获取插件列表失败:', error)
-    message.error('获取插件列表失败')
+    console.error(t('获取插件列表失败:'), error)
+    message.error(t('获取插件列表失败'))
   } finally {
     loading.value = false
     if (isFirstLoad.value) {
@@ -121,11 +122,11 @@ const handleInstall = async (plugin: MarketPlugin) => {
   loadingBar.start()
   try {
     await pluginApi.installPlugin(plugin.pypiPackage)
-    message.success('插件安装成功')
+    message.success(t('插件安装成功'))
     await fetchPlugins()
   } catch (error: any) {
-    console.error('安装插件失败:', error)
-    errorMessage.value = error.message || '未知错误'
+    console.error(t('安装插件失败:'), error)
+    errorMessage.value = error.message || t('未知错误')
     errorModal.value = true
   } finally {
     setOperationState(plugin, null, false)
@@ -142,11 +143,11 @@ const handleUpdate = async (plugin: MarketPlugin) => {
   loadingBar.start()
   try {
     await pluginApi.updatePlugin(plugin.name)
-    message.success('插件更新成功')
+    message.success(t('插件更新成功'))
     await fetchPlugins()
   } catch (error: any) {
-    console.error('更新插件失败:', error)
-    errorMessage.value = error.message || '未知错误'
+    console.error(t('更新插件失败:'), error)
+    errorMessage.value = error.message || t('未知错误')
     errorModal.value = true
   } finally {
     setOperationState(plugin, null, false)
@@ -163,11 +164,11 @@ const handleUninstall = async (plugin: MarketPlugin) => {
   loadingBar.start()
   try {
     await pluginApi.uninstallPlugin(plugin.name)
-    message.success('插件卸载成功')
+    message.success(t('插件卸载成功'))
     await fetchPlugins()
   } catch (error: any) {
-    console.error('卸载插件失败:', error)
-    errorMessage.value = error.message || '未知错误'
+    console.error(t('卸载插件失败:'), error)
+    errorMessage.value = error.message || t('未知错误')
     errorModal.value = true
   } finally {
     setOperationState(plugin, null, false)
@@ -184,12 +185,12 @@ const handleToggleStatus = async (plugin: MarketPlugin) => {
   loadingBar.start()
   try {
     await pluginApi.togglePlugin(plugin.name, !plugin.isEnabled)
-    message.success(`插件${plugin.isEnabled ? '禁用' : '启用'}成功`)
+    message.success(plugin.isEnabled ? t('插件禁用成功') : t('插件启用成功'))
     await fetchPlugins()
   } catch (error: any) {
-    console.error('切换插件状态失败:', error)
-    message.error('切换插件状态失败')
-    errorMessage.value = error.message || '未知错误'
+    console.error(t('切换插件状态失败:'), error)
+    message.error(t('切换插件状态失败'))
+    errorMessage.value = error.message || t('未知错误')
     errorModal.value = true
   } finally {
     setOperationState(plugin, null, false)
@@ -210,12 +211,12 @@ onMounted(() => {
   <n-message-provider>
     <n-loading-bar-provider>
       <div class="plugin-market">
-        <n-card title="插件市场" class="market-card">
+        <n-card :title="$t('插件市场')" class="market-card">
           <template #header-extra>
             <div class="search-container">
               <n-input
                 v-model:value="searchQuery"
-                placeholder="搜索插件..."
+                :placeholder="$t('搜索插件...')"
                 class="search-input"
                 @keyup.enter="handleSearch"
               >
@@ -223,11 +224,11 @@ onMounted(() => {
                   <n-icon><SearchOutline /></n-icon>
                 </template>
               </n-input>
-              <n-button type="primary" @click="handleSearch" :disabled="loading"> 搜索 </n-button>
+              <n-button type="primary" @click="handleSearch" :disabled="loading"> {{$t("搜索")}} </n-button>
             </div>
           </template>
 
-          <div class="market-description">在这里浏览和安装可用的插件，扩展 Kirara AI 的功能。</div>
+          <div class="market-description">{{$t("在这里浏览和安装可用的插件，扩展 Kirara AI 的功能。")}}</div>
 
           <div class="plugins-grid">
             <template v-if="skeletonVisible">
@@ -258,7 +259,7 @@ onMounted(() => {
                 <div class="plugin-meta">
                   <n-skeleton text style="width: 60%" :sharp="false">
                     <n-space align="center" :size="12">
-                      <span>作者: {{ plugin.author }}</span>
+                      <span>{{$t("作者:")}} {{ plugin.author }}</span>
                       <span class="separator">·</span>
                       <span>PyPI: {{ plugin.pypiPackage }}</span>
                     </n-space>
@@ -268,13 +269,13 @@ onMounted(() => {
                 <div class="plugin-actions">
                   <n-skeleton text style="width: 30%" :sharp="false">
                     <n-space align="center" :size="12">
-                      <n-button secondary text>主页</n-button>
-                      <n-button secondary text>问题反馈</n-button>
-                      <n-button secondary text>插件文档</n-button>
+                      <n-button secondary text>{{$t("主页")}}</n-button>
+                      <n-button secondary text>{{$t("问题反馈")}}</n-button>
+                      <n-button secondary text>{{$t("插件文档")}}</n-button>
                     </n-space>
                   </n-skeleton>
                   <n-skeleton text style="width: 80px" :sharp="false">
-                    <n-button type="primary">安装</n-button>
+                    <n-button type="primary">{{$t("安装")}}</n-button>
                   </n-skeleton>
                 </div>
               </n-card>
@@ -297,7 +298,7 @@ onMounted(() => {
                   <div class="plugin-tags">
                     <template v-if="plugin.isInstalled">
                       <n-tag v-if="plugin.isInstalled" size="small" type="info" class="status-tag">
-                        已安装 v{{ plugin.installedVersion }}
+                        {{$t("已安装 v")}}{{ plugin.installedVersion }}
                       </n-tag>
                       <n-tag
                         v-if="plugin.isUpgradable"
@@ -305,7 +306,7 @@ onMounted(() => {
                         type="warning"
                         class="update-tag"
                       >
-                        可更新至 v{{ plugin.pypiInfo.version }}
+                        {{$t("可更新至 v")}}{{ plugin.pypiInfo.version }}
                       </n-tag>
                       <n-tag
                         v-if="plugin.isEnabled !== undefined"
@@ -313,7 +314,7 @@ onMounted(() => {
                         :type="plugin.isEnabled ? 'success' : 'error'"
                         class="status-tag"
                       >
-                        {{ plugin.isEnabled ? '已启用' : '已禁用' }}
+                        {{ plugin.isEnabled ? $t('已启用') : $t('已禁用') }}
                       </n-tag>
                     </template>
                     <n-tag v-else size="small" type="success" class="version-tag">
@@ -335,12 +336,12 @@ onMounted(() => {
                   @click="toggleDescription(plugin)"
                   class="toggle-description"
                 >
-                  {{ expandedDescriptions[plugin.pypiPackage] ? '收起' : '展开' }}
+                  {{ expandedDescriptions[plugin.pypiPackage] ? $t('收起') : $t('展开') }}
                 </n-button>
 
                 <div class="plugin-meta">
                   <n-space align="center" :size="12">
-                    <span>作者: {{ plugin.author }}</span>
+                    <span>{{$t("作者:")}} {{ plugin.author }}</span>
                     <span class="separator">·</span>
                     <span>PyPI: {{ plugin.pypiPackage }}</span>
                   </n-space>
@@ -358,7 +359,7 @@ onMounted(() => {
                       <template #icon>
                         <n-icon><HomeOutline /></n-icon>
                       </template>
-                      主页
+                      {{$t("主页")}}
                     </n-button>
                     <n-button
                       quaternary
@@ -371,7 +372,7 @@ onMounted(() => {
                       <template #icon>
                         <n-icon><HelpCircleOutline /></n-icon>
                       </template>
-                      问题反馈
+                      {{$t("问题反馈")}}
                     </n-button>
                     <n-button
                       quaternary
@@ -384,7 +385,7 @@ onMounted(() => {
                       <template #icon>
                         <n-icon><DocumentTextOutline /></n-icon>
                       </template>
-                      插件文档
+                      {{$t("插件文档")}}
                     </n-button>
                   </n-space>
                   <div class="action-buttons">
@@ -397,7 +398,7 @@ onMounted(() => {
                         @click="handleUpdate(plugin)"
                         class="action-button"
                       >
-                        更新
+                        {{$t("更新")}}
                       </n-button>
                       <n-button
                         v-if="plugin.isEnabled !== undefined"
@@ -407,7 +408,7 @@ onMounted(() => {
                         @click="handleToggleStatus(plugin)"
                         class="action-button"
                       >
-                        {{ plugin.isEnabled ? '禁用' : '启用' }}
+                        {{ plugin.isEnabled ? $t('禁用') : $t('启用') }}
                       </n-button>
                       <n-button
                         type="error"
@@ -418,7 +419,7 @@ onMounted(() => {
                         @click="handleUninstall(plugin)"
                         class="action-button"
                       >
-                        卸载
+                        {{$t("卸载")}}
                       </n-button>
                     </template>
                     <n-button
@@ -429,14 +430,14 @@ onMounted(() => {
                       @click="handleInstall(plugin)"
                       class="action-button"
                     >
-                      安装
+                      {{$t("安装")}}
                     </n-button>
                   </div>
                 </div>
               </n-card>
             </template>
 
-            <n-empty v-else description="没有找到插件" />
+            <n-empty v-else :description="$t('没有找到插件')" />
           </div>
 
           <div class="pagination-container" v-if="totalCount > 0">
@@ -450,15 +451,15 @@ onMounted(() => {
 
         <n-modal
           v-model:show="errorModal"
-          title="操作失败"
+          :title="$t('操作失败')"
           preset="dialog"
           type="error"
           style="width: 600px"
         >
-          错误信息：
+          {{$t("错误信息：")}}
           <div class="error-message">{{ errorMessage }}</div>
           <template #action>
-            <n-button @click="errorModal = false">关闭</n-button>
+            <n-button @click="errorModal = false">{{$t("关闭")}}</n-button>
           </template>
         </n-modal>
       </div>

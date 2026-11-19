@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { t } from '@/i18n'
 import { computed, ref } from 'vue'
 import { Handle, Position, useVueFlow, type Connection } from '@vue-flow/core'
 import { getTypeColor } from '@/utils/node-colors'
@@ -48,7 +49,7 @@ const isValidConnection = (connection: Connection) => {
 // 获取代码预览
 const codePreview = computed(() => {
   const code = props.data.config?.code || ''
-  if (!code) return '# 请在配置面板编写代码'
+  if (!code) return t('# 请在配置面板编写代码')
   const lines = code.split('\n')
   return lines.length > 5 ? lines.slice(0, 5).join('\n') + '\n# ...' : code
 })
@@ -104,7 +105,7 @@ const codePreview = computed(() => {
         <NIcon size="16" class="code-icon">
           <CodeOutline />
         </NIcon>
-        <span class="code-label">代码</span>
+        <span class="code-label">{{$t("代码")}}</span>
       </div>
       <div class="code-preview">
         <pre class="code-preview-content">{{ codePreview }}</pre>

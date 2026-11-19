@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { t } from '@/i18n'
 import { onMounted, onUnmounted, ref } from 'vue'
 import { NSpace, NText, NBadge, NTooltip } from 'naive-ui'
 import { useAppStore } from '@/stores/app'
@@ -42,7 +43,7 @@ const fetchStatus = () => {
       })
     })
     .catch((error) => {
-      console.error('获取系统状态失败:', error)
+      console.error(t('获取系统状态失败:'), error)
       connecting.value = false
       appStore.updateSystemStatus({
         status: 'error',
@@ -106,23 +107,23 @@ onUnmounted(() => {
           "
         />
         <n-text>
-          系统状态:
-          <span v-if="connecting">连接中...</span>
+          {{$t("系统状态:")}}
+          <span v-if="connecting">{{$t("连接中...")}}</span>
           <span v-else>
-            {{ appStore.systemStatus.status === 'normal' ? '正常' : '异常' }}
+            {{ appStore.systemStatus.status === 'normal' ? $t('正常') : $t('异常') }}
           </span>
         </n-text>
       </n-space>
 
       <n-space align="center" :size="4">
         <n-badge dot :type="appStore.systemStatus.apiConnected ? 'success' : 'error'" />
-        <n-text>API: {{ appStore.systemStatus.apiConnected ? '已连接' : '未连接' }}</n-text>
+        <n-text>API: {{ appStore.systemStatus.apiConnected ? $t('已连接') : $t('未连接') }}</n-text>
       </n-space>
 
       <n-space align="center">
-        <n-text> WebUI 版本: {{ webUIVersion }} </n-text>
+        <n-text> {{$t("WebUI 版本:")}} {{ webUIVersion }} </n-text>
         <n-text v-if="appStore.systemStatus.status === 'normal'">
-          后端版本: {{ appStore.systemStatus.version }}
+          {{$t("后端版本:")}} {{ appStore.systemStatus.version }}
         </n-text>
         <n-text
           @click="updateCheckerRef!!.showUpdateModal = true"
@@ -134,17 +135,17 @@ onUnmounted(() => {
           class="version-text"
           style="margin-left: 4px"
         >
-          有更新
+          {{$t("有更新")}}
         </n-text>
       </n-space>
 
       <n-space v-if="appStore.systemStatus.status === 'normal'">
-        <n-text>内存使用: {{ appStore.systemStatus.memoryUsage.used.toFixed(2) }} MB</n-text>
+        <n-text>{{$t("内存使用:")}} {{ appStore.systemStatus.memoryUsage.used.toFixed(2) }} MB</n-text>
         <n-text>CPU: {{ appStore.systemStatus.cpuUsage }}%</n-text>
         <n-text>IM: {{ appStore.systemStatus.activeAdapters }}</n-text>
         <n-text>LLM: {{ appStore.systemStatus.activeBackends }}</n-text>
-        <n-text>插件: {{ appStore.systemStatus.loadedPlugins }}</n-text>
-        <n-text>工作流: {{ appStore.systemStatus.workflowCount }}</n-text>
+        <n-text>{{$t("插件:")}} {{ appStore.systemStatus.loadedPlugins }}</n-text>
+        <n-text>{{$t("工作流:")}} {{ appStore.systemStatus.workflowCount }}</n-text>
       </n-space>
     </n-space>
 
@@ -153,10 +154,10 @@ onUnmounted(() => {
       <n-space align="center" :size="8">
         <n-space align="center" :size="4">
           <n-badge dot :type="appStore.systemStatus.apiConnected ? 'success' : 'error'" />
-          <n-text>API: {{ appStore.systemStatus.apiConnected ? '已连接' : '未连接' }}</n-text>
+          <n-text>API: {{ appStore.systemStatus.apiConnected ? $t('已连接') : $t('未连接') }}</n-text>
         </n-space>
         <n-space align="center">
-          <n-text> 版本: {{ webUIVersion }} </n-text>
+          <n-text> {{$t("版本:")}} {{ webUIVersion }} </n-text>
           <n-text
             @click="updateCheckerRef!!.showUpdateModal = true"
             v-if="
@@ -167,7 +168,7 @@ onUnmounted(() => {
             class="version-text"
             style="margin-left: 4px"
           >
-            有更新
+            {{$t("有更新")}}
           </n-text>
         </n-space>
       </n-space>

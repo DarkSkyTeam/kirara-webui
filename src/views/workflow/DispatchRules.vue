@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { t } from '@/i18n'
 import { ref, onMounted, h, computed } from 'vue'
 import {
   NDataTable,
@@ -60,16 +61,16 @@ const showRuleConfigModal = ref(false)
 
 // 表格列定义
 const columns = [
-  { title: '名称', key: 'name' },
-  { title: '描述', key: 'description' },
+  { title: t('名称'), key: 'name' },
+  { title: t('描述'), key: 'description' },
   {
-    title: '工作流',
+    title: t('工作流'),
     key: 'workflow_id',
     render: (row: DispatchRule) => {
       const workflow = workflows.value.find(
         (workflow) => `${workflow.group_id}:${workflow.workflow_id}` === row.workflow_id
       )
-      return workflow ? `${workflow.name} (${row.workflow_id})  ` : '未指定'
+      return workflow ? `${workflow.name} (${row.workflow_id})  ` : t('未指定')
     }
   },
   {
@@ -87,7 +88,7 @@ const columns = [
               { style: { display: 'flex', alignItems: 'center' } },
               {
                 default: () => [
-                  '优先级',
+                  t('优先级'),
                   h(
                     NIcon,
                     {},
@@ -99,13 +100,13 @@ const columns = [
               }
             ),
           default: () =>
-            '优先级定义了规则判定的顺序，数值越大优先级越高，会优先被判断。建议根据业务需求合理设置优先级。'
+            t('优先级定义了规则判定的顺序，数值越大优先级越高，会优先被判断。建议根据业务需求合理设置优先级。')
         }
       ),
     key: 'priority'
   },
   {
-    title: '状态',
+    title: t('状态'),
     key: 'enabled',
     render: (row: DispatchRule) => {
       return h(NSwitch, {
@@ -118,16 +119,16 @@ const columns = [
               await dispatchApi.disableRule(row.rule_id)
             }
             await loadRules()
-            message.success('操作成功')
+            message.success(t('操作成功'))
           } catch (error) {
-            message.error('操作失败')
+            message.error(t('操作失败'))
           }
         }
       })
     }
   },
   {
-    title: '操作',
+    title: t('操作'),
     key: 'actions',
     render: (row: DispatchRule) => {
       return h(NSpace, null, {
@@ -138,7 +139,7 @@ const columns = [
               size: 'small',
               onClick: () => editRule(row)
             },
-            { default: () => '编辑' }
+            { default: () => t('编辑') }
           ),
           h(
             NButton,
@@ -147,7 +148,7 @@ const columns = [
               type: 'error',
               onClick: () => deleteRule(row.rule_id)
             },
-            { default: () => '删除' }
+            { default: () => t('删除') }
           )
         ]
       })
@@ -158,15 +159,15 @@ const columns = [
 const formRef = ref<FormInst | null>(null)
 const validationRules = ref<any>({
   name: [
-    { required: true, message: '请输入规则名称' },
-    { min: 1, max: 100, message: '规则名称长度应在1-100个字符之间' }
+    { required: true, message: t('请输入规则名称') },
+    { min: 1, max: 100, message: t('规则名称长度应在1-100个字符之间') }
   ],
-  workflow_id: [{ required: true, message: '请选择工作流' }],
+  workflow_id: [{ required: true, message: t('请选择工作流') }],
   priority: [
-    { required: true, message: '请输入优先级' },
-    { type: 'number', min: 0, max: 100, message: '优先级应在0-100之间' }
+    { required: true, message: t('请输入优先级') },
+    { type: 'number', min: 0, max: 100, message: t('优先级应在0-100之间') }
   ],
-  enabled: [{ required: true, message: '请选择启用状态' }]
+  enabled: [{ required: true, message: t('请选择启用状态') }]
 })
 
 // 加载规则列表
@@ -175,7 +176,7 @@ const loadRules = async () => {
     const { rules: ruleList } = await dispatchApi.getRules()
     rules.value = ruleList
   } catch (error) {
-    message.error('加载规则列表失败')
+    message.error(t('加载规则列表失败'))
   }
 }
 
@@ -184,7 +185,7 @@ const loadWorkflows = async () => {
     const { workflows: workflowList } = await listWorkflows()
     workflows.value = workflowList
   } catch (error) {
-    message.error('加载工作流列表失败')
+    message.error(t('加载工作流列表失败'))
   }
 }
 
@@ -194,7 +195,7 @@ const loadRuleTypes = async () => {
     const { types } = await dispatchApi.getRuleTypes()
     ruleTypes.value = types
   } catch (error) {
-    message.error('加载规则类型失败')
+    message.error(t('加载规则类型失败'))
   }
 }
 
@@ -204,7 +205,7 @@ const loadConfigSchema = async (type: string) => {
     const { configSchema: schema } = await dispatchApi.getRuleConfigSchema(type)
     configSchema.value = schema
   } catch (error) {
-    message.error('加载配置模式失败')
+    message.error(t('加载配置模式失败'))
   }
 }
 
@@ -241,9 +242,9 @@ const deleteRule = async (ruleId: string) => {
   try {
     await dispatchApi.deleteRule(ruleId)
     await loadRules()
-    message.success('删除成功')
+    message.success(t('删除成功'))
   } catch (error) {
-    message.error('删除失败')
+    message.error(t('删除失败'))
   }
 }
 
@@ -252,7 +253,7 @@ const saveRule = async (isCreate: boolean) => {
   try {
     const errors = await formRef.value?.validate()
     if (errors?.warnings?.length) {
-      message.error('请检查输入内容')
+      message.error(t('请检查输入内容'))
       return
     }
     if (isCreate) {
@@ -262,9 +263,9 @@ const saveRule = async (isCreate: boolean) => {
     }
     await loadRules()
     showEditModal.value = false
-    message.success('保存成功')
+    message.success(t('保存成功'))
   } catch (error) {
-    message.error('保存失败:' + (error as Error).message)
+    message.error(t('保存失败:') + (error as Error).message)
   }
 }
 
@@ -350,15 +351,15 @@ onMounted(async () => {
 <template>
   <div class="dispatch-rules">
     <n-space vertical>
-      <n-card title="规则列表" class="dispatch-rules-card">
+      <n-card :title="$t('规则列表')" class="dispatch-rules-card">
         <template #header-extra>
-          <n-button type="primary" @click="createRule"> 创建规则 </n-button>
+          <n-button type="primary" @click="createRule"> {{$t("创建规则")}} </n-button>
         </template>
         <div class="dispatch-rules-description">
-          触发规则决定了 Kirara AI 何时会执行工作流，更多介绍请阅读<a
+          {{$t("触发规则决定了 Kirara AI 何时会执行工作流，更多介绍请阅读")}}<a
             href="https://kirara-docs.app.lss233.com/guide/configuration/dispatch.html"
             target="_blank"
-            >官方文档</a
+            >{{$t("官方文档")}}</a
           >。
         </div>
         <n-data-table :columns="columns" :data="rules" :bordered="false" :single-line="false" />
@@ -367,24 +368,24 @@ onMounted(async () => {
       <n-modal
         v-model:show="showEditModal"
         preset="dialog"
-        :title="isCreate ? '创建规则' : '编辑规则'"
+        :title="isCreate ? $t('创建规则') : $t('编辑规则')"
         style="width: 1200px"
       >
         <div class="rule-edit-container">
           <!-- 基本信息 -->
           <div class="rule-basic-form">
             <n-form label-placement="left" label-width="80" :rules="validationRules" ref="formRef">
-              <n-form-item label="名称" required feedback="用于区分不同的规则，必须保持唯一">
-                <n-input v-model:value="currentRule.name" placeholder="请输入名称" />
+              <n-form-item :label="$t('名称')" required :feedback="$t('用于区分不同的规则，必须保持唯一')">
+                <n-input v-model:value="currentRule.name" :placeholder="$t('请输入名称')" />
               </n-form-item>
-              <n-form-item label="描述" feedback="用于描述规则的用途，方便你理解">
+              <n-form-item :label="$t('描述')" :feedback="$t('用于描述规则的用途，方便你理解')">
                 <n-input
                   v-model:value="currentRule.description"
                   type="textarea"
-                  placeholder="请输入描述"
+                  :placeholder="$t('请输入描述')"
                 />
               </n-form-item>
-              <n-form-item label="工作流" required feedback="指定触发规则的工作流">
+              <n-form-item :label="$t('工作流')" required :feedback="$t('指定触发规则的工作流')">
                 <n-select
                   v-model:value="currentRule.workflow_id"
                   :options="
@@ -394,13 +395,13 @@ onMounted(async () => {
                       value: `${workflow.group_id}:${workflow.workflow_id}`
                     }))
                   "
-                  placeholder="请选择工作流"
+                  :placeholder="$t('请选择工作流')"
                 />
               </n-form-item>
-              <n-form-item label="优先级" required feedback="数值越大优先级越高，会优先被判断">
+              <n-form-item :label="$t('优先级')" required :feedback="$t('数值越大优先级越高，会优先被判断')">
                 <n-input-number v-model:value="currentRule.priority" :min="0" :max="100" />
               </n-form-item>
-              <n-form-item label="启用状态">
+              <n-form-item :label="$t('启用状态')">
                 <n-switch v-model:value="currentRule.enabled" />
               </n-form-item>
             </n-form>
@@ -410,11 +411,11 @@ onMounted(async () => {
           <div class="rule-config-form">
             <n-divider vertical />
             <div class="config-form-container">
-              <h3 class="config-title">触发条件</h3>
+              <h3 class="config-title">{{$t("触发条件")}}</h3>
               <n-scrollbar style="max-height: 400px">
                 <div class="rule-groups">
                   <div class="rule-group-header">
-                    <span class="rule-group-label">当</span>
+                    <span class="rule-group-label">{{$t("当")}}</span>
                   </div>
 
                   <div
@@ -432,7 +433,7 @@ onMounted(async () => {
                               (type) => handleRuleTypeChange(type, groupIndex, ruleIndex)
                             "
                             class="rule-type-select"
-                            placeholder="请选择规则类型"
+                            :placeholder="$t('请选择规则类型')"
                           />
                           <n-button
                             circle
@@ -468,7 +469,7 @@ onMounted(async () => {
                             </template>
                           </n-button>
                         </div>
-                        <span class="operator">或</span>
+                        <span class="operator">{{$t("或")}}</span>
                       </template>
                       <n-button dashed class="add-rule-btn" @click="addRule(groupIndex)">
                         <template #icon>
@@ -476,11 +477,11 @@ onMounted(async () => {
                             <Add />
                           </n-icon>
                         </template>
-                        添加条件
+                        {{$t("添加条件")}}
                       </n-button>
                     </div>
 
-                    <div class="group-operator">且</div>
+                    <div class="group-operator">{{$t("且")}}</div>
                   </div>
 
                   <n-button
@@ -497,7 +498,7 @@ onMounted(async () => {
                         <Add />
                       </n-icon>
                     </template>
-                    添加条件组
+                    {{$t("添加条件组")}}
                   </n-button>
                 </div>
               </n-scrollbar>
@@ -509,7 +510,7 @@ onMounted(async () => {
         <n-modal
           v-model:show="showRuleConfigModal"
           preset="dialog"
-          :title="'配置' + getRuleTypeLabel(selectedRuleType) + '规则'"
+          :title="$t('配置') + getRuleTypeLabel(selectedRuleType) + $t('规则')"
           style="width: 600px"
         >
           <dynamic-config-form
@@ -521,12 +522,12 @@ onMounted(async () => {
             @update:model-value="confirmRuleConfig"
           />
           <template #action>
-            <n-button type="primary" @click="closeRuleConfigModal"> 确定 </n-button>
+            <n-button type="primary" @click="closeRuleConfigModal"> {{$t("确定")}} </n-button>
           </template>
         </n-modal>
 
         <template #action>
-          <n-button type="primary" @click="saveRule(isCreate)"> 确定 </n-button>
+          <n-button type="primary" @click="saveRule(isCreate)"> {{$t("确定")}} </n-button>
         </template>
       </n-modal>
     </n-space>

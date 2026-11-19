@@ -11,9 +11,9 @@ onMounted(() => {
 </script>
 
 <template>
-  <n-card title="系统记录" class="settings-card">
+  <n-card :title="$t('系统记录')" class="settings-card">
     <div style="margin-bottom: 16px">
-      <n-text> 配置系统记录功能，用于调试和分析。 </n-text>
+      <n-text> {{$t("配置系统记录功能，用于调试和分析。")}} </n-text>
     </div>
     <n-spin :show="loading">
       <n-form
@@ -22,16 +22,16 @@ onMounted(() => {
         label-width="160"
         require-mark-placement="right-hanging"
       >
-        <n-form-item label="LLM请求记录时包含完整内容" path="llm_tracing_content">
+        <n-form-item :label="$t('LLM请求记录时包含完整内容')" path="llm_tracing_content">
           <n-switch v-model:value="formData.llm_tracing_content" />
           <template #feedback>
-            <n-text depth="3"> 启用后将记录所有LLM请求和响应的完整内容，可能包含敏感信息 </n-text>
+            <n-text depth="3"> {{$t("启用后将记录所有LLM请求和响应的完整内容，可能包含敏感信息")}} </n-text>
           </template>
         </n-form-item>
       </n-form>
       <div style="margin-top: 24px">
         <n-space justify="end">
-          <n-button type="primary" :loading="loading" @click="handleSubmit"> 保存配置 </n-button>
+          <n-button type="primary" :loading="loading" @click="handleSubmit"> {{$t("保存配置")}} </n-button>
         </n-space>
       </div>
     </n-spin>

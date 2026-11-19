@@ -1,3 +1,4 @@
+import { t } from '@/i18n'
 import { ref } from 'vue'
 import { http } from '@/utils/http'
 import { useMessage, useDialog } from 'naive-ui'
@@ -25,18 +26,18 @@ export function useWebViewModel() {
   const rules: FormRules = {
     host: {
       required: true,
-      message: '请输入服务地址',
+      message: t('请输入服务地址'),
       trigger: 'blur'
     },
     port: [
       {
         required: true,
-        message: '请输入服务端口',
+        message: t('请输入服务端口'),
         trigger: 'blur'
       },
       {
         validator: (rule: FormItemRule, value: number) => {
-          return (value > 0 && value < 65536) || new Error('端口号必须在1-65535之间')
+          return (value > 0 && value < 65536) || new Error(t('端口号必须在1-65535之间'))
         }
       }
     ]
@@ -51,7 +52,7 @@ export function useWebViewModel() {
       if (error.response?.data?.message) {
         message.error(error.response.data.message)
       } else {
-        message.error('获取配置失败')
+        message.error(t('获取配置失败'))
       }
     } finally {
       loading.value = false
@@ -62,11 +63,11 @@ export function useWebViewModel() {
     loading.value = true
     try {
       dialog.warning({
-        title: '修改确认',
+        title: t('修改确认'),
         content:
-          '修改Web服务配置可能会导致服务暂时不可用，修改后需要重启服务才能生效。如果配置了错误的地址或端口，可能会导致无法访问Web界面，请确认配置正确。是否继续？',
-        positiveText: '确定',
-        negativeText: '取消',
+          t('修改Web服务配置可能会导致服务暂时不可用，修改后需要重启服务才能生效。如果配置了错误的地址或端口，可能会导致无法访问Web界面，请确认配置正确。是否继续？'),
+        positiveText: t('确定'),
+        negativeText: t('取消'),
         onPositiveClick: async () => {
           try {
             const response = await http.post<{ status: string; restart_required: boolean }>(
@@ -75,13 +76,13 @@ export function useWebViewModel() {
             )
             if (response.restart_required) {
               dialog.warning({
-                title: '重启确认',
-                content: `服务将在5秒后重启，新的监听地址将为：http://${formData.value.host}:${formData.value.port}，请自行访问。`,
-                positiveText: '知道了',
+                title: t('重启确认'),
+                content: t("服务将在5秒后重启，新的监听地址将为：http://{0}:{1}，请自行访问。", [formData.value.host, formData.value.port]),
+                positiveText: t('知道了'),
                 closable: false,
                 maskClosable: false,
                 onPositiveClick: async () => {
-                  message.success('配置已保存，正在重启服务...')
+                  message.success(t('配置已保存，正在重启服务...'))
                   dialog.destroyAll()
                   await http.post('/system/restart')
                 }
@@ -91,7 +92,7 @@ export function useWebViewModel() {
             if (error.response?.data?.message) {
               message.error(error.response.data.message)
             } else {
-              message.error('保存配置失败')
+              message.error(t('保存配置失败'))
             }
           }
         }

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { t } from '@/i18n'
 import { ref, watch, computed, onMounted } from 'vue'
 import { useMessage, NModal, NCard } from 'naive-ui'
 import { llmApi } from '@/api/llm'
@@ -35,30 +36,30 @@ const currentModel = ref<ModelInfo>({
 // 根据模型类型定义不同的能力选项
 const modelAbilities: Record<string, { label: string; value: number }[]> = {
   llm: [
-    { label: '聊天对话', value: (1 << 1) + (1 << 2) + (1 << 3) },
-    { label: '图像输入', value: 1 << 4 },
-    { label: '图像输出', value: 1 << 5 },
-    { label: '音频输入', value: 1 << 6 },
-    { label: '音频输出', value: 1 << 7 },
-    { label: '函数调用', value: 1 << 8 }
+    { label: t('聊天对话'), value: (1 << 1) + (1 << 2) + (1 << 3) },
+    { label: t('图像输入'), value: 1 << 4 },
+    { label: t('图像输出'), value: 1 << 5 },
+    { label: t('音频输入'), value: 1 << 6 },
+    { label: t('音频输出'), value: 1 << 7 },
+    { label: t('函数调用'), value: 1 << 8 }
   ],
   embedding: [
-    { label: '文本嵌入', value: 1 << 1 },
-    { label: '图像嵌入', value: 1 << 2 },
-    { label: '音频嵌入', value: 1 << 3 },
-    { label: '视频嵌入', value: 1 << 4 },
-    { label: '批量调用', value: 1 << 5 }
+    { label: t('文本嵌入'), value: 1 << 1 },
+    { label: t('图像嵌入'), value: 1 << 2 },
+    { label: t('音频嵌入'), value: 1 << 3 },
+    { label: t('视频嵌入'), value: 1 << 4 },
+    { label: t('批量调用'), value: 1 << 5 }
   ],
   image_generation: [
-    { label: '文生图', value: 1 << 1 },
-    { label: '图生图', value: 1 << 2 },
-    { label: '局部重绘', value: 1 << 3 },
-    { label: '图像扩展', value: 1 << 4 },
-    { label: '图像放大', value: 1 << 5 }
+    { label: t('文生图'), value: 1 << 1 },
+    { label: t('图生图'), value: 1 << 2 },
+    { label: t('局部重绘'), value: 1 << 3 },
+    { label: t('图像扩展'), value: 1 << 4 },
+    { label: t('图像放大'), value: 1 << 5 }
   ],
   audio: [
-    { label: '音频输入', value: 1 << 6 },
-    { label: '音频输出', value: 1 << 7 }
+    { label: t('音频输入'), value: 1 << 6 },
+    { label: t('音频输出'), value: 1 << 7 }
   ]
 }
 
@@ -82,7 +83,7 @@ const fetchAdapters = async () => {
       ? adaptersResponse
       : adaptersResponse.data.backends
   } catch (error: any) {
-    $message.error(`加载适配器失败: ${error.message || error}`)
+    $message.error(t("加载适配器失败: {0}", [error.message || error]))
   }
 }
 
@@ -96,7 +97,7 @@ const fetchAdapterConfigSchema = async (adapterType: string, overrideConfig: boo
     }
     configSchema.value = configSchemaData
   } catch (error: any) {
-    $message.error(`获取适配器配置模式失败: ${error.message || error}`)
+    $message.error(t("获取适配器配置模式失败: {0}", [error.message || error]))
     configSchema.value = null
   } finally {
     loading.value = false
@@ -139,22 +140,22 @@ const isCreating = computed(() => {
 const handleSave = async () => {
   try {
     if (!currentAdapter.value?.name || !currentAdapter.value?.adapter) {
-      throw new Error('请输入完整的配置信息')
+      throw new Error(t('请输入完整的配置信息'))
     }
 
     if (isCreating.value) {
       await llmApi.createBackend(currentAdapter.value)
-      $message.success('创建成功')
+      $message.success(t('创建成功'))
     } else {
       await llmApi.updateBackend(originalAdapterName.value, currentAdapter.value)
-      $message.success('保存成功')
+      $message.success(t('保存成功'))
     }
     await fetchAdapters()
     // 更新原始名称为新名称
     originalAdapterName.value = currentAdapter.value.name
     return true
   } catch (error: any) {
-    $message.error(`保存失败: ${error.message || '未知错误'}`)
+    $message.error(t("保存失败: {0}", [error.message || t('未知错误')]))
     return false
   }
 }
@@ -163,7 +164,7 @@ const handleSave = async () => {
 const toggleEnable = async () => {
   try {
     if (!currentAdapter.value) {
-      throw new Error('当前配置为空')
+      throw new Error(t('当前配置为空'))
     }
     currentAdapter.value.enable = !currentAdapter.value.enable
     await handleSave()
@@ -187,7 +188,7 @@ const confirmAutoDetect = async () => {
       await handleSave() // 保存检测到的模型列表
     }
   } catch (error: any) {
-    $message.error(`自动检测模型失败: ${error.message || error}`)
+    $message.error(t("自动检测模型失败: {0}", [error.message || error]))
   } finally {
     autoDetectLoading.value = false
     showConfirmModal.value = false
@@ -236,7 +237,7 @@ const saveModel = (model: ModelInfo) => {
   }
 
   showModelModal.value = false
-  $message.success(`${modelEditMode.value === 'add' ? '添加' : '编辑'}模型成功`)
+  $message.success(modelEditMode.value === 'add' ? t('添加模型成功') : t('编辑模型成功'))
 }
 
 // 删除配置
@@ -247,13 +248,13 @@ const handleDelete = () => {
 const confirmDelete = async () => {
   try {
     if (!currentAdapter.value?.name) {
-      throw new Error('当前配置为空')
+      throw new Error(t('当前配置为空'))
     }
     await llmApi.deleteBackend(currentAdapter.value.name)
-    $message.success('删除成功')
+    $message.success(t('删除成功'))
     currentAdapter.value = null
   } catch (error: any) {
-    $message.error(`删除失败: ${error.message || '未知错误'}`)
+    $message.error(t("删除失败: {0}", [error.message || t('未知错误')]))
   } finally {
     await fetchAdapters()
     showDeleteConfirmModal.value = false
@@ -330,9 +331,9 @@ onMounted(() => {
   <n-modal v-model:show="showConfirmModal" class="custom-modal">
     <n-card style="width: 400px" :bordered="false" size="huge" role="dialog" aria-modal="true">
       <LLMConfirmContent
-        title="确认"
-        content="自动检测前会自动保存当前配置，请确保 API 信息正确填写，然后点击继续。"
-        confirmText="继续"
+        :title="$t('确认')"
+        :content="$t('自动检测前会自动保存当前配置，请确保 API 信息正确填写，然后点击继续。')"
+        :confirm-text="$t('继续')"
         :loading="autoDetectLoading"
         @confirm="confirmAutoDetect"
         @cancel="cancelAutoDetect"
@@ -344,9 +345,9 @@ onMounted(() => {
   <n-modal v-model:show="showDeleteConfirmModal" class="custom-modal">
     <n-card style="width: 400px" :bordered="false" size="huge" role="dialog" aria-modal="true">
       <LLMConfirmContent
-        title="确认删除"
-        content="确定要删除此配置吗？删除后将无法恢复。"
-        confirmText="删除"
+        :title="$t('确认删除')"
+        :content="$t('确定要删除此配置吗？删除后将无法恢复。')"
+        :confirm-text="$t('删除')"
         confirmType="error"
         @confirm="confirmDelete"
         @cancel="cancelDelete"
@@ -357,7 +358,7 @@ onMounted(() => {
   <!-- 添加/编辑模型模态框 -->
   <n-modal v-model:show="showModelModal" preset="card" style="width: 800px" class="custom-modal">
     <template #header>
-      {{ modelEditMode === 'add' ? '添加模型' : '编辑模型' }}
+      {{ modelEditMode === 'add' ? $t('添加模型') : $t('编辑模型') }}
     </template>
     <LLMModelForm
       :modelInfo="currentModel"

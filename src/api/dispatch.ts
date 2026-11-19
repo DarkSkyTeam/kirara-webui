@@ -1,3 +1,4 @@
+import { t } from '@/i18n'
 import { http } from '@/utils/http'
 
 export interface SimpleRule {
@@ -69,16 +70,16 @@ export const dispatchApi = {
 }
 
 const _ruleTypeLabels = {
-  prefix: '以……开头',
-  regex: '正则表达式',
-  keyword: '包含……词',
-  random: '以……概率',
-  sender: '发送者为……',
-  sender_mismatch: '发送者不为……',
-  bot_mention: '被@',
-  chat_type: '聊天类型',
-  im_instance: 'IM实例',
-  fallback: '任意输入'
+  prefix: t('以……开头'),
+  regex: t('正则表达式'),
+  keyword: t('包含……词'),
+  random: t('以……概率'),
+  sender: t('发送者为……'),
+  sender_mismatch: t('发送者不为……'),
+  bot_mention: t('被@'),
+  chat_type: t('聊天类型'),
+  im_instance: t('IM实例'),
+  fallback: t('任意输入')
 }
 export const getRuleTypeLabel = (type: string) => {
   return _ruleTypeLabels[type as keyof typeof _ruleTypeLabels] || type

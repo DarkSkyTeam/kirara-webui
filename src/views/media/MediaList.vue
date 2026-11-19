@@ -1,19 +1,19 @@
 <template>
   <div class="media-list-container">
-    <n-card title="媒体管理" class="main-card">
+    <n-card :title="$t('媒体管理')" class="main-card">
       <template #header-extra>
         <n-space>
           <n-button @click="openConfigModal" class="action-button">
             <div class="i-carbon-settings mr-1"></div>
-            配置
+            {{$t("配置")}}
           </n-button>
           <n-button @click="cleanupUnreferenced" class="action-button">
             <div class="i-carbon-document-blank mr-1"></div>
-            清理无用资源
+            {{$t("清理无用资源")}}
           </n-button>
           <n-button @click="selectAll" class="action-button">
             <div class="i-carbon-select-all mr-1"></div>
-            全选本页
+            {{$t("全选本页")}}
           </n-button>
           <n-button
             type="error"
@@ -22,33 +22,33 @@
             class="action-button"
           >
             <div class="i-carbon-trash-can mr-1"></div>
-            批量删除
+            {{$t("批量删除")}}
           </n-button>
         </n-space>
       </template>
 
       <n-space vertical size="large">
-        <p class="description">在这里可以查看所有收到和发送的媒体文件，并进行管理。</p>
+        <p class="description">{{$t("在这里可以查看所有收到和发送的媒体文件，并进行管理。")}}</p>
 
         <!-- 新增：系统信息展示 -->
-        <n-card title="系统概览" class="system-info-card" v-if="!systemInfoLoading && systemInfo">
+        <n-card :title="$t('系统概览')" class="system-info-card" v-if="!systemInfoLoading && systemInfo">
           <n-grid :cols="5" :x-gap="16" :y-gap="16">
             <n-grid-item>
-              <n-statistic label="媒体总数" :value="systemInfo.total_media_count">
+              <n-statistic :label="$t('媒体总数')" :value="systemInfo.total_media_count">
                 <template #prefix>
                   <div class="i-carbon-data-view-alt mr-1"></div>
                 </template>
               </n-statistic>
             </n-grid-item>
             <n-grid-item>
-              <n-statistic label="占用空间" :value="formatFileSize(systemInfo.total_media_size)">
+              <n-statistic :label="$t('占用空间')" :value="formatFileSize(systemInfo.total_media_size)">
                 <template #prefix>
                   <div class="i-carbon-document-size mr-1"></div>
                 </template>
               </n-statistic>
             </n-grid-item>
             <n-grid-item>
-              <n-statistic label="磁盘已用" :value="formatFileSize(systemInfo.disk_used)">
+              <n-statistic :label="$t('磁盘已用')" :value="formatFileSize(systemInfo.disk_used)">
                 <template #prefix>
                   <div class="i-carbon-chart-bar mr-1"></div>
                 </template>
@@ -56,7 +56,7 @@
               </n-statistic>
             </n-grid-item>
             <n-grid-item>
-              <n-statistic label="自动清理未引用">
+              <n-statistic :label="$t('自动清理未引用')">
                 <template #prefix>
                   <div class="i-carbon-clean mr-1"></div>
                 </template>
@@ -64,20 +64,20 @@
                   :type="systemInfo.auto_remove_unreferenced ? 'success' : 'warning'"
                   size="small"
                 >
-                  {{ systemInfo.auto_remove_unreferenced ? '已启用' : '已禁用' }}
+                  {{ systemInfo.auto_remove_unreferenced ? $t('已启用') : $t('已禁用') }}
                 </n-tag>
-                <template #suffix> ({{ systemInfo.cleanup_duration }} 天) </template>
+                <template #suffix> ({{ systemInfo.cleanup_duration }} {{$t("天)")}} </template>
               </n-statistic>
             </n-grid-item>
             <n-grid-item>
-              <n-statistic label="上次清理时间">
+              <n-statistic :label="$t('上次清理时间')">
                 <template #prefix>
                   <div class="i-carbon-time mr-1"></div>
                 </template>
                 {{
                   systemInfo.last_cleanup_time && systemInfo.last_cleanup_time > 0
                     ? formatDateTime(systemInfo.last_cleanup_time)
-                    : '从未执行'
+                    : $t('从未执行')
                 }}
               </n-statistic>
             </n-grid-item>
@@ -86,12 +86,12 @@
         <n-spin v-if="systemInfoLoading" size="small" class="system-info-loading" />
 
         <!-- 搜索条件 -->
-        <n-card title="搜索条件" class="search-card">
+        <n-card :title="$t('搜索条件')" class="search-card">
           <n-grid :cols="4" :x-gap="16">
             <n-grid-item>
               <n-input
                 v-model:value="searchParams.query"
-                placeholder="搜索关键词"
+                :placeholder="$t('搜索关键词')"
                 clearable
                 class="search-input"
               >
@@ -103,7 +103,7 @@
             <n-grid-item>
               <n-select
                 v-model:value="searchParams.content_type"
-                placeholder="媒体类型"
+                :placeholder="$t('媒体类型')"
                 :options="contentTypeOptions"
                 clearable
                 class="search-select"
@@ -123,11 +123,11 @@
               <n-space justify="end">
                 <n-button @click="resetSearch" class="reset-button">
                   <div class="i-carbon-reset mr-1"></div>
-                  重置
+                  {{$t("重置")}}
                 </n-button>
                 <n-button type="primary" @click="handleSearch" class="search-button">
                   <div class="i-carbon-search mr-1"></div>
-                  搜索
+                  {{$t("搜索")}}
                 </n-button>
               </n-space>
             </n-grid-item>
@@ -202,7 +202,7 @@
 
         <n-empty
           v-if="!loading && mediaList.length === 0"
-          description="暂无媒体文件"
+          :description="$t('暂无媒体文件')"
           class="empty-state"
         >
           <template #icon>
@@ -233,7 +233,7 @@
       preset="card"
       class="preview-modal"
       :style="{ width: '900px' }"
-      title="媒体预览"
+      :title="$t('媒体预览')"
       :mask-closable="false"
       :show-footer="false"
     >
@@ -259,43 +259,43 @@
                 controls
                 class="preview-audio"
               ></audio>
-              <n-card v-else title="无法预览" size="small" class="preview-fallback">
+              <n-card v-else :title="$t('无法预览')" size="small" class="preview-fallback">
                 <div class="i-carbon-document-unknown text-6xl mb-4"></div>
                 <n-button @click="downloadMedia(previewItem)" class="download-button">
                   <div class="i-carbon-download mr-1"></div>
-                  下载文件
+                  {{$t("下载文件")}}
                 </n-button>
               </n-card>
             </div>
           </n-grid-item>
           <n-grid-item>
             <div class="media-preview-metadata">
-              <n-descriptions title="文件信息" :column="1" class="preview-info">
-                <n-descriptions-item label="文件名">
+              <n-descriptions :title="$t('文件信息')" :column="1" class="preview-info">
+                <n-descriptions-item :label="$t('文件名')">
                   <div class="flex items-center">
                     <div class="i-carbon-document mr-2"></div>
                     {{ previewItem.metadata.filename }}
                   </div>
                 </n-descriptions-item>
-                <n-descriptions-item label="大小">
+                <n-descriptions-item :label="$t('大小')">
                   <div class="flex items-center">
                     <div class="i-carbon-document-size mr-2"></div>
                     {{ formatFileSize(previewItem.metadata.size) }}
                   </div>
                 </n-descriptions-item>
-                <n-descriptions-item label="类型">
+                <n-descriptions-item :label="$t('类型')">
                   <div class="flex items-center">
                     <div class="i-carbon-image-service mr-2"></div>
                     {{ previewItem.metadata.content_type }}
                   </div>
                 </n-descriptions-item>
-                <n-descriptions-item label="上传时间">
+                <n-descriptions-item :label="$t('上传时间')">
                   <div class="flex items-center">
                     <div class="i-carbon-time mr-2"></div>
                     {{ formatDateTime(previewItem.metadata.upload_time) }}
                   </div>
                 </n-descriptions-item>
-                <n-descriptions-item label="来源" v-if="previewItem.metadata.source">
+                <n-descriptions-item :label="$t('来源')" v-if="previewItem.metadata.source">
                   <div class="flex items-center">
                     <div class="i-carbon-information-source mr-2"></div>
                     {{ previewItem.metadata.source }}
@@ -306,7 +306,7 @@
               <div class="preview-actions">
                 <n-button @click="downloadMedia(previewItem)" class="preview-action-button">
                   <div class="i-carbon-download mr-1"></div>
-                  下载
+                  {{$t("下载")}}
                 </n-button>
                 <n-button
                   type="error"
@@ -314,11 +314,11 @@
                   class="preview-action-button"
                 >
                   <div class="i-carbon-trash-can mr-1"></div>
-                  删除
+                  {{$t("删除")}}
                 </n-button>
                 <n-button @click="showPreviewModal = false" class="preview-action-button">
                   <div class="i-carbon-close mr-1"></div>
-                  关闭
+                  {{$t("关闭")}}
                 </n-button>
               </div>
             </div>
@@ -326,7 +326,7 @@
         </n-grid>
 
         <!-- 引用列表表格 -->
-        <n-divider>引用列表</n-divider>
+        <n-divider>{{$t("引用列表")}}</n-divider>
         <div class="references-table-container">
           <n-data-table
             :columns="referenceColumns"
@@ -345,24 +345,24 @@
     <n-modal
       v-model:show="showConfigModal"
       preset="card"
-      title="媒体配置"
+      :title="$t('媒体配置')"
       :style="{ width: '500px' }"
       :mask-closable="false"
     >
       <n-space vertical>
-        <n-form-item label="自动清理未引用资源">
+        <n-form-item :label="$t('自动清理未引用资源')">
           <n-switch v-model:value="configAutoRemoveUnreferenced" />
         </n-form-item>
-        <n-form-item label="未引用资源保留天数" v-if="configAutoRemoveUnreferenced">
-          <n-input-number v-model:value="configCleanupDuration" :min="1" placeholder="输入天数">
-            <template #suffix>天</template>
+        <n-form-item :label="$t('未引用资源保留天数')" v-if="configAutoRemoveUnreferenced">
+          <n-input-number v-model:value="configCleanupDuration" :min="1" :placeholder="$t('输入天数')">
+            <template #suffix>{{$t("天")}}</template>
           </n-input-number>
         </n-form-item>
       </n-space>
       <template #footer>
         <n-space justify="end">
-          <n-button @click="showConfigModal = false">取消</n-button>
-          <n-button type="primary" @click="saveConfig">保存</n-button>
+          <n-button @click="showConfigModal = false">{{$t("取消")}}</n-button>
+          <n-button type="primary" @click="saveConfig">{{$t("保存")}}</n-button>
         </n-space>
       </template>
     </n-modal>
@@ -370,6 +370,7 @@
 </template>
 
 <script setup lang="ts">
+import { t } from '@/i18n'
 import { onMounted, h, computed } from 'vue'
 import {
   NCard,
@@ -469,13 +470,13 @@ const handlePageSizeChange = (pageSize: number) => {
 // 获取媒体类型标签
 const getMediaTypeLabel = (contentType: string) => {
   if (contentType.startsWith('image/')) {
-    return '图片'
+    return t('图片')
   } else if (contentType.startsWith('video/')) {
-    return '视频'
+    return t('视频')
   } else if (contentType.startsWith('audio/')) {
-    return '音频'
+    return t('音频')
   } else {
-    return '文件'
+    return t('文件')
   }
 }
 
@@ -488,19 +489,19 @@ const referenceColumns = [
     render: (_: ReferenceRow, index: number) => index + 1
   },
   {
-    title: '引用模块',
+    title: t('引用模块'),
     key: 'module',
     width: 150
   },
   {
-    title: '引用 key',
+    title: t('引用 key'),
     key: 'key',
     ellipsis: {
       tooltip: true
     }
   },
   {
-    title: '操作',
+    title: t('操作'),
     key: 'actions',
     width: 150,
     render: (row: ReferenceRow) => {
@@ -520,7 +521,7 @@ const referenceColumns = [
                 }
               },
               {
-                default: () => [h('div', { class: 'i-carbon-view mr-1' }), '查看']
+                default: () => [h('div', { class: 'i-carbon-view mr-1' }), t('查看')]
               }
             ),
             h(
@@ -535,7 +536,7 @@ const referenceColumns = [
                 }
               },
               {
-                default: () => [h('div', { class: 'i-carbon-trash-can mr-1' }), '删除']
+                default: () => [h('div', { class: 'i-carbon-trash-can mr-1' }), t('删除')]
               }
             )
           ]

@@ -1,3 +1,4 @@
+import { t } from '@/i18n'
 import { compare as semverCompare } from 'semver'
 
 export const version = {
@@ -19,7 +20,7 @@ export const version = {
       const result = semverCompare(version1, version2)
       return result === null ? 0 : result
     } catch (error) {
-      console.error('版本号格式错误', error)
+      console.error(t('版本号格式错误'), error)
       return 0
     }
   }

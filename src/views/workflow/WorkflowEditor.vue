@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { t } from '@/i18n'
 import { ref, onMounted } from 'vue'
 import { routerKey, useRoute, useRouter } from 'vue-router'
 import { useMessage, NSpin } from 'naive-ui'
@@ -58,21 +59,21 @@ const handleSave = async (workflowName: string, workflowDesc: string, newWorkflo
       blocks.value = data.blocks
       wires.value = data.wires
       // 更新页面标题
-      document.title = `工作流 - ${data.name}`
-      message.success('保存成功')
+      document.title = t("工作流 - {0}", [data.name])
+      message.success(t('保存成功'))
     } else {
       await createWorkflow(data.group_id, data.workflow_id, data)
       groupId.value = data.group_id
       workflowId.value = data.workflow_id
       description.value = data.description
       name.value = data.name
-      document.title = `工作流 - ${data.name}`
-      message.success('创建成功')
+      document.title = t("工作流 - {0}", [data.name])
+      message.success(t('创建成功'))
       router.push(`/workflow/editor/${data.group_id}:${data.workflow_id}`)
     }
   } catch (error: any) {
-    message.error('保存失败')
-    error.value = error.message || '保存失败'
+    message.error(t('保存失败'))
+    error.value = error.message || t('保存失败')
   } finally {
     saving.value = false
   }
@@ -94,10 +95,10 @@ const fetchWorkflow = async () => {
     blocks.value = data.blocks
     wires.value = data.wires
     // 更新页面标题
-    document.title = `工作流 - ${data.name}`
+    document.title = t("工作流 - {0}", [data.name])
   } catch (error: any) {
-    message.error('获取工作流失败')
-    error.value = error.message || '获取工作流失败'
+    message.error(t('获取工作流失败'))
+    error.value = error.message || t('获取工作流失败')
   } finally {
     loading.value = false
   }
@@ -108,7 +109,7 @@ const fetchBlockTypes = async () => {
     const { types } = await listBlockTypes()
     blockTypes.value = types
   } catch (error) {
-    message.error('获取区块类型失败')
+    message.error(t('获取区块类型失败'))
   }
 }
 

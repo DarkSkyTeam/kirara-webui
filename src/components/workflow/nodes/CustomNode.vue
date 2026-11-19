@@ -100,21 +100,21 @@ const isValidConnection = (connection: Connection) => {
                 class="config-badge"
                 :class="data.config?.[config.name] ? 'config-badge-true' : 'config-badge-false'"
               >
-                {{ data.config?.[config.name] ? '是' : '否' }}
+                {{ data.config?.[config.name] ? $t('是') : $t('否') }}
               </span>
             </template>
 
             <!-- 字符串类型配置预览 -->
             <template v-else-if="config.type === 'str'">
-              <span class="config-value-text" :title="data.config?.[config.name] || '未设置'">
-                {{ data.config?.[config.name] || '未设置' }}
+              <span class="config-value-text" :title="data.config?.[config.name] || $t('未设置')">
+                {{ data.config?.[config.name] || $t('未设置') }}
               </span>
             </template>
 
             <!-- 数组类型配置预览 -->
             <template v-else-if="config.type.startsWith('List[') && config.type.endsWith(']')">
-              <span class="config-value-text" :title="data.config?.[config.name] || '未设置'">
-                {{ data.config?.[config.name]?.join(',') || '未设置' }}
+              <span class="config-value-text" :title="data.config?.[config.name] || $t('未设置')">
+                {{ data.config?.[config.name]?.join(',') || $t('未设置') }}
               </span>
             </template>
 

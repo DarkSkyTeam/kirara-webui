@@ -1,3 +1,4 @@
+import { t } from '@/i18n'
 import { ref } from 'vue'
 import { http } from '@/utils/http'
 import { useMessage } from 'naive-ui'
@@ -22,7 +23,7 @@ export function usePluginViewModel() {
   const rules: FormRules = {
     market_base_url: {
       required: true,
-      message: '请输入插件市场地址',
+      message: t('请输入插件市场地址'),
       trigger: 'blur'
     }
   }
@@ -36,7 +37,7 @@ export function usePluginViewModel() {
       if (error.response?.data?.message) {
         message.error(error.response.data.message)
       } else {
-        message.error('获取配置失败')
+        message.error(t('获取配置失败'))
       }
     } finally {
       loading.value = false
@@ -47,12 +48,12 @@ export function usePluginViewModel() {
     loading.value = true
     try {
       await http.post('/system/config/plugins', formData.value)
-      message.success('保存配置成功')
+      message.success(t('保存配置成功'))
     } catch (error: any) {
       if (error.response?.data?.message) {
         message.error(error.response.data.message)
       } else {
-        message.error('保存配置失败')
+        message.error(t('保存配置失败'))
       }
     } finally {
       loading.value = false

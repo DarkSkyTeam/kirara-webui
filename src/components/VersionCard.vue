@@ -16,34 +16,34 @@ const handleCheckUpdate = () => {
 </script>
 
 <template>
-  <n-card title="版本信息" :bordered="false" class="version-card">
+  <n-card :title="$t('版本信息')" :bordered="false" class="version-card">
     <n-space vertical>
       <div class="version-row">
-        <span class="version-label">WebUI 版本：</span>
+        <span class="version-label">{{$t("WebUI 版本：")}}</span>
         <n-text>{{ webUIVersion }}</n-text>
         <n-text
           v-if="appStore.updateInfo?.webui_update_available"
           type="success"
           style="margin-left: 8px"
         >
-          (有更新: {{ appStore.updateInfo?.latest_webui_version }})
+          {{$t("(有更新:")}} {{ appStore.updateInfo?.latest_webui_version }})
         </n-text>
       </div>
 
       <div class="version-row">
-        <span class="version-label">后端版本：</span>
+        <span class="version-label">{{$t("后端版本：")}}</span>
         <n-text>{{ appStore.systemStatus.version }}</n-text>
         <n-text
           v-if="appStore.updateInfo?.backend_update_available"
           type="success"
           style="margin-left: 8px"
         >
-          (有更新: {{ appStore.updateInfo?.latest_backend_version }})
+          {{$t("(有更新:")}} {{ appStore.updateInfo?.latest_backend_version }})
         </n-text>
       </div>
 
       <div style="text-align: right; margin-top: 12px">
-        <n-button type="primary" size="small" @click="handleCheckUpdate"> 检查更新 </n-button>
+        <n-button type="primary" size="small" @click="handleCheckUpdate"> {{$t("检查更新")}} </n-button>
       </div>
     </n-space>
   </n-card>
